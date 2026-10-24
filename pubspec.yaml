@@ -16,6 +16,7 @@ dependencies:
   mobile_boilerplate:
     path: ../mobile-boilerplate
   supabase: ^2.10.0
+  youtube_player_iframe: ^6.0.2
 
 dev_dependencies:
   flutter_test:
@@ -27,3 +28,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/translations/
+  fonts:
+    - family: ArchivoBlack
+      fonts:
+        - asset: assets/fonts/ArchivoBlack-Regular.ttf

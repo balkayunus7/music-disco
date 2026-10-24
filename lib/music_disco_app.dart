@@ -5,6 +5,7 @@ import 'package:mobile_boilerplate/application/color_theme/color_theme_bloc.dart
 import 'package:mobile_boilerplate/application/network_time/network_time_provider.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/core_app.dart';
+import 'package:mobile_boilerplate/domain/color_theme/color_theme_option.dart';
 import 'package:music_disco/config/app_router.dart';
 import 'package:music_disco/core/util/custom_app_colors.dart';
 import 'package:music_disco/core/util/locale_extensions.dart';
@@ -17,7 +18,11 @@ class MusicDiscoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => getIt<ColorThemeBloc>()..addStarted()),
+        BlocProvider(
+          create: (_) =>
+              getIt<ColorThemeBloc>()
+                ..addThemeSelected(colorThemeOption: ColorThemeOption.dark),
+        ),
         BlocProvider(create: (_) => getIt<AnalyticsCubit>()),
         BlocProvider(create: (_) => getIt<AuthCubit>()),
         Provider<NetworkTimeProvider>(

@@ -1,0 +1,1 @@
+enum DiscoveryDirection { stay, lift }

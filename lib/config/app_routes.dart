@@ -7,6 +7,11 @@ class AppRoutes {
   // Auth
   static const String splash = '/';
 
-  // Home
-  static const String home = '/home';
+  static const String discover = '/discover';
+  static const String direction = '$discover/direction';
+  static const String session = '$direction/session';
+
+  static const String collection = '/collection';
+
+  static const String home = discover;
 }
