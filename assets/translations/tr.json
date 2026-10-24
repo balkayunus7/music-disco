@@ -1,0 +1,11 @@
+{
+  "app_name": "Music Disco",
+  "starting": "Senin için hazırlanıyor…",
+  "welcome": "Music Disco’ya hoş geldin",
+  "home_description": "Yeni bir keşif, bir şarkıyla başlar.",
+  "guest_session": "Misafir olarak devam ediyorsun",
+  "error_title": "Bağlantı kurulamadı",
+  "error_message": "Bağlantını kontrol edip tekrar deneyebilirsin.",
+  "retry": "Tekrar dene",
+  "startup_error": "Uygulama başlatılamadı. Lütfen tekrar dene."
+}

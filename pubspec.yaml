@@ -1,0 +1,29 @@
+name: music_disco
+description: Music Disco mobile application.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.9
+
+dependencies:
+  flutter:
+    sdk: flutter
+  easy_localization: ^3.0.8
+  flutter_screenutil: ^5.9.3
+  flutter_secure_storage: ^10.0.0
+  go_router: ^17.0.0
+  mobile_boilerplate:
+    path: ../mobile-boilerplate
+  supabase: ^2.10.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  http: ^1.3.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/translations/

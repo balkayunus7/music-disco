@@ -1,0 +1,11 @@
+{
+  "app_name": "Music Disco",
+  "starting": "Getting things ready…",
+  "welcome": "Welcome to Music Disco",
+  "home_description": "A new discovery starts with a song.",
+  "guest_session": "Continuing as a guest",
+  "error_title": "We couldn’t connect",
+  "error_message": "Please check your connection and try again.",
+  "retry": "Try again",
+  "startup_error": "The app couldn’t start. Please try again."
+}
