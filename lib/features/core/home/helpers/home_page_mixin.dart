@@ -1,48 +1,55 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:music_disco/core/widgets/disc_flight.dart';
 import 'package:music_disco/features/core/home/home_page.dart';
 
 mixin HomePageMixin on State<HomePage> {
-  late final PageController pageController;
-  late final ValueNotifier<int> currentIndex;
+  /// Marks the koleksiyon tab icon so saved discs can fly into it.
+  final GlobalKey collectionTargetKey = GlobalKey();
 
-  @override
-  void initState() {
-    super.initState();
-    final initialTab = widget.arguments.initialTabIndex;
-    pageController = PageController(initialPage: initialTab);
-    currentIndex = ValueNotifier(initialTab);
-  }
+  /// Increments whenever a disc lands on the koleksiyon tab.
+  final ValueNotifier<int> landingPulse = ValueNotifier(0);
 
   @override
   void dispose() {
-    pageController.dispose();
-    currentIndex.dispose();
+    landingPulse.dispose();
     super.dispose();
   }
 
-  @override
-  void didUpdateWidget(covariant HomePage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final newArgs = widget.arguments;
-    final oldArgs = oldWidget.arguments;
-    final hasNewForceKey =
-        newArgs.forceUpdateKey != null &&
-        newArgs.forceUpdateKey != oldArgs.forceUpdateKey;
-    final hasNewTab = newArgs.initialTabIndex != oldArgs.initialTabIndex;
-    if ((hasNewForceKey || hasNewTab) &&
-        currentIndex.value != newArgs.initialTabIndex) {
-      currentIndex.value = newArgs.initialTabIndex;
-      if (pageController.hasClients) {
-        pageController.jumpToPage(currentIndex.value);
-      }
-    }
-  }
-
-  Future<void> onNavbarTap(int index) async {
+  Future<void> onNavTap(int index) async {
     await HapticFeedback.selectionClick();
     if (!mounted) return;
-    currentIndex.value = index;
-    pageController.jumpToPage(index);
+    final shell = widget.navigationShell;
+    // Tapping the active tab returns it to its first page.
+    shell.goBranch(index, initialLocation: index == shell.currentIndex);
+  }
+
+  /// Flies [disc] from [from] (a global rect) into the koleksiyon tab.
+  Future<void> flyToCollection({
+    required Rect from,
+    required Widget disc,
+  }) async {
+    final targetBox =
+        collectionTargetKey.currentContext?.findRenderObject() as RenderBox?;
+    if (targetBox == null || !targetBox.hasSize) return;
+
+    final target = targetBox.localToGlobal(Offset.zero) & targetBox.size;
+    await flyDisc(
+      context,
+      from: from,
+      to: Rect.fromCenter(
+        center: target.center,
+        width: target.width,
+        height: target.height,
+      ),
+      child: disc,
+      arcHeight: 120,
+      turns: 1,
+      fadeOnLanding: true,
+      duration: const Duration(milliseconds: 720),
+    );
+    if (!mounted) return;
+    landingPulse.value++;
+    await HapticFeedback.lightImpact();
   }
 }
