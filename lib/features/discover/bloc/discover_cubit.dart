@@ -14,7 +14,6 @@ class DiscoverCubit extends Cubit<DiscoverState> {
 
   final IDiscoveryRepository _repository;
 
-  /// Tracks rejected in this session; they are never suggested again.
   final Set<String> _rejectedIds = {};
 
   void selectMood(Mood mood) => _updatePreferences(mood: mood);
@@ -93,7 +92,6 @@ class DiscoverCubit extends Cubit<DiscoverState> {
 
   void previous() => goTo(state.currentIndex - 1);
 
-  /// Replaces the current track with a new suggestion based on [feedback].
   Future<void> rejectCurrent(TrackFeedback feedback) async {
     final current = state.currentTrack;
     if (current == null || state.isReplacing) return;
@@ -107,8 +105,12 @@ class DiscoverCubit extends Cubit<DiscoverState> {
         excludeIds: {..._rejectedIds, ...state.tracks.map((t) => t.id)},
       );
       if (isClosed) return;
+      if (replacement == null) {
+        emit(state.copyWith(isReplacing: false));
+        return;
+      }
       final tracks = [...state.tracks];
-      if (replacement != null) tracks[state.currentIndex] = replacement;
+      tracks[state.currentIndex] = replacement;
       emit(
         state.copyWith(
           tracks: tracks,
@@ -124,8 +126,6 @@ class DiscoverCubit extends Cubit<DiscoverState> {
     }
   }
 
-  /// Applies new preferences mid-round. The current and earlier tracks stay;
-  /// upcoming tracks are fetched again.
   Future<void> applyPreferences(DiscoveryPreferences preferences) async {
     emit(state.copyWith(preferences: preferences));
     if (state.status != DiscoverRoundStatus.ready) return;

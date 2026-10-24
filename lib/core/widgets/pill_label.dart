@@ -4,7 +4,6 @@ import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_e
 import 'package:music_disco/core/util/custom_app_sizes.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
 
-/// Rounded label; animates its text when [text] changes.
 class PillLabel extends StatelessWidget {
   const PillLabel({
     super.key,
@@ -15,13 +14,12 @@ class PillLabel extends StatelessWidget {
 
   final String text;
 
-  /// Strong pills use the primary text color on a raised surface.
   final bool isStrong;
   final bool dense;
 
   @override
   Widget build(BuildContext context) {
-    final style = (dense ? m14w500(context) : m16w600(context)).copyWith(
+    final style = (dense ? m13w600(context) : m14w600(context)).copyWith(
       color: isStrong
           ? context.colors.textPrimary
           : context.colors.textSecondary,

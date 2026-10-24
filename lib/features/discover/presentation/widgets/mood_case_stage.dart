@@ -1,6 +1,5 @@
 part of '../pages/mood_page.dart';
 
-/// Tilted jewel case holding today's disc, with a "SIDE A" sticker.
 class MoodCaseStage extends StatelessWidget {
   const MoodCaseStage({
     super.key,
@@ -9,7 +8,6 @@ class MoodCaseStage extends StatelessWidget {
     required this.discSize,
   });
 
-  /// Null while a disc is flying into the case.
   final Mood? mood;
   final GlobalKey discKey;
   final double discSize;
@@ -62,10 +60,13 @@ class MoodCaseStage extends StatelessWidget {
                     horizontal: Sp.medium.w,
                     vertical: Sp.small.h,
                   ),
-                  color: context.colors.surfaceSecondary,
+                  decoration: BoxDecoration(
+                    color: context.colors.surfaceSecondary,
+                    borderRadius: Sp.xsmall.radiusR,
+                  ),
                   child: Text(
                     LocaleKeys.mood_side_a.tr(),
-                    style: m14w600(
+                    style: m13w600(
                       context,
                     ).copyWith(letterSpacing: 2.4, fontWeight: FontWeight.w800),
                   ),
@@ -89,7 +90,6 @@ class _CaseDisc extends StatelessWidget {
   Widget build(BuildContext context) {
     final mood = this.mood;
     if (mood == null) return EmptyDiscSlot(size: size);
-    // A freshly landed disc keeps spinning briefly before it settles.
     return TweenAnimationBuilder<double>(
       key: ValueKey(mood),
       tween: Tween(begin: 0.12, end: 0),
@@ -101,7 +101,6 @@ class _CaseDisc extends StatelessWidget {
   }
 }
 
-/// Selected feeling name and tagline; cross-fades on change.
 class MoodCaption extends StatelessWidget {
   const MoodCaption({super.key, required this.mood});
 
@@ -127,13 +126,13 @@ class MoodCaption extends StatelessWidget {
           Text(
             mood.labelKey.tr(),
             textAlign: TextAlign.center,
-            style: m22w800(context),
+            style: m18w700(context),
           ),
           Sp.xsmall.heightBox,
           Text(
             mood.taglineKey.tr(),
             textAlign: TextAlign.center,
-            style: m14w500(
+            style: m13w500(
               context,
             ).copyWith(color: context.colors.textSecondary),
           ),

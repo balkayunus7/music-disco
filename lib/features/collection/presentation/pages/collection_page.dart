@@ -21,7 +21,6 @@ import 'package:music_disco/features/discover/presentation/widgets/mood_disc.dar
 
 part '../widgets/collection_grid.dart';
 
-/// Songs that stayed with the listener.
 class CollectionPage extends StatefulWidget {
   const CollectionPage({super.key});
 
@@ -50,7 +49,6 @@ class _CollectionPageState extends State<CollectionPage>
     );
     return BrandPageBody(
       children: [
-        Sp.xxlarge.heightBox,
         EyebrowText(LocaleKeys.collection_eyebrow.tr()),
         Sp.large.heightBox,
         DisplayHeadline(
@@ -60,7 +58,7 @@ class _CollectionPageState extends State<CollectionPage>
         Sp.medium.heightBox,
         Text(
           LocaleKeys.collection_subtitle.tr(),
-          style: m15w500(context).copyWith(color: context.colors.textSecondary),
+          style: m14w500(context).copyWith(color: context.colors.textSecondary),
         ),
         Sp.xxlarge.heightBox,
         if (tracks.isEmpty)

@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-/// Forward navigation inside a tab: the new page fades in while sliding a
-/// short distance from the right; the old page fades back slightly.
 CustomTransitionPage<void> sharedAxisPage({
   required GoRouterState state,
   required Widget child,
@@ -46,7 +44,6 @@ CustomTransitionPage<void> sharedAxisPage({
   );
 }
 
-/// Root of a tab; tab switches are animated by the shell container instead.
 NoTransitionPage<void> tabRootPage({
   required GoRouterState state,
   required Widget child,

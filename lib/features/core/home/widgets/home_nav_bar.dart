@@ -26,7 +26,7 @@ class HomeNavBar extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: Sp.xlarge.w,
-            vertical: Sp.medium.h,
+            vertical: Sp.small.h,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -36,12 +36,11 @@ class HomeNavBar extends StatelessWidget {
                 isSelected: currentIndex == 0,
                 onTap: () => onTap(0),
                 iconBuilder: (color) =>
-                    Icon(Icons.album_outlined, color: color, size: Sp.xlarge.r),
+                    Icon(Icons.album_outlined, color: color, size: Sp.large.r),
               ),
               ValueListenableBuilder<int>(
                 valueListenable: landingPulse,
                 builder: (context, pulse, child) {
-                  // Restarting the tween on every landing gives a small bounce.
                   return TweenAnimationBuilder<double>(
                     key: ValueKey(pulse),
                     tween: Tween(begin: pulse == 0 ? 1 : 1.12, end: 1),
@@ -64,7 +63,7 @@ class HomeNavBar extends StatelessWidget {
                     iconBuilder: (color) => ShelfIcon(
                       key: collectionTargetKey,
                       color: color,
-                      size: Sp.xlarge.r,
+                      size: Sp.large.r,
                     ),
                     badge: _CountBadge(count: count),
                   ),
@@ -110,7 +109,7 @@ class _NavItem extends StatelessWidget {
           curve: Curves.easeOutCubic,
           padding: EdgeInsets.symmetric(
             horizontal: Sp.medium.w,
-            vertical: Sp.small.h + Sp.tiny.h,
+            vertical: Sp.small.h,
           ),
           decoration: BoxDecoration(
             color: isSelected
@@ -125,7 +124,7 @@ class _NavItem extends StatelessWidget {
               iconBuilder(color),
               AnimatedDefaultTextStyle(
                 duration: 260.ms,
-                style: m18w700(context).copyWith(color: color),
+                style: m14w700(context).copyWith(color: color),
                 child: Text(label),
               ),
               ?badge,
@@ -145,10 +144,10 @@ class _CountBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints(minWidth: Sp.xxlarge.r),
+      constraints: BoxConstraints(minWidth: Sp.xlarge.r),
       padding: EdgeInsets.symmetric(
-        horizontal: Sp.xsmall.w,
-        vertical: Sp.xsmall.h,
+        horizontal: Sp.xsmall.w - 2,
+        vertical: Sp.tiny.h,
       ),
       decoration: BoxDecoration(
         color: context.colors.surfaceSecondary,
@@ -164,7 +163,7 @@ class _CountBadge extends StatelessWidget {
           '$count',
           key: ValueKey(count),
           textAlign: TextAlign.center,
-          style: m14w600(context),
+          style: m12w600(context),
         ),
       ),
     );

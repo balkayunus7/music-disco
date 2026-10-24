@@ -1,6 +1,5 @@
 part of '../pages/session_page.dart';
 
-/// The round's discs; the current one is ringed and the rest are dimmed.
 class SessionDiscStrip extends StatelessWidget {
   const SessionDiscStrip({
     super.key,
@@ -13,10 +12,8 @@ class SessionDiscStrip extends StatelessWidget {
   final List<Track> tracks;
   final int currentIndex;
 
-  /// Null disables selection.
   final ValueChanged<int>? onSelected;
 
-  /// Null when there is no previous track.
   final VoidCallback? onPrevious;
 
   @override
@@ -35,7 +32,7 @@ class SessionDiscStrip extends StatelessWidget {
               child: Icon(
                 Icons.chevron_left_rounded,
                 color: context.colors.textSecondary,
-                size: Sp.xxlarge.r,
+                size: Sp.large.r,
               ),
             ),
           ),
@@ -86,19 +83,19 @@ class _StripDisc extends StatelessWidget {
         curve: Curves.easeOutBack,
         child: AnimatedContainer(
           duration: 260.ms,
-          padding: Sp.tiny.padAllR,
+          padding: 3.padAllR,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
               color: isCurrent
                   ? context.colors.textPrimary.withValues(alpha: 0.8)
                   : context.colors.textPrimary.withValues(alpha: 0),
-              width: 1.6,
+              width: 1.2,
             ),
           ),
           child: MoodDisc(
             mood: mood,
-            size: Sp.xxxlarge.r,
+            size: Sp.xxlarge.r + Sp.xsmall.r,
             isDimmed: !isCurrent,
             hasShadow: isCurrent,
           ),

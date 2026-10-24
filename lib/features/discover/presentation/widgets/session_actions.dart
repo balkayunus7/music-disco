@@ -9,7 +9,6 @@ class SessionSaveButton extends StatelessWidget {
 
   final bool isSaved;
 
-  /// Null disables the button.
   final VoidCallback? onTap;
 
   @override
@@ -25,17 +24,14 @@ class SessionSaveButton extends StatelessWidget {
         child: AnimatedContainer(
           duration: 260.ms,
           curve: Curves.easeOutCubic,
-          height: Sp.huge.h + Sp.xsmall.h,
+          height: Sp.xxxlarge.h - Sp.tiny.h,
+          padding: Sp.large.padHR,
           decoration: BoxDecoration(
             color: isSaved
-                ? context.colors.surfaceSecondary
-                : context.colors.surface,
+                ? context.colors.buttonSecondary
+                : context.colors.buttonSecondary.withValues(alpha: 0),
             borderRadius: Sp.huge.radiusR,
-            border: Border.all(
-              color: isSaved
-                  ? context.colors.border
-                  : context.colors.textDisabled.withValues(alpha: 0.5),
-            ),
+            border: Border.all(color: context.colors.border),
           ),
           child: AnimatedSwitcher(
             duration: 220.ms,
@@ -48,22 +44,15 @@ class SessionSaveButton extends StatelessWidget {
             ),
             child: Row(
               key: ValueKey(isSaved),
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: Sp.small.w,
+              mainAxisSize: MainAxisSize.min,
+              spacing: Sp.xsmall.w,
               children: [
                 Icon(
                   isSaved ? Icons.check_rounded : Icons.add_rounded,
                   color: context.colors.textPrimary,
-                  size: Sp.xlarge.r,
+                  size: Sp.medium.r,
                 ),
-                Flexible(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: m18w700(context),
-                  ),
-                ),
+                Text(label, maxLines: 1, style: m13w600(context)),
               ],
             ),
           ),
@@ -73,68 +62,6 @@ class SessionSaveButton extends StatelessWidget {
   }
 }
 
-class SessionNextButton extends StatelessWidget {
-  const SessionNextButton({
-    super.key,
-    required this.isLast,
-    required this.onTap,
-  });
-
-  /// On the last track the button finishes the round.
-  final bool isLast;
-
-  /// Null disables the button.
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final label = isLast
-        ? LocaleKeys.session_finish.tr()
-        : LocaleKeys.session_next.tr();
-    final foreground = context.colors.textOnPrimary;
-    return Pressable(
-      onTap: onTap,
-      semanticLabel: label,
-      child: ExcludeSemantics(
-        child: AnimatedContainer(
-          duration: 200.ms,
-          height: Sp.huge.h + Sp.xsmall.h,
-          decoration: BoxDecoration(
-            color: onTap == null
-                ? context.colors.buttonDisabled
-                : context.colors.buttonPrimary,
-            borderRadius: Sp.huge.radiusR,
-          ),
-          child: AnimatedSwitcher(
-            duration: 240.ms,
-            child: Row(
-              key: ValueKey(isLast),
-              mainAxisAlignment: MainAxisAlignment.center,
-              spacing: Sp.small.w,
-              children: [
-                Flexible(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: m18w700(context).copyWith(color: foreground),
-                  ),
-                ),
-                Icon(
-                  Icons.arrow_forward_rounded,
-                  color: foreground,
-                  size: Sp.xlarge.r,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Low-emphasis action under the main buttons; outlined while [isActive].
 class SessionGhostAction extends StatelessWidget {
   const SessionGhostAction({
     super.key,
@@ -147,12 +74,14 @@ class SessionGhostAction extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  /// Null disables the action.
   final VoidCallback? onTap;
   final bool isActive;
 
   @override
   Widget build(BuildContext context) {
+    final color = isActive
+        ? context.colors.textPrimary
+        : context.colors.textSecondary;
     return Pressable(
       onTap: onTap,
       selected: isActive,
@@ -160,34 +89,25 @@ class SessionGhostAction extends StatelessWidget {
       child: ExcludeSemantics(
         child: AnimatedContainer(
           duration: 240.ms,
-          height: Sp.huge.h,
+          height: Sp.xxlarge.h + Sp.tiny.h,
+          padding: Sp.small.padHR,
           decoration: BoxDecoration(
             borderRadius: Sp.huge.radiusR,
             border: Border.all(
               color: isActive
-                  ? context.colors.textPrimary
-                  : context.colors.textPrimary.withValues(alpha: 0),
-              width: 1.6,
+                  ? context.colors.border
+                  : context.colors.border.withValues(alpha: 0),
             ),
           ),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: Sp.small.w,
+            mainAxisSize: MainAxisSize.min,
+            spacing: Sp.tiny.w + 2,
             children: [
-              Icon(
-                icon,
-                color: context.colors.textSecondary,
-                size: Sp.xlarge.r,
-              ),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: m16w600(
-                    context,
-                  ).copyWith(color: context.colors.textSecondary),
-                ),
+              Icon(icon, color: color, size: Sp.small.r + 2),
+              Text(
+                label,
+                maxLines: 1,
+                style: m12w600(context).copyWith(color: color),
               ),
             ],
           ),
@@ -197,7 +117,6 @@ class SessionGhostAction extends StatelessWidget {
   }
 }
 
-/// "Neyi değiştirelim?" chips revealed by "bana uymadı".
 class SessionFeedbackPanel extends StatelessWidget {
   const SessionFeedbackPanel({
     super.key,
@@ -223,28 +142,26 @@ class SessionFeedbackPanel extends StatelessWidget {
       child: !isOpen
           ? const SizedBox(width: double.infinity)
           : Padding(
-              padding: Sp.medium.padTopR,
+              padding: Sp.small.padTopR,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     LocaleKeys.session_what_to_change.tr(),
-                    style: m16w600(context).copyWith(
-                      color: context.colors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: m12w500(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                   ),
-                  Sp.small.heightBox,
-                  Row(
+                  Sp.xsmall.heightBox,
+                  Wrap(
+                    alignment: WrapAlignment.center,
                     spacing: Sp.xsmall.w,
+                    runSpacing: Sp.xsmall.h,
                     children: [
                       for (final (index, feedback) in _options.indexed)
-                        Expanded(
-                          child: _FeedbackChip(
-                            label: feedback.labelKey.tr(),
-                            delayIndex: index,
-                            onTap: () => onSelected(feedback),
-                          ),
+                        _FeedbackChip(
+                          label: feedback.labelKey.tr(),
+                          delayIndex: index,
+                          onTap: () => onSelected(feedback),
                         ),
                     ],
                   ),
@@ -264,7 +181,6 @@ class _FeedbackChip extends StatelessWidget {
 
   final String label;
 
-  /// Position in the row; later chips arrive slightly later.
   final int delayIndex;
   final VoidCallback onTap;
 
@@ -285,9 +201,9 @@ class _FeedbackChip extends StatelessWidget {
         onTap: onTap,
         semanticLabel: label,
         child: Container(
-          height: Sp.huge.h,
+          height: Sp.xxlarge.h + Sp.tiny.h,
           alignment: Alignment.center,
-          padding: Sp.xsmall.padHR,
+          padding: Sp.medium.padHR,
           decoration: BoxDecoration(
             color: context.colors.surface,
             borderRadius: Sp.huge.radiusR,
@@ -297,7 +213,7 @@ class _FeedbackChip extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: m15w500(context),
+              style: m12w600(context),
             ),
           ),
         ),
@@ -328,7 +244,7 @@ class SessionNoticeText extends StatelessWidget {
               child: Text(
                 text,
                 textAlign: TextAlign.center,
-                style: m14w500(
+                style: m12w500(
                   context,
                 ).copyWith(color: context.colors.textDisabled),
               ),

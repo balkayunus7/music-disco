@@ -7,7 +7,6 @@ import 'package:music_disco/core/util/custom_app_sizes.dart';
 import 'package:music_disco/core/util/locale_keys.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 
-/// Arrow that pops the current page of the tab.
 class PageBackButton extends StatelessWidget {
   const PageBackButton({super.key});
 
@@ -17,11 +16,11 @@ class PageBackButton extends StatelessWidget {
       onTap: () => context.pop(),
       semanticLabel: LocaleKeys.back.tr(),
       child: Padding(
-        padding: Sp.xsmall.padAllR,
+        padding: Sp.xsmall.padOnlyR(t: true, b: true, r: true),
         child: Icon(
           Icons.arrow_back_rounded,
           color: context.colors.textPrimary,
-          size: Sp.xlarge.r + 2,
+          size: Sp.large.r,
         ),
       ),
     );

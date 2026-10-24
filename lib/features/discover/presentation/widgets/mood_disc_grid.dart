@@ -92,10 +92,10 @@ class _MoodSlot extends StatelessWidget {
             AnimatedSwitcher(
               duration: 220.ms,
               child: isSelected
-                  ? PillLabel(
+                  ? FittedBox(
                       key: const ValueKey('pill'),
-                      text: mood.labelKey.tr(),
-                      dense: true,
+                      fit: BoxFit.scaleDown,
+                      child: PillLabel(text: mood.labelKey.tr(), dense: true),
                     )
                   : Padding(
                       key: const ValueKey('plain'),
@@ -104,7 +104,7 @@ class _MoodSlot extends StatelessWidget {
                         mood.labelKey.tr(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: m14w500(
+                        style: m13w600(
                           context,
                         ).copyWith(color: context.colors.textSecondary),
                       ),

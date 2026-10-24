@@ -11,8 +11,6 @@ import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
 import 'package:music_disco/features/discover/presentation/widgets/mood_disc.dart';
 
-/// Three-stop slider whose thumb is the selected disc. The disc spins while it
-/// is dragged and settles on the nearest stop when released.
 class DistanceSlider extends StatefulWidget {
   const DistanceSlider({
     super.key,
@@ -31,7 +29,6 @@ class DistanceSlider extends StatefulWidget {
 
 class _DistanceSliderState extends State<DistanceSlider>
     with SingleTickerProviderStateMixin {
-  /// Thumb position on the track, 0–1.
   late final AnimationController _position = AnimationController(
     vsync: this,
     value: widget.value.fraction,
@@ -114,7 +111,7 @@ class _DistanceSliderState extends State<DistanceSlider>
       child: ExcludeSemantics(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final thumbSize = Sp.huge.r + Sp.small.r;
+            final thumbSize = Sp.xxlarge.r + Sp.xsmall.r;
             final travel = constraints.maxWidth - thumbSize;
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -125,7 +122,7 @@ class _DistanceSliderState extends State<DistanceSlider>
               onHorizontalDragCancel: _onDragEnd,
               onTapUp: (details) => _onTapTrack(details, thumbSize, travel),
               child: SizedBox(
-                height: thumbSize + Sp.large.h,
+                height: thumbSize + Sp.small.h,
                 child: AnimatedBuilder(
                   animation: _position,
                   builder: (context, _) => Stack(
@@ -176,13 +173,13 @@ class _Thumb extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      padding: (Sp.tiny + 1).padAllR,
+      padding: 2.5.padAllR,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: context.colors.background,
         border: Border.all(
           color: context.colors.textPrimary.withValues(alpha: 0.85),
-          width: 2.5,
+          width: 1.6,
         ),
         boxShadow: [
           BoxShadow(color: context.colors.overlay, blurRadius: Sp.medium.r),
@@ -190,7 +187,7 @@ class _Thumb extends StatelessWidget {
       ),
       child: MoodDisc(
         mood: mood,
-        size: size - (Sp.tiny + 1).r * 2 - 5,
+        size: size - 2.5.r * 2 - 3.2,
         turns: turns,
         hasShadow: false,
       ),
@@ -235,7 +232,7 @@ class _TrackPainter extends CustomPainter {
     for (final stop in stops) {
       canvas.drawCircle(
         Offset(start + width * stop, y),
-        6,
+        4,
         Paint()..color = stop <= progress + 0.001 ? activeColor : lineColor,
       );
     }
@@ -244,8 +241,8 @@ class _TrackPainter extends CustomPainter {
       ..color = tickColor
       ..strokeWidth = 1.5;
     final tickTop = y + inset * 0.45;
-    for (var x = start; x <= end; x += 10) {
-      canvas.drawLine(Offset(x, tickTop), Offset(x, tickTop + 14), tick);
+    for (var x = start; x <= end; x += 9) {
+      canvas.drawLine(Offset(x, tickTop), Offset(x, tickTop + 10), tick);
     }
   }
 
@@ -257,13 +254,12 @@ class _TrackPainter extends CustomPainter {
   }
 }
 
-/// "zevkime yakın … hiç bilmediğim" captions under the slider.
 class DistanceSliderLabels extends StatelessWidget {
   const DistanceSliderLabels({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final style = m14w500(
+    final style = m13w500(
       context,
     ).copyWith(color: context.colors.textSecondary);
     return Row(

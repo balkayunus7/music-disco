@@ -4,10 +4,8 @@ import 'package:music_disco/core/widgets/disc_flight.dart';
 import 'package:music_disco/features/core/home/home_page.dart';
 
 mixin HomePageMixin on State<HomePage> {
-  /// Marks the koleksiyon tab icon so saved discs can fly into it.
   final GlobalKey collectionTargetKey = GlobalKey();
 
-  /// Increments whenever a disc lands on the koleksiyon tab.
   final ValueNotifier<int> landingPulse = ValueNotifier(0);
 
   @override
@@ -20,11 +18,9 @@ mixin HomePageMixin on State<HomePage> {
     await HapticFeedback.selectionClick();
     if (!mounted) return;
     final shell = widget.navigationShell;
-    // Tapping the active tab returns it to its first page.
     shell.goBranch(index, initialLocation: index == shell.currentIndex);
   }
 
-  /// Flies [disc] from [from] (a global rect) into the koleksiyon tab.
   Future<void> flyToCollection({
     required Rect from,
     required Widget disc,

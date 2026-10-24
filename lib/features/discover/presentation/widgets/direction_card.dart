@@ -1,7 +1,5 @@
 part of '../pages/direction_page.dart';
 
-/// A/B card: the disc rolls between "eşlik" and "enerji" while the waveform
-/// grows with the energy of the chosen direction.
 class DirectionCard extends StatelessWidget {
   const DirectionCard({
     super.key,
@@ -18,12 +16,7 @@ class DirectionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isStay = direction == DiscoveryDirection.stay;
     return Container(
-      padding: EdgeInsets.fromLTRB(
-        Sp.large.w,
-        Sp.xlarge.h,
-        Sp.large.w,
-        Sp.large.h,
-      ),
+      padding: Sp.medium.padAllR,
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: Sp.xxlarge.radiusR,
@@ -32,7 +25,7 @@ class DirectionCard extends StatelessWidget {
       child: Column(
         children: [
           _DiscRail(mood: mood, isStay: isStay),
-          Sp.medium.heightBox,
+          Sp.small.heightBox,
           Row(
             children: [
               Expanded(
@@ -50,15 +43,14 @@ class DirectionCard extends StatelessWidget {
               ),
             ],
           ),
-          Sp.xlarge.heightBox,
+          Sp.medium.heightBox,
           Row(
-            spacing: Sp.small.w,
+            spacing: Sp.xsmall.w,
             children: [
               Expanded(
                 child: DirectionOptionTile(
                   icon: Icons.repeat_rounded,
-                  firstLine: LocaleKeys.direction_stay_first.tr(),
-                  secondLine: LocaleKeys.direction_stay_second.tr(),
+                  label: DiscoveryDirection.stay.shortLabelKey.tr(),
                   isSelected: isStay,
                   onTap: () => onSelected(DiscoveryDirection.stay),
                 ),
@@ -66,22 +58,21 @@ class DirectionCard extends StatelessWidget {
               Expanded(
                 child: DirectionOptionTile(
                   icon: Icons.graphic_eq_rounded,
-                  firstLine: LocaleKeys.direction_lift_first.tr(),
-                  secondLine: LocaleKeys.direction_lift_second.tr(),
+                  label: DiscoveryDirection.lift.shortLabelKey.tr(),
                   isSelected: !isStay,
                   onTap: () => onSelected(DiscoveryDirection.lift),
                 ),
               ),
             ],
           ),
-          Sp.medium.heightBox,
+          Sp.small.heightBox,
           AnimatedSwitcher(
             duration: 240.ms,
             child: Text(
               direction.captionKey.tr(),
               key: ValueKey(direction),
               textAlign: TextAlign.center,
-              style: m14w500(
+              style: m12w500(
                 context,
               ).copyWith(color: context.colors.textSecondary),
             ),
@@ -100,7 +91,7 @@ class _DiscRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final discSize = Sp.xxhuge.r + Sp.xlarge.r;
+    final discSize = Sp.xhuge.r + Sp.small.r;
     return SizedBox(
       height: discSize,
       child: Stack(
@@ -131,7 +122,6 @@ class _DiscRail extends StatelessWidget {
   }
 }
 
-/// Faint concentric rings and a large letter marking an empty side.
 class _GhostSide extends StatelessWidget {
   const _GhostSide({required this.letter, required this.size});
 
@@ -158,7 +148,7 @@ class _GhostSide extends StatelessWidget {
               ),
             Text(
               letter,
-              style: a56(context).copyWith(
+              style: a32(context).copyWith(
                 fontSize: size * 0.62,
                 color: context.colors.textPrimary.withValues(alpha: 0.06),
               ),
@@ -181,8 +171,8 @@ class _SideLabel extends StatelessWidget {
     return AnimatedDefaultTextStyle(
       duration: 240.ms,
       textAlign: TextAlign.center,
-      style: m12w600(context).copyWith(
-        letterSpacing: 2.4,
+      style: m10w700(context).copyWith(
+        letterSpacing: 2,
         color: isActive
             ? context.colors.textPrimary
             : context.colors.textDisabled,
@@ -195,28 +185,36 @@ class _SideLabel extends StatelessWidget {
 class _Waveform extends StatelessWidget {
   const _Waveform({required this.energy});
 
-  /// 0–1 multiplier for every bar.
   final double energy;
 
   static const List<double> _pattern = [
-    0.35, 0.6, 0.45, 0.9, 0.55, 1, 0.55, 0.9, 0.45, 0.6, 0.35, //
+    0.35,
+    0.6,
+    0.45,
+    0.9,
+    0.55,
+    1,
+    0.55,
+    0.9,
+    0.45,
+    0.6,
+    0.35,
   ];
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight = Sp.xxlarge.h + Sp.xsmall.h;
+    final maxHeight = Sp.large.h + Sp.tiny.h;
     return ExcludeSemantics(
       child: SizedBox(
         height: maxHeight,
         child: Row(
-          spacing: Sp.tiny.w,
+          spacing: 3.w,
           children: [
             for (final (index, height) in _pattern.indexed)
               AnimatedContainer(
-                // A small per-bar delay makes the change ripple outward.
                 duration: (280 + (index - 5).abs() * 40).ms,
                 curve: Curves.easeOutBack,
-                width: 3.w,
+                width: 2.w,
                 height: maxHeight * height * energy,
                 decoration: BoxDecoration(
                   color: energy > 0.5

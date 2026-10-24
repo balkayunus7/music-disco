@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-/// Flies [child] along an arc from [from] to [to] (global rects) in the root
-/// overlay. Completes when the flight lands and the overlay entry is removed.
 Future<void> flyDisc(
   BuildContext context, {
   required Rect from,
@@ -97,7 +95,6 @@ class _DiscFlightState extends State<_DiscFlight>
         builder: (context, child) {
           final t = _progress.value;
           final rect = Rect.lerp(widget.from, widget.to, t)!;
-          // Quadratic arc: highest point halfway through the flight.
           final lift = 4 * t * (1 - t) * widget.arcHeight;
           final opacity = widget.fadeOnLanding && t > 0.75
               ? (1 - (t - 0.75) / 0.25).clamp(0.0, 1.0)

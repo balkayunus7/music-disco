@@ -5,7 +5,6 @@ import 'package:music_disco/core/util/custom_app_sizes.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 
-/// Shows a floating confirmation with an optional underlined action.
 void showAppSnackBar(
   BuildContext context, {
   required String message,
@@ -29,7 +28,7 @@ void showAppSnackBar(
         shape: RoundedRectangleBorder(borderRadius: Sp.medium.radiusR),
         content: Row(
           children: [
-            Expanded(child: Text(message, style: m15w500(context))),
+            Expanded(child: Text(message, style: m14w500(context))),
             if (actionLabel != null && onAction != null)
               Pressable(
                 semanticLabel: actionLabel,
@@ -39,7 +38,7 @@ void showAppSnackBar(
                 },
                 child: Text(
                   actionLabel,
-                  style: m15w500(context).copyWith(
+                  style: m14w500(context).copyWith(
                     fontWeight: FontWeight.w700,
                     decoration: TextDecoration.underline,
                     decorationColor: context.colors.textPrimary,

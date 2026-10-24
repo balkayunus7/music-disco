@@ -8,7 +8,6 @@ import 'package:music_disco/features/discover/domain/models/discovery_preference
 import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/domain/models/track_feedback.dart';
 
-/// Presentation mapping for moods: copy keys and disc artwork colors.
 extension MoodStyle on Mood {
   String get labelKey => switch (this) {
     Mood.afterHours => LocaleKeys.mood_after_hours,
@@ -28,7 +27,6 @@ extension MoodStyle on Mood {
     Mood.noRules => LocaleKeys.mood_no_rules_tagline,
   };
 
-  /// Collection line printed on the disc, e.g. "ARA SOUND COLLECTION · 04".
   String get discCaption =>
       'ARA SOUND COLLECTION · ${collectionNumber.toString().padLeft(2, '0')}';
 
@@ -83,7 +81,6 @@ extension DiscoveryDirectionStyle on DiscoveryDirection {
     DiscoveryDirection.lift => LocaleKeys.direction_lift_caption,
   };
 
-  /// Relative waveform height on the direction card.
   double get energy => switch (this) {
     DiscoveryDirection.stay => 0.45,
     DiscoveryDirection.lift => 1,
@@ -108,7 +105,6 @@ extension TrackFeedbackStyle on TrackFeedback {
 }
 
 extension DiscoveryPreferencesStyle on DiscoveryPreferences {
-  /// "biraz yüksel · yükselt beni · bambaşka"
   String get summary => [
     mood.labelKey.tr(),
     direction.shortLabelKey.tr(),

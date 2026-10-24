@@ -1,44 +1,12 @@
 part of '../pages/session_page.dart';
 
-/// Player framed as a jewel case. Audio is not connected yet; play advances a
-/// local progress animation so the controls can be reviewed.
-class SessionPlayerCard extends StatefulWidget {
+class SessionPlayerCard extends StatelessWidget {
   const SessionPlayerCard({super.key, required this.track});
 
   final Track track;
 
   @override
-  State<SessionPlayerCard> createState() => _SessionPlayerCardState();
-}
-
-class _SessionPlayerCardState extends State<SessionPlayerCard>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _playback = AnimationController(
-    vsync: this,
-    duration: widget.track.duration,
-  );
-
-  @override
-  void dispose() {
-    _playback.dispose();
-    super.dispose();
-  }
-
-  void _togglePlayback() {
-    HapticFeedback.selectionClick();
-    setState(() {
-      if (_playback.isAnimating) {
-        _playback.stop();
-      } else {
-        if (_playback.isCompleted) _playback.reset();
-        _playback.forward();
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final track = widget.track;
     final captionStyle = m10w700(
       context,
     ).copyWith(color: context.colors.textDisabled, letterSpacing: 1.4);
@@ -63,39 +31,41 @@ class _SessionPlayerCardState extends State<SessionPlayerCard>
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: Sp.medium.w,
-                  vertical: Sp.medium.h,
+                  horizontal: Sp.small.w,
+                  vertical: Sp.small.h,
                 ),
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        '${track.artist} — ${track.title}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: m15w500(context),
+                      child: AnimatedSwitcher(
+                        duration: 240.ms,
+                        child: Align(
+                          key: ValueKey(track.id),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            '${track.artist} — ${track.title}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: m12w500(context),
+                          ),
+                        ),
                       ),
                     ),
                     Sp.small.widthBox,
                     Text(
                       'YouTube',
-                      style: m15w500(
+                      style: m12w600(
                         context,
                       ).copyWith(fontWeight: FontWeight.w800),
                     ),
                   ],
                 ),
               ),
-              _PlayerPreview(mood: track.mood),
-              AnimatedBuilder(
-                animation: _playback,
-                builder: (context, _) => _PlayerControls(
-                  isPlaying: _playback.isAnimating,
-                  progress: _playback.value,
-                  elapsed: formatPlaybackTime(track.duration * _playback.value),
-                  total: formatPlaybackTime(track.duration),
-                  onPlayPause: _togglePlayback,
-                ),
+              context.read<YoutubePlayerCubit>().buildView(
+                backgroundColor: context.colors.background,
+              ),
+              BlocBuilder<YoutubePlayerCubit, YoutubePlayerState>(
+                builder: (context, player) => _buildControls(context, player),
               ),
             ],
           ),
@@ -103,48 +73,29 @@ class _SessionPlayerCardState extends State<SessionPlayerCard>
       ),
     );
   }
-}
 
-class _PlayerPreview extends StatelessWidget {
-  const _PlayerPreview({required this.mood});
-
-  final Mood mood;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = mood.palette;
-    final shade = Color.lerp(palette.deep, context.colors.background, 0.55)!;
-    final light = Color.lerp(palette.light, shade, 0.55)!;
-    return AspectRatio(
-      aspectRatio: 16 / 7.5,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [shade, shade, light, shade, light, shade, shade],
-            stops: const [0, 0.3, 0.42, 0.52, 0.6, 0.7, 1],
-          ),
+  Widget _buildControls(BuildContext context, YoutubePlayerState player) {
+    if (player.hasError) {
+      return Padding(
+        padding: Sp.small.padAllR,
+        child: Text(
+          LocaleKeys.session_video_error.tr(),
+          style: m12w500(context).copyWith(color: context.colors.textSecondary),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.album_outlined,
-              color: context.colors.textPrimary.withValues(alpha: 0.8),
-              size: Sp.xxlarge.r,
-            ),
-            Sp.medium.heightBox,
-            Text(
-              LocaleKeys.session_ready_to_listen.tr(),
-              style: m15w500(context).copyWith(
-                color: context.colors.textPrimary.withValues(alpha: 0.85),
-                letterSpacing: 1,
-              ),
-            ),
-          ],
-        ),
-      ),
+      );
+    }
+
+    final cubit = context.read<YoutubePlayerCubit>();
+    return _PlayerControls(
+      isPlaying: player.isPlaying,
+      progress: player.progress,
+      elapsed: player.elapsedLabel,
+      total: player.durationLabel,
+      onPlayPause: () {
+        HapticFeedback.selectionClick();
+        cubit.togglePlay();
+      },
+      onSeek: cubit.seekToFraction,
     );
   }
 }
@@ -156,6 +107,7 @@ class _PlayerControls extends StatelessWidget {
     required this.elapsed,
     required this.total,
     required this.onPlayPause,
+    required this.onSeek,
   });
 
   final bool isPlaying;
@@ -163,17 +115,18 @@ class _PlayerControls extends StatelessWidget {
   final String elapsed;
   final String total;
   final VoidCallback onPlayPause;
+  final ValueChanged<double> onSeek;
 
   @override
   Widget build(BuildContext context) {
-    final timeStyle = m14w500(context);
+    final timeStyle = m11w600(context);
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: Sp.medium.w,
-        vertical: Sp.medium.h,
+        horizontal: Sp.small.w,
+        vertical: Sp.xsmall.h,
       ),
       child: Row(
-        spacing: Sp.small.w,
+        spacing: Sp.xsmall.w,
         children: [
           Pressable(
             onTap: onPlayPause,
@@ -188,21 +141,23 @@ class _PlayerControls extends StatelessWidget {
                 isPlaying ? Icons.pause_rounded : Icons.play_arrow_outlined,
                 key: ValueKey(isPlaying),
                 color: context.colors.textPrimary,
-                size: Sp.xxlarge.r,
+                size: Sp.large.r,
               ),
             ),
           ),
           SizedBox(
-            width: Sp.xxlarge.w + Sp.small.w,
+            width: Sp.xxlarge.w,
             child: Text(elapsed, style: timeStyle),
           ),
-          Expanded(child: _ProgressTrack(progress: progress)),
+          Expanded(
+            child: _ProgressTrack(progress: progress, onSeek: onSeek),
+          ),
           Text(total, style: timeStyle),
           ExcludeSemantics(
             child: Icon(
               Icons.volume_up_outlined,
               color: context.colors.textPrimary,
-              size: Sp.xlarge.r,
+              size: Sp.medium.r,
             ),
           ),
         ],
@@ -212,46 +167,59 @@ class _PlayerControls extends StatelessWidget {
 }
 
 class _ProgressTrack extends StatelessWidget {
-  const _ProgressTrack({required this.progress});
+  const _ProgressTrack({required this.progress, required this.onSeek});
 
   final double progress;
 
+  final ValueChanged<double> onSeek;
+
   @override
   Widget build(BuildContext context) {
-    final knob = Sp.large.r;
+    final knob = Sp.small.r - 2;
     return Semantics(
       value: '${(progress * 100).round()}%',
-      child: SizedBox(
-        height: knob,
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final travel = constraints.maxWidth - knob;
-            return Stack(
-              alignment: Alignment.centerLeft,
-              children: [
-                Container(
-                  height: Sp.small.h,
-                  margin: EdgeInsets.symmetric(horizontal: knob / 2),
-                  decoration: BoxDecoration(
-                    borderRadius: Sp.small.radiusR,
-                    border: Border.all(color: context.colors.textDisabled),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final travel = constraints.maxWidth - knob;
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapUp: (details) {
+              if (travel <= 0) return;
+              final fraction = (details.localPosition.dx - knob / 2) / travel;
+              onSeek(fraction.clamp(0.0, 1.0));
+            },
+            child: SizedBox(
+              height: Sp.large.h,
+              child: Stack(
+                alignment: Alignment.centerLeft,
+                children: [
+                  Container(
+                    height: 2,
+                    margin: EdgeInsets.symmetric(horizontal: knob / 2),
+                    color: context.colors.border,
                   ),
-                ),
-                Positioned(
-                  left: travel * progress,
-                  child: Container(
-                    width: knob,
-                    height: knob,
-                    decoration: BoxDecoration(
-                      color: context.colors.textPrimary,
-                      shape: BoxShape.circle,
+                  Container(
+                    height: 2,
+                    width: travel * progress,
+                    margin: EdgeInsets.only(left: knob / 2),
+                    color: context.colors.textSecondary,
+                  ),
+                  Positioned(
+                    left: travel * progress,
+                    child: Container(
+                      width: knob,
+                      height: knob,
+                      decoration: BoxDecoration(
+                        color: context.colors.textPrimary,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            );
-          },
-        ),
+                ],
+              ),
+            ),
+          );
+        },
       ),
     );
   }

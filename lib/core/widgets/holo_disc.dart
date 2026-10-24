@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
 import 'package:music_disco/core/util/disc_palette.dart';
 
-/// Holographic compact disc drawn in code, so it can spin and scale freely.
 class HoloDisc extends StatelessWidget {
   const HoloDisc({
     super.key,
@@ -20,13 +19,10 @@ class HoloDisc extends StatelessWidget {
   final DiscPalette palette;
   final double size;
 
-  /// Printed label, for example "AFTER HOURS". Hidden on small discs.
   final String? title;
 
-  /// Small collection line printed near the edge.
   final String? caption;
 
-  /// Rotation in full turns.
   final double turns;
   final bool isDimmed;
   final bool hasShadow;
@@ -73,7 +69,6 @@ class HoloDisc extends StatelessWidget {
   }
 }
 
-/// Placeholder left behind when a disc is lifted out of its slot.
 class EmptyDiscSlot extends StatelessWidget {
   const EmptyDiscSlot({super.key, required this.size});
 
@@ -236,10 +231,9 @@ class _HoloDiscPainter extends CustomPainter {
   void _paintLabels(Canvas canvas, Offset center, double radius) {
     final title = this.title;
     if (title != null) {
-      final words = title.split(' ');
       final painter = TextPainter(
         text: TextSpan(
-          text: words.join('\n'),
+          text: title.replaceFirst(' ', '\n'),
           style: TextStyle(
             fontFamily: 'ArchivoBlack',
             fontSize: radius * 0.2,

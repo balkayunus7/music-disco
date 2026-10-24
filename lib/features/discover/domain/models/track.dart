@@ -9,19 +9,28 @@ class Track extends Equatable {
     required this.mood,
     required this.noteKey,
     required this.duration,
+    required this.youtubeId,
   });
 
   final String id;
   final String title;
   final String artist;
 
-  /// The disc the track is presented on.
   final Mood mood;
 
-  /// Translation key of the short editorial note shown under the artist.
   final String noteKey;
   final Duration duration;
 
+  final String youtubeId;
+
   @override
-  List<Object?> get props => [id, title, artist, mood, noteKey, duration];
+  List<Object?> get props => [
+    id,
+    title,
+    artist,
+    mood,
+    noteKey,
+    duration,
+    youtubeId,
+  ];
 }

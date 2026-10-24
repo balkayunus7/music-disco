@@ -42,7 +42,6 @@ class CollectionTile extends StatelessWidget {
 
   final Track track;
 
-  /// Position in the grid; later tiles arrive slightly later.
   final int order;
 
   @override
@@ -82,14 +81,14 @@ class CollectionTile extends StatelessWidget {
                 track.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: m18w700(context),
+                style: m16w700(context),
               ),
               Sp.xsmall.heightBox,
               Text(
                 track.artist,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: m15w500(
+                style: m14w500(
                   context,
                 ).copyWith(color: context.colors.textSecondary),
               ),
@@ -120,7 +119,7 @@ class CollectionEmptyView extends StatelessWidget {
         Text(
           LocaleKeys.collection_empty.tr(),
           textAlign: TextAlign.center,
-          style: m15w500(context).copyWith(color: context.colors.textSecondary),
+          style: m14w500(context).copyWith(color: context.colors.textSecondary),
         ),
       ],
     );

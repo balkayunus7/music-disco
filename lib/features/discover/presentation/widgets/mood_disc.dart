@@ -3,7 +3,6 @@ import 'package:music_disco/core/widgets/holo_disc.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
 
-/// The printed disc for a [Mood].
 class MoodDisc extends StatelessWidget {
   const MoodDisc({
     super.key,

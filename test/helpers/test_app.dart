@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,8 +18,6 @@ import 'package:music_disco/features/collection/bloc/collection_cubit.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
 import 'package:music_disco/features/discover/domain/use_cases/i_discovery_repository.dart';
 
-/// Reads translations straight from the project files so tests do not
-/// depend on asset bundle timing.
 class FileTranslationLoader extends AssetLoader {
   const FileTranslationLoader();
 
@@ -31,8 +28,8 @@ class FileTranslationLoader extends AssetLoader {
   }
 }
 
-/// Loads the real fonts so text metrics and screenshots match the app.
 Future<void> loadAppFonts() async {
+  TestWidgetsFlutterBinding.ensureInitialized();
   Future<void> load(String family, List<String> assets) async {
     final loader = FontLoader(family);
     for (final asset in assets) {
@@ -50,7 +47,6 @@ Future<void> loadAppFonts() async {
   await load('MaterialIcons', ['fonts/MaterialIcons-Regular.otf']);
 }
 
-/// Registers the shell dependencies against [repository].
 Future<void> registerTestDependencies(IDiscoveryRepository repository) async {
   await getIt.reset();
   getIt
@@ -58,12 +54,10 @@ Future<void> registerTestDependencies(IDiscoveryRepository repository) async {
     ..registerFactory<CollectionCubit>(CollectionCubit.new);
 }
 
-/// Router with only the tab shell; authentication is out of scope here.
 GoRouter buildTestRouter({String initialLocation = AppRoutes.discover}) {
   return GoRouter(initialLocation: initialLocation, routes: [appShellRoute]);
 }
 
-/// Mirrors CoreApp's providers without network time or analytics.
 class TestApp extends StatelessWidget {
   const TestApp({
     super.key,
@@ -112,7 +106,6 @@ class TestApp extends StatelessWidget {
   }
 }
 
-/// Builds the shell app on a 402×874 phone and waits for it to settle.
 Future<GoRouter> pumpTestApp(
   WidgetTester tester, {
   required IDiscoveryRepository repository,

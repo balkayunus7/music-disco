@@ -17,7 +17,6 @@ import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
 
 part 'widgets/home_nav_bar.dart';
 
-/// App shell: hosts the keşfet and koleksiyon tabs and the shared cubits.
 class HomePage extends StatefulWidget {
   const HomePage({required this.navigationShell, super.key});
 

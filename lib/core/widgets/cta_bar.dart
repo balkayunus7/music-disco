@@ -5,7 +5,6 @@ import 'package:music_disco/core/util/custom_app_sizes.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 
-/// Full-width rounded call to action with a trailing icon.
 class CtaBar extends StatelessWidget {
   const CtaBar({
     super.key,
@@ -13,14 +12,15 @@ class CtaBar extends StatelessWidget {
     required this.onTap,
     this.icon = Icons.north_east_rounded,
     this.isLoading = false,
+    this.compact = false,
   });
 
   final String text;
 
-  /// Null disables the bar.
   final VoidCallback? onTap;
   final IconData icon;
   final bool isLoading;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -33,29 +33,33 @@ class CtaBar extends StatelessWidget {
       semanticLabel: text,
       child: AnimatedContainer(
         duration: 200.ms,
-        height: Sp.huge.h + Sp.xsmall.h,
-        padding: Sp.xlarge.padHR + Sp.xsmall.padHR,
+        height: compact ? Sp.xxxlarge.h - Sp.tiny.h : Sp.cont.h + Sp.tiny.h,
+        padding: (compact ? Sp.large : Sp.xlarge).padHR,
         decoration: BoxDecoration(
           color: context.colors.buttonSecondary,
           borderRadius: Sp.huge.radiusR,
         ),
         child: Row(
+          mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
           children: [
-            Expanded(
+            Flexible(
+              fit: compact ? FlexFit.loose : FlexFit.tight,
               child: Text(
                 text,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: m18w700(context).copyWith(color: foreground),
+                style: (compact ? m13w600(context) : m14w700(context)).copyWith(
+                  color: foreground,
+                ),
               ),
             ),
-            Sp.small.widthBox,
+            (compact ? Sp.xsmall : Sp.small).widthBox,
             AnimatedSwitcher(
               duration: 200.ms,
               child: isLoading
                   ? SizedBox.square(
                       key: const ValueKey('loading'),
-                      dimension: Sp.large.r,
+                      dimension: (compact ? Sp.medium : Sp.large).r,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         color: foreground,
@@ -65,7 +69,7 @@ class CtaBar extends StatelessWidget {
                       icon,
                       key: const ValueKey('icon'),
                       color: foreground,
-                      size: Sp.xlarge.r,
+                      size: (compact ? Sp.medium : Sp.large).r,
                     ),
             ),
           ],

@@ -3,7 +3,6 @@ part of '../pages/session_page.dart';
 class SessionHeader extends StatelessWidget {
   const SessionHeader({super.key, required this.rangeLabel});
 
-  /// "01-05"; null while the round is loading.
   final String? rangeLabel;
 
   @override
@@ -23,11 +22,10 @@ class SessionHeader extends StatelessWidget {
             ),
           ),
         ),
-        // Draft has no behavior yet; it is a status badge only.
         Container(
           padding: EdgeInsets.symmetric(
-            horizontal: Sp.large.w,
-            vertical: Sp.medium.h,
+            horizontal: Sp.small.w,
+            vertical: Sp.tiny.h + 2,
           ),
           decoration: BoxDecoration(
             color: context.colors.surfaceSecondary,
@@ -35,9 +33,9 @@ class SessionHeader extends StatelessWidget {
           ),
           child: Text(
             LocaleKeys.session_draft.tr(),
-            style: m12w600(
+            style: m10w700(
               context,
-            ).copyWith(letterSpacing: 1.6, color: context.colors.textSecondary),
+            ).copyWith(letterSpacing: 1.4, color: context.colors.textSecondary),
           ),
         ),
       ],
@@ -45,8 +43,6 @@ class SessionHeader extends StatelessWidget {
   }
 }
 
-/// "biraz yüksel · yükselt beni · bambaşka" bar that opens the frequency
-/// sheet.
 class PreferenceSummaryBar extends StatelessWidget {
   const PreferenceSummaryBar({
     super.key,
@@ -66,19 +62,19 @@ class PreferenceSummaryBar extends StatelessWidget {
       semanticLabel: '${LocaleKeys.frequency_sheet_eyebrow.tr()}: $summary',
       child: ExcludeSemantics(
         child: Container(
-          height: Sp.huge.h + Sp.tiny.h,
-          padding: Sp.large.padHR,
+          height: Sp.xxxlarge.h - Sp.tiny.h,
+          padding: Sp.medium.padHR,
           decoration: BoxDecoration(
             color: context.colors.surface,
             borderRadius: Sp.huge.radiusR,
           ),
           child: Row(
-            spacing: Sp.small.w,
+            spacing: Sp.xsmall.w,
             children: [
               Icon(
                 Icons.tune_rounded,
                 color: context.colors.textSecondary,
-                size: Sp.xlarge.r,
+                size: Sp.medium.r,
               ),
               Expanded(
                 child: AnimatedSwitcher(
@@ -90,7 +86,7 @@ class PreferenceSummaryBar extends StatelessWidget {
                       summary,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: m15w500(context),
+                      style: m12w500(context),
                     ),
                   ),
                 ),
@@ -98,7 +94,7 @@ class PreferenceSummaryBar extends StatelessWidget {
               Icon(
                 Icons.keyboard_arrow_down_rounded,
                 color: context.colors.textSecondary,
-                size: Sp.xlarge.r,
+                size: Sp.large.r,
               ),
             ],
           ),

@@ -7,7 +7,6 @@ import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_e
 import 'package:mobile_boilerplate/presentation/routing/route_aware_analytics_mixin.dart';
 import 'package:music_disco/config/app_routes.dart';
 import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/duration_format.dart';
 import 'package:music_disco/core/util/locale_keys.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
 import 'package:music_disco/core/widgets/app_snack_bar.dart';
@@ -29,6 +28,8 @@ import 'package:music_disco/features/discover/domain/models/track_feedback.dart'
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
 import 'package:music_disco/features/discover/presentation/widgets/frequency_sheet.dart';
 import 'package:music_disco/features/discover/presentation/widgets/mood_disc.dart';
+import 'package:music_disco/features/player/bloc/youtube_player_cubit.dart';
+import 'package:music_disco/features/player/domain/models/playback_status.dart';
 
 part '../widgets/session_actions.dart';
 part '../widgets/session_disc_strip.dart';
@@ -37,20 +38,46 @@ part '../widgets/session_player_card.dart';
 part '../widgets/session_status_views.dart';
 part '../widgets/session_track_info.dart';
 
-/// Step 03: a round of five suggestions on the chosen frequency.
-class SessionPage extends StatefulWidget {
+class SessionPage extends StatelessWidget {
   const SessionPage({super.key});
 
   @override
-  State<SessionPage> createState() => _SessionPageState();
+  Widget build(BuildContext context) {
+    return BlocProvider(create: (_) => getIt<YoutubePlayerCubit>(), child: const _SessionView());
+  }
 }
 
-class _SessionPageState extends State<SessionPage>
-    with RouteAwareAnalyticsMixin, RouteAwareAnalyticsPageParamsMixin {
+class _SessionView extends StatefulWidget {
+  const _SessionView();
+
+  @override
+  State<_SessionView> createState() => _SessionViewState();
+}
+
+class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixin, RouteAwareAnalyticsPageParamsMixin {
   final GlobalKey _saveButtonKey = GlobalKey();
   bool _isFeedbackOpen = false;
 
   DiscoverCubit get _discover => context.read<DiscoverCubit>();
+  YoutubePlayerCubit get _player => context.read<YoutubePlayerCubit>();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _openTrack(_discover.state.currentTrack);
+    });
+  }
+
+  void _openTrack(Track? track) {
+    if (track == null) return;
+    _player.open(track.youtubeId, fallbackDuration: track.duration);
+  }
+
+  void _onPlaybackChanged(BuildContext context, YoutubePlayerState player) {
+    if (player.status != PlaybackStatus.ended) return;
+    if (!_discover.state.isLastTrack) _discover.next();
+  }
 
   Future<void> _openFrequencySheet() async {
     final current = _discover.state.preferences;
@@ -105,6 +132,7 @@ class _SessionPageState extends State<SessionPage>
   void _onNextTap(DiscoverState state) {
     HapticFeedback.selectionClick();
     if (state.isLastTrack) {
+      _player.stop();
       _discover.finishRound();
       context.go(AppRoutes.collection);
     } else {
@@ -114,28 +142,29 @@ class _SessionPageState extends State<SessionPage>
 
   @override
   Widget build(BuildContext context) {
+    return BlocListener<YoutubePlayerCubit, YoutubePlayerState>(
+      listenWhen: (previous, current) => previous.status != current.status,
+      listener: _onPlaybackChanged,
+      child: _buildRound(context),
+    );
+  }
+
+  Widget _buildRound(BuildContext context) {
     return BlocConsumer<DiscoverCubit, DiscoverState>(
-      listenWhen: (previous, current) =>
-          previous.currentTrack?.id != current.currentTrack?.id,
+      listenWhen: (previous, current) => previous.currentTrack?.id != current.currentTrack?.id,
       listener: (context, state) {
+        _openTrack(state.currentTrack);
         if (_isFeedbackOpen) setState(() => _isFeedbackOpen = false);
       },
       builder: (context, state) {
         final track = state.currentTrack;
         return BrandPageBody(
           children: [
-            Sp.large.heightBox,
             SessionHeader(rangeLabel: track == null ? null : state.rangeLabel),
-            Sp.medium.heightBox,
-            DisplayHeadline(
-              first: LocaleKeys.session_title_first.tr(),
-              second: LocaleKeys.session_title_second.tr(),
-            ),
             Sp.large.heightBox,
-            PreferenceSummaryBar(
-              preferences: state.preferences,
-              onTap: _openFrequencySheet,
-            ),
+            DisplayHeadline(first: LocaleKeys.session_title_first.tr(), second: LocaleKeys.session_title_second.tr()),
+            Sp.medium.heightBox,
+            PreferenceSummaryBar(preferences: state.preferences, onTap: _openFrequencySheet),
             Sp.large.heightBox,
             if (state.status == DiscoverRoundStatus.failure)
               SessionFailureView(onRetry: _discover.startRound)
@@ -151,9 +180,6 @@ class _SessionPageState extends State<SessionPage>
   }
 
   Widget _buildTrackContent(DiscoverState state, Track track) {
-    final isSaved = context.select<CollectionCubit, bool>(
-      (cubit) => cubit.state.contains(track.id),
-    );
     final isBusy = state.isReplacing;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -168,6 +194,8 @@ class _SessionPageState extends State<SessionPage>
           ),
         ),
         Sp.small.heightBox,
+        SessionPlayerCard(track: track),
+        Sp.medium.heightBox,
         AnimatedOpacity(
           opacity: isBusy ? 0.45 : 1,
           duration: 200.ms,
@@ -178,25 +206,16 @@ class _SessionPageState extends State<SessionPage>
             transitionBuilder: (child, animation) => FadeTransition(
               opacity: animation,
               child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0.06, 0),
-                  end: Offset.zero,
-                ).animate(animation),
+                position: Tween<Offset>(begin: const Offset(0.06, 0), end: Offset.zero).animate(animation),
                 child: child,
               ),
             ),
-            layoutBuilder: (current, previous) => Stack(
-              alignment: Alignment.topCenter,
-              children: [...previous, ?current],
-            ),
+            layoutBuilder: (current, previous) =>
+                Stack(alignment: Alignment.topCenter, children: [...previous, ?current]),
             child: Column(
               key: ValueKey(track.id),
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SessionPlayerCard(track: track),
-                Sp.medium.heightBox,
-                SessionTrackInfo(track: track),
-              ],
+              children: [SessionTrackInfo(track: track)],
             ),
           ),
         ),
@@ -209,45 +228,40 @@ class _SessionPageState extends State<SessionPage>
         ),
         Sp.large.heightBox,
         Row(
-          spacing: Sp.small.w,
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: Sp.xsmall.w,
           children: [
-            Expanded(
-              child: SessionSaveButton(
+            BlocSelector<CollectionCubit, CollectionState, bool>(
+              selector: (collection) => collection.contains(track.id),
+              builder: (context, isSaved) => SessionSaveButton(
                 key: _saveButtonKey,
                 isSaved: isSaved,
-                onTap: isBusy
-                    ? null
-                    : () => _onSaveTap(track, isSaved: isSaved),
+                onTap: isBusy ? null : () => _onSaveTap(track, isSaved: isSaved),
               ),
             ),
-            Expanded(
-              child: SessionNextButton(
-                isLast: state.isLastTrack,
-                onTap: isBusy ? null : () => _onNextTap(state),
-              ),
+            CtaBar(
+              compact: true,
+              text: state.isLastTrack ? LocaleKeys.session_finish.tr() : LocaleKeys.session_next.tr(),
+              icon: Icons.arrow_forward_rounded,
+              onTap: isBusy ? null : () => _onNextTap(state),
             ),
           ],
         ),
-        Sp.small.heightBox,
+        Sp.xsmall.heightBox,
         Row(
-          spacing: Sp.small.w,
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: Sp.xsmall.w,
           children: [
-            Expanded(
-              child: SessionGhostAction(
-                icon: Icons.album_outlined,
-                label: LocaleKeys.session_known.tr(),
-                onTap: isBusy
-                    ? null
-                    : () => _reject(TrackFeedback.alreadyKnown),
-              ),
+            SessionGhostAction(
+              icon: Icons.album_outlined,
+              label: LocaleKeys.session_known.tr(),
+              onTap: isBusy ? null : () => _reject(TrackFeedback.alreadyKnown),
             ),
-            Expanded(
-              child: SessionGhostAction(
-                icon: Icons.tune_rounded,
-                label: LocaleKeys.session_not_for_me.tr(),
-                isActive: _isFeedbackOpen,
-                onTap: isBusy ? null : _toggleFeedback,
-              ),
+            SessionGhostAction(
+              icon: Icons.tune_rounded,
+              label: LocaleKeys.session_not_for_me.tr(),
+              isActive: _isFeedbackOpen,
+              onTap: isBusy ? null : _toggleFeedback,
             ),
           ],
         ),

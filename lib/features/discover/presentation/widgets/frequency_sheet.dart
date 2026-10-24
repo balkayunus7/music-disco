@@ -16,8 +16,6 @@ import 'package:music_disco/features/discover/presentation/mood_style.dart';
 import 'package:music_disco/features/discover/presentation/widgets/distance_slider.dart';
 import 'package:music_disco/features/discover/presentation/widgets/mood_disc.dart';
 
-/// Opens the "frekans ayarı" sheet. Resolves to the new preferences, or null
-/// when dismissed.
 Future<DiscoveryPreferences?> showFrequencySheet(
   BuildContext context, {
   required DiscoveryPreferences initial,
@@ -85,12 +83,12 @@ class _FrequencySheetState extends State<FrequencySheet> {
                 Sp.small.heightBox,
                 Text(
                   LocaleKeys.frequency_sheet_title.tr(),
-                  style: a34(context),
+                  style: a28(context),
                 ),
                 Sp.small.heightBox,
                 Text(
                   LocaleKeys.frequency_sheet_subtitle.tr(),
-                  style: m15w500(
+                  style: m14w500(
                     context,
                   ).copyWith(color: context.colors.textSecondary),
                 ),
@@ -115,7 +113,7 @@ class _FrequencySheetState extends State<FrequencySheet> {
                   ],
                 ),
                 Sp.xlarge.heightBox,
-                Text(LocaleKeys.distance_title.tr(), style: m18w700(context)),
+                Text(LocaleKeys.distance_title.tr(), style: m16w700(context)),
                 Sp.small.heightBox,
                 DistanceSlider(
                   value: _draft.distance,
@@ -248,7 +246,7 @@ class _MoodTile extends StatelessWidget {
                 mood.labelKey.tr(),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: m15w500(context),
+                style: m14w500(context),
               ),
             ],
           ),
@@ -296,7 +294,7 @@ class _DirectionPill extends StatelessWidget {
             label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: m15w500(context),
+            style: m14w500(context),
           ),
         ),
       ),

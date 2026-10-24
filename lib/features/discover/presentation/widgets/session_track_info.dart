@@ -21,14 +21,14 @@ class SessionTrackInfo extends StatelessWidget {
                     track.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: a34(context),
+                    style: a24(context),
                   ),
                   Sp.xsmall.heightBox,
                   Text(
                     track.artist,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: m16w600(context).copyWith(
+                    style: m13w600(context).copyWith(
                       color: context.colors.textSecondary,
                       fontWeight: FontWeight.w500,
                     ),
@@ -47,7 +47,7 @@ class SessionTrackInfo extends StatelessWidget {
         Sp.small.heightBox,
         Text(
           track.noteKey.tr(),
-          style: m15w500(context).copyWith(color: context.colors.textSecondary),
+          style: m13w500(context).copyWith(color: context.colors.textSecondary),
         ),
       ],
     );

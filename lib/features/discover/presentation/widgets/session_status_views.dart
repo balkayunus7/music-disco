@@ -1,6 +1,5 @@
 part of '../pages/session_page.dart';
 
-/// Shown while the round loads: the chosen disc spins in an empty case.
 class SessionLoadingView extends StatefulWidget {
   const SessionLoadingView({super.key, required this.mood});
 
@@ -43,7 +42,7 @@ class _SessionLoadingViewState extends State<SessionLoadingView>
             Sp.xlarge.heightBox,
             Text(
               LocaleKeys.session_loading.tr(),
-              style: m15w500(
+              style: m14w500(
                 context,
               ).copyWith(color: context.colors.textSecondary),
             ),
@@ -68,7 +67,7 @@ class SessionFailureView extends StatelessWidget {
         Text(
           LocaleKeys.session_error.tr(),
           textAlign: TextAlign.center,
-          style: m16w600(context).copyWith(color: context.colors.textSecondary),
+          style: m14w600(context).copyWith(color: context.colors.textSecondary),
         ),
         Sp.xlarge.heightBox,
         CtaBar(

@@ -26,7 +26,6 @@ import 'package:music_disco/features/discover/presentation/widgets/mood_disc.dar
 part '../widgets/mood_case_stage.dart';
 part '../widgets/mood_disc_grid.dart';
 
-/// Step 01: pick a disc for today's feeling.
 class MoodPage extends StatefulWidget {
   const MoodPage({super.key});
 
@@ -41,7 +40,6 @@ class _MoodPageState extends State<MoodPage>
     for (final mood in Mood.values) mood: GlobalKey(),
   };
 
-  /// Discs currently in the air; their slot and the case show placeholders.
   final Set<Mood> _airborne = {};
   late Mood? _caseMood = context.read<DiscoverCubit>().state.preferences.mood;
 
@@ -106,7 +104,6 @@ class _MoodPageState extends State<MoodPage>
     );
     return BrandPageBody(
       children: [
-        Sp.xxlarge.heightBox,
         Row(
           children: [
             Expanded(child: EyebrowText(LocaleKeys.mood_step.tr())),
@@ -121,7 +118,7 @@ class _MoodPageState extends State<MoodPage>
         Sp.medium.heightBox,
         Text(
           LocaleKeys.mood_subtitle.tr(),
-          style: m16w600(context).copyWith(
+          style: m14w600(context).copyWith(
             color: context.colors.textSecondary,
             fontWeight: FontWeight.w500,
           ),
@@ -134,17 +131,20 @@ class _MoodPageState extends State<MoodPage>
         ),
         Sp.medium.heightBox,
         MoodCaption(mood: mood),
-        Sp.large.heightBox,
+        Sp.medium.heightBox,
+        Center(
+          child: CtaBar(
+            text: LocaleKeys.mood_continue.tr(),
+            compact: true,
+            onTap: () => context.go(AppRoutes.direction),
+          ),
+        ),
+        Sp.xlarge.heightBox,
         MoodDiscGrid(
           selected: mood,
           airborne: _airborne,
           slotKeys: _slotKeys,
           onSelected: _onMoodSelected,
-        ),
-        Sp.xlarge.heightBox,
-        CtaBar(
-          text: LocaleKeys.mood_continue.tr(),
-          onTap: () => context.go(AppRoutes.direction),
         ),
       ],
     );

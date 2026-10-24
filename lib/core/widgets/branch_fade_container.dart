@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Keeps every tab alive and cross-fades between them when the selected tab
-/// changes. Hidden tabs are offstage, ignore input and stop their tickers.
 class BranchFadeContainer extends StatefulWidget {
   const BranchFadeContainer({
     super.key,

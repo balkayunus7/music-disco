@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:music_disco/core/util/custom_app_sizes.dart';
 
-/// Tappable wrapper that slightly shrinks while pressed.
 class Pressable extends StatefulWidget {
   const Pressable({
     super.key,
@@ -14,7 +13,6 @@ class Pressable extends StatefulWidget {
 
   final Widget child;
 
-  /// Null disables the control.
   final VoidCallback? onTap;
   final String? semanticLabel;
   final bool? selected;

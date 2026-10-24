@@ -12,14 +12,11 @@ abstract class LocaleKeys {
   static const error_message = 'error_message';
   static const retry = 'retry';
   static const startup_error = 'startup_error';
-  static const brand_tagline = 'brand_tagline';
   static const nav_discover = 'nav_discover';
   static const nav_collection = 'nav_collection';
   static const nav_collection_count = 'nav_collection_count';
   static const back = 'back';
   static const close = 'close';
-  static const mood_step = 'mood_step';
-  static const mood_today = 'mood_today';
   static const mood_title_first = 'mood_title_first';
   static const mood_title_second = 'mood_title_second';
   static const mood_subtitle = 'mood_subtitle';
@@ -38,17 +35,12 @@ abstract class LocaleKeys {
   static const mood_slow_down_tagline = 'mood_slow_down_tagline';
   static const mood_old_feeling_tagline = 'mood_old_feeling_tagline';
   static const mood_no_rules_tagline = 'mood_no_rules_tagline';
-  static const direction_step = 'direction_step';
   static const direction_title_first = 'direction_title_first';
   static const direction_title_second = 'direction_title_second';
   static const direction_subtitle = 'direction_subtitle';
   static const direction_selected_frequency = 'direction_selected_frequency';
   static const direction_company = 'direction_company';
   static const direction_energy = 'direction_energy';
-  static const direction_stay_first = 'direction_stay_first';
-  static const direction_stay_second = 'direction_stay_second';
-  static const direction_lift_first = 'direction_lift_first';
-  static const direction_lift_second = 'direction_lift_second';
   static const direction_stay_caption = 'direction_stay_caption';
   static const direction_lift_caption = 'direction_lift_caption';
   static const direction_stay_short = 'direction_stay_short';
@@ -58,14 +50,12 @@ abstract class LocaleKeys {
   static const distance_bit_different = 'distance_bit_different';
   static const distance_faraway = 'distance_faraway';
   static const distance_never_heard = 'distance_never_heard';
-  static const distance_hint = 'distance_hint';
   static const direction_continue = 'direction_continue';
   static const session_step = 'session_step';
   static const session_draft = 'session_draft';
   static const session_title_first = 'session_title_first';
   static const session_title_second = 'session_title_second';
   static const session_next_find = 'session_next_find';
-  static const session_ready_to_listen = 'session_ready_to_listen';
   static const session_collection_caption = 'session_collection_caption';
   static const session_side_caption = 'session_side_caption';
   static const session_new_find = 'session_new_find';
@@ -106,11 +96,8 @@ abstract class LocaleKeys {
   static const track_note_show_me_how = 'track_note_show_me_how';
   static const track_note_friday_morning = 'track_note_friday_morning';
   static const track_note_retrograde = 'track_note_retrograde';
-  static const track_note_busy_earnin = 'track_note_busy_earnin';
-  static const track_note_aruarian_dance = 'track_note_aruarian_dance';
-  static const track_note_chamber_of_reflection =
-      'track_note_chamber_of_reflection';
-  static const track_note_cirrus = 'track_note_cirrus';
-  static const track_note_a_new_error = 'track_note_a_new_error';
-  static const track_note_gooey = 'track_note_gooey';
+  static const mood_step = 'mood_step';
+  static const mood_today = 'mood_today';
+  static const direction_step = 'direction_step';
+  static const session_video_error = 'session_video_error';
 }

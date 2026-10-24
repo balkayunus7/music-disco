@@ -3,7 +3,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
 import 'package:music_disco/core/util/custom_app_sizes.dart';
 
-/// Transparent CD jewel case frame with a ribbed spine on the left.
 class JewelCase extends StatelessWidget {
   const JewelCase({
     super.key,
@@ -15,7 +14,6 @@ class JewelCase extends StatelessWidget {
 
   final Widget child;
 
-  /// Optional printed line along the bottom edge of the insert.
   final Widget? footer;
   final bool hasSpine;
   final EdgeInsetsGeometry? contentPadding;
@@ -55,33 +53,46 @@ class JewelCase extends StatelessWidget {
           border: Border.all(color: highlight.withValues(alpha: 0.12)),
         ),
         clipBehavior: Clip.antiAlias,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (hasSpine) const _CaseSpine(),
-            Expanded(
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: contentPadding ?? Sp.small.padAllR,
-                      child: Center(child: child),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isSized = constraints.hasBoundedHeight;
+            final content = Padding(
+              padding: contentPadding ?? Sp.small.padAllR,
+              child: isSized ? Center(child: child) : child,
+            );
+            final body = Column(
+              mainAxisSize: isSized ? MainAxisSize.max : MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (isSized) Expanded(child: content) else content,
+                if (footer != null)
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      Sp.small.w,
+                      0,
+                      Sp.small.w,
+                      Sp.tiny.h + 2,
                     ),
+                    child: footer,
                   ),
-                  if (footer != null)
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        Sp.small.w,
-                        0,
-                        Sp.small.w,
-                        Sp.tiny.h + 2,
-                      ),
-                      child: footer,
-                    ),
-                ],
-              ),
-            ),
-          ],
+              ],
+            );
+            return Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: hasSpine ? Sp.small.w : 0),
+                  child: isSized ? SizedBox.expand(child: body) : body,
+                ),
+                if (hasSpine)
+                  const Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: _CaseSpine(),
+                  ),
+              ],
+            );
+          },
         ),
       ),
     );

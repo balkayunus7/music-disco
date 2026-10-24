@@ -3,7 +3,6 @@ part of 'collection_cubit.dart';
 class CollectionState extends Equatable {
   const CollectionState({this.tracks = const []});
 
-  /// Saved tracks in the order they were saved.
   final List<Track> tracks;
 
   int get count => tracks.length;

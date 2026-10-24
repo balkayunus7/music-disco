@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
 
-/// Two-line display headline; the second line is dimmed.
 class DisplayHeadline extends StatelessWidget {
   const DisplayHeadline({super.key, required this.first, required this.second});
 
@@ -11,20 +10,27 @@ class DisplayHeadline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = a56(context);
+    final style = a32(context);
     return Semantics(
       header: true,
       label: '$first $second',
       child: ExcludeSemantics(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(first, style: style),
-            Text(
-              second,
-              style: style.copyWith(color: context.colors.textDisabled),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text.rich(
+            TextSpan(
+              style: style,
+              children: [
+                TextSpan(text: '$first '),
+                TextSpan(
+                  text: second,
+                  style: style.copyWith(color: context.colors.textDisabled),
+                ),
+              ],
             ),
-          ],
+            maxLines: 1,
+          ),
         ),
       ),
     );

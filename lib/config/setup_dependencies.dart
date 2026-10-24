@@ -18,6 +18,8 @@ import 'package:music_disco/features/collection/bloc/collection_cubit.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
 import 'package:music_disco/features/discover/data/mock_discovery_repository.dart';
 import 'package:music_disco/features/discover/domain/use_cases/i_discovery_repository.dart';
+import 'package:music_disco/features/player/bloc/youtube_player_cubit.dart';
+import 'package:music_disco/features/player/data/youtube_player_wrapper.dart';
 import 'package:supabase/supabase.dart';
 
 Future<void> setupDependencies() async {
@@ -79,5 +81,9 @@ Future<void> setupDependencies() async {
     ..registerFactory<DiscoverCubit>(
       () => DiscoverCubit(getIt<IDiscoveryRepository>()),
     )
-    ..registerFactory<CollectionCubit>(CollectionCubit.new);
+    ..registerFactory<CollectionCubit>(CollectionCubit.new)
+    ..registerFactory<YoutubePlayerWrapper>(YoutubePlayerWrapper.new)
+    ..registerFactory<YoutubePlayerCubit>(
+      () => YoutubePlayerCubit(getIt<YoutubePlayerWrapper>()),
+    );
 }

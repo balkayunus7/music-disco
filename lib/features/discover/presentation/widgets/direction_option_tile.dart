@@ -4,15 +4,13 @@ class DirectionOptionTile extends StatelessWidget {
   const DirectionOptionTile({
     super.key,
     required this.icon,
-    required this.firstLine,
-    required this.secondLine,
+    required this.label,
     required this.isSelected,
     required this.onTap,
   });
 
   final IconData icon;
-  final String firstLine;
-  final String secondLine;
+  final String label;
   final bool isSelected;
   final VoidCallback onTap;
 
@@ -24,20 +22,18 @@ class DirectionOptionTile extends StatelessWidget {
     return Pressable(
       onTap: onTap,
       selected: isSelected,
-      semanticLabel: '$firstLine $secondLine',
+      semanticLabel: label,
       child: ExcludeSemantics(
         child: AnimatedContainer(
           duration: 240.ms,
           curve: Curves.easeOutCubic,
-          padding: EdgeInsets.symmetric(
-            horizontal: Sp.medium.w,
-            vertical: Sp.large.h,
-          ),
+          height: Sp.xxxlarge.h - Sp.tiny.h,
+          padding: Sp.small.padHR,
           decoration: BoxDecoration(
             color: isSelected
                 ? context.colors.surfaceSecondary
-                : context.colors.borderSecondary,
-            borderRadius: Sp.large.radiusR,
+                : context.colors.surface.withValues(alpha: 0),
+            borderRadius: Sp.huge.radiusR,
             border: Border.all(
               color: isSelected
                   ? context.colors.border
@@ -45,26 +41,16 @@ class DirectionOptionTile extends StatelessWidget {
             ),
           ),
           child: Row(
-            spacing: Sp.small.w,
+            mainAxisAlignment: MainAxisAlignment.center,
+            spacing: Sp.xsmall.w,
             children: [
-              Icon(icon, color: foreground, size: Sp.xlarge.r),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      firstLine,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: m15w500(context).copyWith(color: foreground),
-                    ),
-                    Text(
-                      secondLine,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: m18w700(context).copyWith(color: foreground),
-                    ),
-                  ],
+              Icon(icon, color: foreground, size: Sp.medium.r),
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: m13w600(context).copyWith(color: foreground),
                 ),
               ),
             ],

@@ -7,8 +7,6 @@ import 'package:music_disco/features/discover/domain/models/track.dart';
 import 'package:music_disco/features/discover/domain/models/track_feedback.dart';
 import 'package:music_disco/features/discover/domain/use_cases/i_discovery_repository.dart';
 
-/// Local catalog used until the recommendation backend exists. Ordering is
-/// deterministic so the UI and tests are reproducible.
 class MockDiscoveryRepository implements IDiscoveryRepository {
   MockDiscoveryRepository({this.latency = const Duration(milliseconds: 450)});
 
@@ -21,7 +19,8 @@ class MockDiscoveryRepository implements IDiscoveryRepository {
       artist: 'Bonobo',
       mood: Mood.afterHours,
       noteKey: LocaleKeys.track_note_kerala,
-      duration: Duration(minutes: 3, seconds: 57),
+      duration: Duration(minutes: 4, seconds: 5),
+      youtubeId: 'S0Q4gqBUs7c',
     ),
     Track(
       id: 'parcels-tieduprightnow',
@@ -30,6 +29,7 @@ class MockDiscoveryRepository implements IDiscoveryRepository {
       mood: Mood.turnItUp,
       noteKey: LocaleKeys.track_note_tieduprightnow,
       duration: Duration(minutes: 4, seconds: 30),
+      youtubeId: '_2qsU8FGU_E',
     ),
     Track(
       id: 'tycho-a-walk',
@@ -38,6 +38,7 @@ class MockDiscoveryRepository implements IDiscoveryRepository {
       mood: Mood.oldFeeling,
       noteKey: LocaleKeys.track_note_a_walk,
       duration: Duration(minutes: 5, seconds: 13),
+      youtubeId: 'SDNA934EEVk',
     ),
     Track(
       id: 'men-i-trust-show-me-how',
@@ -46,6 +47,7 @@ class MockDiscoveryRepository implements IDiscoveryRepository {
       mood: Mood.softSide,
       noteKey: LocaleKeys.track_note_show_me_how,
       duration: Duration(minutes: 3, seconds: 35),
+      youtubeId: 'OZRYzH0Q0pU',
     ),
     Track(
       id: 'khruangbin-friday-morning',
@@ -54,6 +56,7 @@ class MockDiscoveryRepository implements IDiscoveryRepository {
       mood: Mood.slowDown,
       noteKey: LocaleKeys.track_note_friday_morning,
       duration: Duration(minutes: 3, seconds: 57),
+      youtubeId: 'KjQSSYOTXzk',
     ),
     Track(
       id: 'james-blake-retrograde',
@@ -62,54 +65,7 @@ class MockDiscoveryRepository implements IDiscoveryRepository {
       mood: Mood.noRules,
       noteKey: LocaleKeys.track_note_retrograde,
       duration: Duration(minutes: 3, seconds: 43),
-    ),
-    Track(
-      id: 'jungle-busy-earnin',
-      title: "Busy Earnin'",
-      artist: 'Jungle',
-      mood: Mood.turnItUp,
-      noteKey: LocaleKeys.track_note_busy_earnin,
-      duration: Duration(minutes: 3, seconds: 2),
-    ),
-    Track(
-      id: 'nujabes-aruarian-dance',
-      title: 'Aruarian Dance',
-      artist: 'Nujabes',
-      mood: Mood.oldFeeling,
-      noteKey: LocaleKeys.track_note_aruarian_dance,
-      duration: Duration(minutes: 4, seconds: 27),
-    ),
-    Track(
-      id: 'mac-demarco-chamber-of-reflection',
-      title: 'Chamber of Reflection',
-      artist: 'Mac DeMarco',
-      mood: Mood.softSide,
-      noteKey: LocaleKeys.track_note_chamber_of_reflection,
-      duration: Duration(minutes: 3, seconds: 51),
-    ),
-    Track(
-      id: 'bonobo-cirrus',
-      title: 'Cirrus',
-      artist: 'Bonobo',
-      mood: Mood.slowDown,
-      noteKey: LocaleKeys.track_note_cirrus,
-      duration: Duration(minutes: 5, seconds: 49),
-    ),
-    Track(
-      id: 'moderat-a-new-error',
-      title: 'A New Error',
-      artist: 'Moderat',
-      mood: Mood.afterHours,
-      noteKey: LocaleKeys.track_note_a_new_error,
-      duration: Duration(minutes: 5, seconds: 47),
-    ),
-    Track(
-      id: 'glass-animals-gooey',
-      title: 'Gooey',
-      artist: 'Glass Animals',
-      mood: Mood.noRules,
-      noteKey: LocaleKeys.track_note_gooey,
-      duration: Duration(minutes: 4, seconds: 49),
+      youtubeId: '6p6PcFFUm5I',
     ),
   ];
 

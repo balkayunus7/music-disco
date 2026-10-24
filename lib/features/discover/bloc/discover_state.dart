@@ -2,10 +2,8 @@ part of 'discover_cubit.dart';
 
 enum DiscoverRoundStatus { idle, loading, ready, failure, finished }
 
-/// Where "back to discovery" should land.
 enum DiscoverResumePoint { mood, direction, session }
 
-/// Short confirmation shown under the session actions after feedback.
 enum DiscoverNotice { none, feedbackTaken, knownSkipped }
 
 class DiscoverState extends Equatable {
@@ -33,16 +31,12 @@ class DiscoverState extends Equatable {
   bool get isLastTrack =>
       tracks.isNotEmpty && currentIndex == tracks.length - 1;
 
-  /// "01 / 05" style counter for the session card.
   String get progressLabel =>
       '${_twoDigits(currentIndex + 1)} / ${_twoDigits(tracks.length)}';
 
-  /// "01-05" style counter for the session header.
   String get rangeLabel =>
       '${_twoDigits(currentIndex + 1)}-${_twoDigits(tracks.length)}';
 
-  /// An unfinished round is resumed; a finished one starts over from the
-  /// direction step with the same feeling.
   DiscoverResumePoint get resumePoint => switch (status) {
     DiscoverRoundStatus.loading ||
     DiscoverRoundStatus.ready => DiscoverResumePoint.session,

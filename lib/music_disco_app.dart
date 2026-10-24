@@ -18,7 +18,6 @@ class MusicDiscoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // The design is dark-only, so the stored theme option is not read.
         BlocProvider(
           create: (_) =>
               getIt<ColorThemeBloc>()

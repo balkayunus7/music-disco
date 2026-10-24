@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_boilerplate/presentation/app_colors.dart';
 
-/// The product is dark-only. Both palettes share the graphite values so a
-/// system light mode never produces a different look before the forced dark
-/// theme option is applied.
 abstract final class _Graphite {
   static const background = Color(0xFF121212);
   static const surface = Color(0xFF1C1C1C);

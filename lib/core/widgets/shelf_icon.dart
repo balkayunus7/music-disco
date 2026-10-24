@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Three record spines and a leaning one: the collection icon.
 class ShelfIcon extends StatelessWidget {
   const ShelfIcon({super.key, required this.color, required this.size});
 

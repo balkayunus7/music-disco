@@ -11,8 +11,6 @@ TextStyle _montserrat(BuildContext context, double size, FontWeight weight) =>
       color: context.colors.textPrimary,
     );
 
-/// Archivo Black is used only for display headlines, track titles and disc
-/// labels. Body copy stays on the Montserrat helpers.
 TextStyle _archivo(BuildContext context, double size) => TextStyle(
   fontFamily: 'ArchivoBlack',
   fontSize: size.sp,
@@ -23,6 +21,8 @@ TextStyle _archivo(BuildContext context, double size) => TextStyle(
 
 TextStyle m10w700(BuildContext context) =>
     _montserrat(context, 10, FontWeight.w700);
+TextStyle m11w600(BuildContext context) =>
+    _montserrat(context, 11, FontWeight.w600);
 TextStyle m11w700(BuildContext context) =>
     _montserrat(context, 11, FontWeight.w700);
 TextStyle m12w500(BuildContext context) =>
@@ -31,10 +31,14 @@ TextStyle m12w600(BuildContext context) =>
     _montserrat(context, 12, FontWeight.w600);
 TextStyle m13w500(BuildContext context) =>
     _montserrat(context, 13, FontWeight.w500);
+TextStyle m13w600(BuildContext context) =>
+    _montserrat(context, 13, FontWeight.w600);
 TextStyle m14w500(BuildContext context) =>
     _montserrat(context, 14, FontWeight.w500);
 TextStyle m14w600(BuildContext context) =>
     _montserrat(context, 14, FontWeight.w600);
+TextStyle m14w700(BuildContext context) =>
+    _montserrat(context, 14, FontWeight.w700);
 TextStyle m15w500(BuildContext context) =>
     _montserrat(context, 15, FontWeight.w500);
 TextStyle m16w600(BuildContext context) =>
@@ -46,6 +50,6 @@ TextStyle m18w700(BuildContext context) =>
 TextStyle m22w800(BuildContext context) =>
     _montserrat(context, 22, FontWeight.w800);
 
+TextStyle a24(BuildContext context) => _archivo(context, 24);
 TextStyle a28(BuildContext context) => _archivo(context, 28);
-TextStyle a34(BuildContext context) => _archivo(context, 34);
-TextStyle a56(BuildContext context) => _archivo(context, 56);
+TextStyle a32(BuildContext context) => _archivo(context, 32);

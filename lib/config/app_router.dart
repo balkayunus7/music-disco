@@ -48,7 +48,6 @@ final appRouter = GoRouter(
   ],
 );
 
-/// Bottom-navigation shell: keşfet and koleksiyon keep their own stacks.
 final appShellRoute = StatefulShellRoute(
   builder: (context, state, navigationShell) {
     return HomePage(navigationShell: navigationShell);

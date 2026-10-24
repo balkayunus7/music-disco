@@ -27,7 +27,6 @@ import 'package:music_disco/features/discover/presentation/widgets/mood_disc.dar
 part '../widgets/direction_card.dart';
 part '../widgets/direction_option_tile.dart';
 
-/// Step 02: stay in the feeling or lift it, and choose how far to wander.
 class DirectionPage extends StatefulWidget {
   const DirectionPage({super.key});
 
@@ -54,7 +53,6 @@ class _DirectionPageState extends State<DirectionPage>
     );
     return BrandPageBody(
       children: [
-        Sp.xlarge.heightBox,
         Row(
           children: [
             const PageBackButton(),
@@ -70,7 +68,7 @@ class _DirectionPageState extends State<DirectionPage>
         Sp.medium.heightBox,
         Text(
           LocaleKeys.direction_subtitle.tr(),
-          style: m15w500(context).copyWith(color: context.colors.textSecondary),
+          style: m14w500(context).copyWith(color: context.colors.textSecondary),
         ),
         Sp.xxlarge.heightBox,
         Row(
@@ -78,10 +76,10 @@ class _DirectionPageState extends State<DirectionPage>
             Expanded(
               child: EyebrowText(LocaleKeys.direction_selected_frequency.tr()),
             ),
-            PillLabel(text: preferences.mood.labelKey.tr()),
+            PillLabel(text: preferences.mood.labelKey.tr(), dense: true),
           ],
         ),
-        Sp.medium.heightBox,
+        Sp.small.heightBox,
         DirectionCard(
           mood: preferences.mood,
           direction: preferences.direction,
@@ -93,27 +91,27 @@ class _DirectionPageState extends State<DirectionPage>
             Expanded(
               child: Text(
                 LocaleKeys.distance_title.tr(),
-                style: m22w800(context),
+                style: m14w700(context),
               ),
             ),
-            PillLabel(text: preferences.distance.labelKey.tr()),
+            PillLabel(text: preferences.distance.labelKey.tr(), dense: true),
           ],
         ),
-        Sp.large.heightBox,
+        Sp.small.heightBox,
         DistanceSlider(
           value: preferences.distance,
           mood: preferences.mood,
           onChanged: context.read<DiscoverCubit>().selectDistance,
         ),
         const DistanceSliderLabels(),
-        Sp.large.heightBox,
-        Text(
-          LocaleKeys.distance_hint.tr(),
-          textAlign: TextAlign.center,
-          style: m14w500(context).copyWith(color: context.colors.textDisabled),
-        ),
         Sp.xlarge.heightBox,
-        CtaBar(text: LocaleKeys.direction_continue.tr(), onTap: _onContinue),
+        Center(
+          child: CtaBar(
+            text: LocaleKeys.direction_continue.tr(),
+            compact: true,
+            onTap: _onContinue,
+          ),
+        ),
       ],
     );
   }

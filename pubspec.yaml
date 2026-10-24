@@ -16,6 +16,7 @@ dependencies:
   mobile_boilerplate:
     path: ../mobile-boilerplate
   supabase: ^2.10.0
+  youtube_player_iframe: ^6.0.2
 
 dev_dependencies:
   flutter_test:

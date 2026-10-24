@@ -3,8 +3,6 @@ import 'package:music_disco/features/discover/domain/models/track.dart';
 
 part 'collection_state.dart';
 
-/// In-memory collection for the design MVP. Persistence comes with the
-/// backend.
 class CollectionCubit extends Cubit<CollectionState> {
   CollectionCubit() : super(const CollectionState());
 
