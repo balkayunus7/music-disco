@@ -9,12 +9,8 @@ class SessionLoadingView extends StatefulWidget {
   State<SessionLoadingView> createState() => _SessionLoadingViewState();
 }
 
-class _SessionLoadingViewState extends State<SessionLoadingView>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _spin = AnimationController(
-    vsync: this,
-    duration: 1600.ms,
-  )..repeat();
+class _SessionLoadingViewState extends State<SessionLoadingView> with SingleTickerProviderStateMixin {
+  late final AnimationController _spin = AnimationController(vsync: this, duration: 1600.ms)..repeat();
 
   @override
   void dispose() {
@@ -33,18 +29,13 @@ class _SessionLoadingViewState extends State<SessionLoadingView>
             Sp.xlarge.heightBox,
             AnimatedBuilder(
               animation: _spin,
-              builder: (context, _) => MoodDisc(
-                mood: widget.mood,
-                size: Sp.xxhuge.r + Sp.xxlarge.r,
-                turns: _spin.value,
-              ),
+              builder: (context, _) =>
+                  MoodDisc(mood: widget.mood, size: Sp.xxhuge.r + Sp.xxlarge.r, turns: _spin.value),
             ),
             Sp.xlarge.heightBox,
             Text(
               LocaleKeys.session_loading.tr(),
-              style: m14w500(
-                context,
-              ).copyWith(color: context.colors.textSecondary),
+              style: m14w500(context).copyWith(color: context.colors.textSecondary),
             ),
           ],
         ),
@@ -70,11 +61,7 @@ class SessionFailureView extends StatelessWidget {
           style: m14w600(context).copyWith(color: context.colors.textSecondary),
         ),
         Sp.xlarge.heightBox,
-        CtaBar(
-          text: LocaleKeys.retry.tr(),
-          icon: Icons.refresh_rounded,
-          onTap: onRetry,
-        ),
+        CtaBar(text: LocaleKeys.retry.tr(), icon: Icons.refresh_rounded, onTap: onRetry),
       ],
     );
   }

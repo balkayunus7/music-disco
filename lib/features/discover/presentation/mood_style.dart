@@ -6,6 +6,8 @@ import 'package:music_disco/features/discover/domain/models/discovery_direction.
 import 'package:music_disco/features/discover/domain/models/discovery_distance.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_preferences.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
+import 'package:music_disco/features/discover/domain/models/music_reference.dart';
+import 'package:music_disco/features/discover/domain/models/reference_aspect.dart';
 import 'package:music_disco/features/discover/domain/models/track_feedback.dart';
 
 extension MoodStyle on Mood {
@@ -27,8 +29,7 @@ extension MoodStyle on Mood {
     Mood.noRules => LocaleKeys.mood_no_rules_tagline,
   };
 
-  String get discCaption =>
-      'ARA SOUND COLLECTION · ${collectionNumber.toString().padLeft(2, '0')}';
+  String get discCaption => 'ARA SOUND COLLECTION · ${collectionNumber.toString().padLeft(2, '0')}';
 
   DiscPalette get palette => switch (this) {
     Mood.afterHours => const DiscPalette(
@@ -104,10 +105,33 @@ extension TrackFeedbackStyle on TrackFeedback {
   };
 }
 
+extension ReferenceAspectStyle on ReferenceAspect {
+  String get labelKey => switch (this) {
+    ReferenceAspect.atmosphere => LocaleKeys.aspect_atmosphere,
+    ReferenceAspect.vocals => LocaleKeys.aspect_vocals,
+    ReferenceAspect.rhythm => LocaleKeys.aspect_rhythm,
+    ReferenceAspect.overallStyle => LocaleKeys.aspect_overall_style,
+  };
+
+  String get captionKey => switch (this) {
+    ReferenceAspect.atmosphere => LocaleKeys.aspect_atmosphere_caption,
+    ReferenceAspect.vocals => LocaleKeys.aspect_vocals_caption,
+    ReferenceAspect.rhythm => LocaleKeys.aspect_rhythm_caption,
+    ReferenceAspect.overallStyle => LocaleKeys.aspect_overall_style_caption,
+  };
+}
+
+extension MusicReferenceStyle on MusicReference {
+  String get subtitle => artist ?? LocaleKeys.reference_kind_artist.tr();
+
+  String get initials {
+    final words = name.trim().split(RegExp(r'\s+'));
+    final letters = words.length > 1 ? '${words[0][0]}${words[1][0]}' : name.trim().padRight(2).substring(0, 2);
+    return letters.trim().toUpperCase();
+  }
+}
+
 extension DiscoveryPreferencesStyle on DiscoveryPreferences {
-  String get summary => [
-    mood.labelKey.tr(),
-    direction.shortLabelKey.tr(),
-    distance.labelKey.tr(),
-  ].join(' · ');
+  String get summary =>
+      [activeReference?.name ?? mood.labelKey.tr(), direction.shortLabelKey.tr(), distance.labelKey.tr()].join(' · ');
 }

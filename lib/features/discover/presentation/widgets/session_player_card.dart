@@ -7,19 +7,12 @@ class SessionPlayerCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final captionStyle = m10w700(
-      context,
-    ).copyWith(color: context.colors.textDisabled, letterSpacing: 1.4);
+    final captionStyle = m10w700(context).copyWith(color: context.colors.textDisabled, letterSpacing: 1.4);
     return JewelCase(
       contentPadding: Sp.xsmall.padAllR,
       footer: Row(
         children: [
-          Expanded(
-            child: Text(
-              LocaleKeys.session_collection_caption.tr(),
-              style: captionStyle,
-            ),
-          ),
+          Expanded(child: Text(LocaleKeys.session_collection_caption.tr(), style: captionStyle)),
           Text(LocaleKeys.session_side_caption.tr(), style: captionStyle),
         ],
       ),
@@ -30,10 +23,7 @@ class SessionPlayerCard extends StatelessWidget {
           child: Column(
             children: [
               Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: Sp.small.w,
-                  vertical: Sp.small.h,
-                ),
+                padding: EdgeInsets.symmetric(horizontal: Sp.small.w, vertical: Sp.small.h),
                 child: Row(
                   children: [
                     Expanded(
@@ -52,18 +42,11 @@ class SessionPlayerCard extends StatelessWidget {
                       ),
                     ),
                     Sp.small.widthBox,
-                    Text(
-                      'YouTube',
-                      style: m12w600(
-                        context,
-                      ).copyWith(fontWeight: FontWeight.w800),
-                    ),
+                    Text('YouTube', style: m12w600(context).copyWith(fontWeight: FontWeight.w800)),
                   ],
                 ),
               ),
-              context.read<YoutubePlayerCubit>().buildView(
-                backgroundColor: context.colors.background,
-              ),
+              context.read<YoutubePlayerCubit>().buildView(backgroundColor: context.colors.background),
               BlocBuilder<YoutubePlayerCubit, YoutubePlayerState>(
                 builder: (context, player) => _buildControls(context, player),
               ),
@@ -91,10 +74,7 @@ class SessionPlayerCard extends StatelessWidget {
       progress: player.progress,
       elapsed: player.elapsedLabel,
       total: player.durationLabel,
-      onPlayPause: () {
-        HapticFeedback.selectionClick();
-        cubit.togglePlay();
-      },
+      onPlayPause: cubit.togglePlay,
       onSeek: cubit.seekToFraction,
     );
   }
@@ -121,22 +101,16 @@ class _PlayerControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final timeStyle = m11w600(context);
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: Sp.small.w,
-        vertical: Sp.xsmall.h,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Sp.small.w, vertical: Sp.xsmall.h),
       child: Row(
         spacing: Sp.xsmall.w,
         children: [
           Pressable(
             onTap: onPlayPause,
-            semanticLabel: isPlaying
-                ? LocaleKeys.session_pause.tr()
-                : LocaleKeys.session_play.tr(),
+            semanticLabel: isPlaying ? LocaleKeys.session_pause.tr() : LocaleKeys.session_play.tr(),
             child: AnimatedSwitcher(
               duration: 160.ms,
-              transitionBuilder: (child, animation) =>
-                  ScaleTransition(scale: animation, child: child),
+              transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
               child: Icon(
                 isPlaying ? Icons.pause_rounded : Icons.play_arrow_outlined,
                 key: ValueKey(isPlaying),
@@ -154,11 +128,7 @@ class _PlayerControls extends StatelessWidget {
           ),
           Text(total, style: timeStyle),
           ExcludeSemantics(
-            child: Icon(
-              Icons.volume_up_outlined,
-              color: context.colors.textPrimary,
-              size: Sp.medium.r,
-            ),
+            child: Icon(Icons.volume_up_outlined, color: context.colors.textPrimary, size: Sp.medium.r),
           ),
         ],
       ),
@@ -209,10 +179,7 @@ class _ProgressTrack extends StatelessWidget {
                     child: Container(
                       width: knob,
                       height: knob,
-                      decoration: BoxDecoration(
-                        color: context.colors.textPrimary,
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: BoxDecoration(color: context.colors.textPrimary, shape: BoxShape.circle),
                     ),
                   ),
                 ],

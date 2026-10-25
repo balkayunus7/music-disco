@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
 import 'package:mobile_boilerplate/presentation/routing/route_aware_analytics_mixin.dart';
-import 'package:music_disco/config/app_routes.dart';
 import 'package:music_disco/core/util/custom_app_sizes.dart';
 import 'package:music_disco/core/util/locale_keys.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
@@ -28,7 +26,9 @@ part '../widgets/direction_card.dart';
 part '../widgets/direction_option_tile.dart';
 
 class DirectionPage extends StatefulWidget {
-  const DirectionPage({super.key});
+  const DirectionPage({super.key, required this.sessionRoute});
+
+  final String sessionRoute;
 
   @override
   State<DirectionPage> createState() => _DirectionPageState();
@@ -37,80 +37,57 @@ class DirectionPage extends StatefulWidget {
 class _DirectionPageState extends State<DirectionPage>
     with RouteAwareAnalyticsMixin, RouteAwareAnalyticsPageParamsMixin {
   void _onDirectionSelected(DiscoveryDirection direction) {
-    HapticFeedback.selectionClick();
     context.read<DiscoverCubit>().selectDirection(direction);
   }
 
   void _onContinue() {
     context.read<DiscoverCubit>().startRound();
-    context.go(AppRoutes.session);
+    context.go(widget.sessionRoute);
   }
 
   @override
   Widget build(BuildContext context) {
-    final preferences = context.select<DiscoverCubit, DiscoveryPreferences>(
-      (cubit) => cubit.state.preferences,
-    );
+    final preferences = context.select<DiscoverCubit, DiscoveryPreferences>((cubit) => cubit.state.preferences);
+    final reference = preferences.activeReference;
     return BrandPageBody(
       children: [
-        Row(
-          children: [
-            const PageBackButton(),
-            const Spacer(),
-            EyebrowText(LocaleKeys.direction_step.tr()),
-          ],
-        ),
-        Sp.large.heightBox,
-        DisplayHeadline(
-          first: LocaleKeys.direction_title_first.tr(),
-          second: LocaleKeys.direction_title_second.tr(),
-        ),
+        Row(children: [const PageBackButton(), const Spacer(), EyebrowText(LocaleKeys.direction_step.tr())]),
         Sp.medium.heightBox,
-        Text(
-          LocaleKeys.direction_subtitle.tr(),
-          style: m14w500(context).copyWith(color: context.colors.textSecondary),
-        ),
+        DisplayHeadline(first: LocaleKeys.direction_title_first.tr(), second: LocaleKeys.direction_title_second.tr()),
+        Sp.medium.heightBox,
+        Text(LocaleKeys.direction_subtitle.tr(), style: m14w500(context).copyWith(color: context.colors.textSecondary)),
         Sp.xxlarge.heightBox,
         Row(
           children: [
             Expanded(
-              child: EyebrowText(LocaleKeys.direction_selected_frequency.tr()),
+              child: EyebrowText(
+                reference == null
+                    ? LocaleKeys.direction_selected_frequency.tr()
+                    : LocaleKeys.direction_reference_sound.tr(),
+              ),
             ),
-            PillLabel(text: preferences.mood.labelKey.tr(), dense: true),
+            PillLabel(text: reference?.name ?? preferences.mood.labelKey.tr(), dense: true),
           ],
         ),
         Sp.small.heightBox,
-        DirectionCard(
-          mood: preferences.mood,
-          direction: preferences.direction,
-          onSelected: _onDirectionSelected,
-        ),
+        DirectionCard(mood: preferences.anchorMood, direction: preferences.direction, onSelected: _onDirectionSelected),
         Sp.xxlarge.heightBox,
         Row(
           children: [
-            Expanded(
-              child: Text(
-                LocaleKeys.distance_title.tr(),
-                style: m14w700(context),
-              ),
-            ),
+            Expanded(child: Text(LocaleKeys.distance_title.tr(), style: m14w700(context))),
             PillLabel(text: preferences.distance.labelKey.tr(), dense: true),
           ],
         ),
         Sp.small.heightBox,
         DistanceSlider(
           value: preferences.distance,
-          mood: preferences.mood,
+          mood: preferences.anchorMood,
           onChanged: context.read<DiscoverCubit>().selectDistance,
         ),
         const DistanceSliderLabels(),
         Sp.xlarge.heightBox,
         Center(
-          child: CtaBar(
-            text: LocaleKeys.direction_continue.tr(),
-            compact: true,
-            onTap: _onContinue,
-          ),
+          child: CtaBar(text: LocaleKeys.direction_continue.tr(), compact: true, onTap: _onContinue),
         ),
       ],
     );

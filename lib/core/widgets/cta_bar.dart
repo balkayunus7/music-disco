@@ -25,20 +25,16 @@ class CtaBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEnabled = onTap != null && !isLoading;
-    final foreground = isEnabled
-        ? context.colors.textPrimary
-        : context.colors.textDisabled;
+    final foreground = isEnabled ? context.colors.textPrimary : context.colors.textDisabled;
     return Pressable(
       onTap: isEnabled ? onTap : null,
       semanticLabel: text,
+      haptic: TapHaptic.medium,
       child: AnimatedContainer(
         duration: 200.ms,
         height: compact ? Sp.xxxlarge.h - Sp.tiny.h : Sp.cont.h + Sp.tiny.h,
         padding: (compact ? Sp.large : Sp.xlarge).padHR,
-        decoration: BoxDecoration(
-          color: context.colors.buttonSecondary,
-          borderRadius: Sp.huge.radiusR,
-        ),
+        decoration: BoxDecoration(color: context.colors.buttonSecondary, borderRadius: Sp.huge.radiusR),
         child: Row(
           mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
           children: [
@@ -48,9 +44,7 @@ class CtaBar extends StatelessWidget {
                 text,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: (compact ? m13w600(context) : m14w700(context)).copyWith(
-                  color: foreground,
-                ),
+                style: (compact ? m13w600(context) : m14w700(context)).copyWith(color: foreground),
               ),
             ),
             (compact ? Sp.xsmall : Sp.small).widthBox,
@@ -60,10 +54,7 @@ class CtaBar extends StatelessWidget {
                   ? SizedBox.square(
                       key: const ValueKey('loading'),
                       dimension: (compact ? Sp.medium : Sp.large).r,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: foreground,
-                      ),
+                      child: CircularProgressIndicator(strokeWidth: 2, color: foreground),
                     )
                   : Icon(
                       icon,

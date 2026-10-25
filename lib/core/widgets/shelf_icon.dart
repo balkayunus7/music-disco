@@ -29,17 +29,9 @@ class _ShelfPainter extends CustomPainter {
     final top = size.height * 0.18;
     final bottom = size.height * 0.82;
     for (final x in [0.16, 0.34, 0.52]) {
-      canvas.drawLine(
-        Offset(size.width * x, top),
-        Offset(size.width * x, bottom),
-        paint,
-      );
+      canvas.drawLine(Offset(size.width * x, top), Offset(size.width * x, bottom), paint);
     }
-    canvas.drawLine(
-      Offset(size.width * 0.68, top),
-      Offset(size.width * 0.86, bottom),
-      paint,
-    );
+    canvas.drawLine(Offset(size.width * 0.68, top), Offset(size.width * 0.86, bottom), paint);
   }
 
   @override

@@ -1,0 +1,1 @@
+enum CollectionShelf { nightWalk, slowMornings }

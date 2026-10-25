@@ -11,25 +11,18 @@ class YoutubePlayerState extends Equatable {
   final String? videoId;
   final PlaybackStatus status;
   final Duration position;
-
   final Duration duration;
 
   bool get isPlaying => status.isActive;
   bool get hasError => status == PlaybackStatus.error;
 
-  double get progress => duration.inMilliseconds == 0
-      ? 0
-      : (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0);
+  double get progress =>
+      duration.inMilliseconds == 0 ? 0 : (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0);
 
   String get elapsedLabel => formatPlaybackTime(position);
   String get durationLabel => formatPlaybackTime(duration);
 
-  YoutubePlayerState copyWith({
-    String? videoId,
-    PlaybackStatus? status,
-    Duration? position,
-    Duration? duration,
-  }) {
+  YoutubePlayerState copyWith({String? videoId, PlaybackStatus? status, Duration? position, Duration? duration}) {
     return YoutubePlayerState(
       videoId: videoId ?? this.videoId,
       status: status ?? this.status,

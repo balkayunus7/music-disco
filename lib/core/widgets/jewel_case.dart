@@ -4,16 +4,9 @@ import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_e
 import 'package:music_disco/core/util/custom_app_sizes.dart';
 
 class JewelCase extends StatelessWidget {
-  const JewelCase({
-    super.key,
-    required this.child,
-    this.footer,
-    this.hasSpine = true,
-    this.contentPadding,
-  });
+  const JewelCase({super.key, required this.child, this.footer, this.hasSpine = true, this.contentPadding});
 
   final Widget child;
-
   final Widget? footer;
   final bool hasSpine;
   final EdgeInsetsGeometry? contentPadding;
@@ -25,26 +18,13 @@ class JewelCase extends StatelessWidget {
       padding: (Sp.tiny + 1).padAllR,
       decoration: BoxDecoration(
         borderRadius: Sp.small.radiusR,
-        border: Border.all(
-          color: highlight.withValues(alpha: 0.38),
-          width: 1.4,
-        ),
+        border: Border.all(color: highlight.withValues(alpha: 0.38), width: 1.4),
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            context.colors.surfaceSecondary,
-            context.colors.surface,
-            context.colors.surfaceSecondary,
-          ],
+          colors: [context.colors.surfaceSecondary, context.colors.surface, context.colors.surfaceSecondary],
         ),
-        boxShadow: [
-          BoxShadow(
-            color: context.colors.overlay,
-            blurRadius: Sp.xlarge.r,
-            offset: Offset(0, Sp.small.h),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: context.colors.overlay, blurRadius: Sp.xlarge.r, offset: Offset(0, Sp.small.h))],
       ),
       child: Container(
         decoration: BoxDecoration(
@@ -66,15 +46,7 @@ class JewelCase extends StatelessWidget {
               children: [
                 if (isSized) Expanded(child: content) else content,
                 if (footer != null)
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(
-                      Sp.small.w,
-                      0,
-                      Sp.small.w,
-                      Sp.tiny.h + 2,
-                    ),
-                    child: footer,
-                  ),
+                  Padding(padding: EdgeInsets.fromLTRB(Sp.small.w, 0, Sp.small.w, Sp.tiny.h + 2), child: footer),
               ],
             );
             return Stack(
@@ -83,13 +55,7 @@ class JewelCase extends StatelessWidget {
                   padding: EdgeInsets.only(left: hasSpine ? Sp.small.w : 0),
                   child: isSized ? SizedBox.expand(child: body) : body,
                 ),
-                if (hasSpine)
-                  const Positioned(
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    child: _CaseSpine(),
-                  ),
+                if (hasSpine) const Positioned(left: 0, top: 0, bottom: 0, child: _CaseSpine()),
               ],
             );
           },
@@ -106,11 +72,7 @@ class _CaseSpine extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: Sp.small.w,
-      child: CustomPaint(
-        painter: _SpinePainter(
-          color: context.colors.textPrimary.withValues(alpha: 0.16),
-        ),
-      ),
+      child: CustomPaint(painter: _SpinePainter(color: context.colors.textPrimary.withValues(alpha: 0.16))),
     );
   }
 }
@@ -128,11 +90,7 @@ class _SpinePainter extends CustomPainter {
     for (var y = 2.0; y < size.height; y += 3) {
       canvas.drawLine(Offset(2, y), Offset(size.width - 2, y), paint);
     }
-    canvas.drawLine(
-      Offset(size.width - 0.5, 0),
-      Offset(size.width - 0.5, size.height),
-      paint,
-    );
+    canvas.drawLine(Offset(size.width - 0.5, 0), Offset(size.width - 0.5, size.height), paint);
   }
 
   @override

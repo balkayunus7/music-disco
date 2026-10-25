@@ -18,10 +18,7 @@ class MoodDiscGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rows = [
-      for (var i = 0; i < Mood.values.length; i += _columns)
-        Mood.values.sublist(i, i + _columns),
-    ];
+    final rows = [for (var i = 0; i < Mood.values.length; i += _columns) Mood.values.sublist(i, i + _columns)];
     return Column(
       spacing: Sp.medium.h,
       children: [
@@ -77,15 +74,8 @@ class _MoodSlot extends StatelessWidget {
               child: AnimatedSwitcher(
                 duration: 160.ms,
                 child: isEmpty
-                    ? EmptyDiscSlot(
-                        key: const ValueKey('empty'),
-                        size: discSize,
-                      )
-                    : MoodDisc(
-                        key: const ValueKey('disc'),
-                        mood: mood,
-                        size: discSize,
-                      ),
+                    ? EmptyDiscSlot(key: const ValueKey('empty'), size: discSize)
+                    : MoodDisc(key: const ValueKey('disc'), mood: mood, size: discSize),
               ),
             ),
             Sp.small.heightBox,
@@ -104,9 +94,7 @@ class _MoodSlot extends StatelessWidget {
                         mood.labelKey.tr(),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: m13w600(
-                          context,
-                        ).copyWith(color: context.colors.textSecondary),
+                        style: m13w600(context).copyWith(color: context.colors.textSecondary),
                       ),
                     ),
             ),

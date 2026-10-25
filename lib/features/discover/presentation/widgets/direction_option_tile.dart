@@ -16,9 +16,7 @@ class DirectionOptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = isSelected
-        ? context.colors.textPrimary
-        : context.colors.textSecondary;
+    final foreground = isSelected ? context.colors.textPrimary : context.colors.textSecondary;
     return Pressable(
       onTap: onTap,
       selected: isSelected,
@@ -30,15 +28,9 @@ class DirectionOptionTile extends StatelessWidget {
           height: Sp.xxxlarge.h - Sp.tiny.h,
           padding: Sp.small.padHR,
           decoration: BoxDecoration(
-            color: isSelected
-                ? context.colors.surfaceSecondary
-                : context.colors.surface.withValues(alpha: 0),
+            color: isSelected ? context.colors.surfaceSecondary : context.colors.surface.withValues(alpha: 0),
             borderRadius: Sp.huge.radiusR,
-            border: Border.all(
-              color: isSelected
-                  ? context.colors.border
-                  : context.colors.borderSecondary,
-            ),
+            border: Border.all(color: isSelected ? context.colors.border : context.colors.borderSecondary),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

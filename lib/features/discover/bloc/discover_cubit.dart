@@ -2,7 +2,10 @@ import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_direction.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_distance.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_preferences.dart';
+import 'package:music_disco/features/discover/domain/models/discovery_source.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
+import 'package:music_disco/features/discover/domain/models/music_reference.dart';
+import 'package:music_disco/features/discover/domain/models/reference_aspect.dart';
 import 'package:music_disco/features/discover/domain/models/track.dart';
 import 'package:music_disco/features/discover/domain/models/track_feedback.dart';
 import 'package:music_disco/features/discover/domain/use_cases/i_discovery_repository.dart';
@@ -24,10 +27,23 @@ class DiscoverCubit extends Cubit<DiscoverState> {
   void selectDistance(DiscoveryDistance distance) =>
       _updatePreferences(distance: distance);
 
+  void useMoodSource() => _updatePreferences(source: DiscoverySource.mood);
+
+  void selectReference(MusicReference reference, ReferenceAspect aspect) {
+    _updatePreferences(
+      source: DiscoverySource.reference,
+      reference: reference,
+      aspect: aspect,
+    );
+  }
+
   void _updatePreferences({
     Mood? mood,
     DiscoveryDirection? direction,
     DiscoveryDistance? distance,
+    DiscoverySource? source,
+    MusicReference? reference,
+    ReferenceAspect? aspect,
   }) {
     emit(
       state.copyWith(
@@ -35,6 +51,9 @@ class DiscoverCubit extends Cubit<DiscoverState> {
           mood: mood,
           direction: direction,
           distance: distance,
+          source: source,
+          reference: reference,
+          aspect: aspect,
         ),
       ),
     );
@@ -49,6 +68,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
         currentIndex: 0,
         notice: DiscoverNotice.none,
         isReplacing: false,
+        roundSource: state.preferences.source,
       ),
     );
     try {

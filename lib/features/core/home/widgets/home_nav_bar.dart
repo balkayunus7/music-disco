@@ -1,5 +1,45 @@
 part of '../home_page.dart';
 
+class HomeNavBarReveal extends StatelessWidget {
+  const HomeNavBarReveal({
+    super.key,
+    required this.isHidden,
+    required this.child,
+  });
+
+  final bool isHidden;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      ignoring: isHidden,
+      child: ExcludeSemantics(
+        excluding: isHidden,
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(end: isHidden ? 0 : 1),
+          duration: 320.ms,
+          curve: Curves.easeOutCubic,
+          builder: (context, factor, child) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ClipRect(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  heightFactor: factor,
+                  child: Opacity(opacity: factor, child: child),
+                ),
+              ),
+              SizedBox(height: (1 - factor) * MediaQuery.paddingOf(context).bottom),
+            ],
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
+
 class HomeNavBar extends StatelessWidget {
   const HomeNavBar({
     super.key,
@@ -25,7 +65,7 @@ class HomeNavBar extends StatelessWidget {
         top: false,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: Sp.xlarge.w,
+            horizontal: Sp.screen.w,
             vertical: Sp.small.h,
           ),
           child: Row(
@@ -103,6 +143,7 @@ class _NavItem extends StatelessWidget {
       onTap: onTap,
       selected: isSelected,
       semanticLabel: semanticLabel ?? label,
+      haptic: TapHaptic.selection,
       child: ExcludeSemantics(
         child: AnimatedContainer(
           duration: 260.ms,

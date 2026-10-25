@@ -8,9 +8,15 @@ import 'package:music_disco/core/widgets/branch_fade_container.dart';
 import 'package:music_disco/features/auth/presentation/pages/splash_page.dart';
 import 'package:music_disco/features/collection/presentation/pages/collection_page.dart';
 import 'package:music_disco/features/core/home/home_page.dart';
+import 'package:music_disco/features/core/home/widgets/tab_root_reset.dart';
 import 'package:music_disco/features/discover/presentation/pages/direction_page.dart';
+import 'package:music_disco/features/discover/presentation/pages/discover_home_page.dart';
 import 'package:music_disco/features/discover/presentation/pages/mood_page.dart';
+import 'package:music_disco/features/discover/presentation/pages/reference_page.dart';
 import 'package:music_disco/features/discover/presentation/pages/session_page.dart';
+import 'package:music_disco/features/taste/presentation/pages/taste_genres_page.dart';
+import 'package:music_disco/features/taste/presentation/pages/taste_page.dart';
+import 'package:music_disco/features/taste/presentation/pages/taste_references_page.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -50,7 +56,10 @@ final appRouter = GoRouter(
 
 final appShellRoute = StatefulShellRoute(
   builder: (context, state, navigationShell) {
-    return HomePage(navigationShell: navigationShell);
+    return HomePage(
+      navigationShell: navigationShell,
+      isNavBarHidden: AppRoutes.fullscreenRoutes.contains(state.uri.path),
+    );
   },
   navigatorContainerBuilder: (context, navigationShell, children) {
     return BranchFadeContainer(
@@ -65,26 +74,65 @@ final appShellRoute = StatefulShellRoute(
           path: AppRoutes.discover,
           name: AppRoutes.discover,
           pageBuilder: (context, state) {
-            return tabRootPage(state: state, child: const MoodPage());
+            return tabRootPage(
+              state: state,
+              child: const TabRootReset(branch: 0, child: DiscoverHomePage()),
+            );
           },
           routes: [
             GoRoute(
-              path: 'direction',
-              name: AppRoutes.direction,
+              path: 'mood',
+              name: AppRoutes.mood,
+              pageBuilder: (context, state) {
+                return sharedAxisPage(state: state, child: const MoodPage());
+              },
+              routes: [
+                _directionRoute(
+                  name: AppRoutes.moodDirection,
+                  sessionName: AppRoutes.moodSession,
+                ),
+              ],
+            ),
+            GoRoute(
+              path: 'reference',
+              name: AppRoutes.reference,
               pageBuilder: (context, state) {
                 return sharedAxisPage(
                   state: state,
-                  child: const DirectionPage(),
+                  child: const ReferencePage(),
                 );
               },
               routes: [
+                _directionRoute(
+                  name: AppRoutes.referenceDirection,
+                  sessionName: AppRoutes.referenceSession,
+                ),
+              ],
+            ),
+            GoRoute(
+              path: 'taste',
+              name: AppRoutes.taste,
+              pageBuilder: (context, state) {
+                return sharedAxisPage(state: state, child: const TastePage());
+              },
+              routes: [
                 GoRoute(
-                  path: 'session',
-                  name: AppRoutes.session,
+                  path: 'genres',
+                  name: AppRoutes.tasteGenres,
                   pageBuilder: (context, state) {
                     return sharedAxisPage(
                       state: state,
-                      child: const SessionPage(),
+                      child: const TasteGenresPage(),
+                    );
+                  },
+                ),
+                GoRoute(
+                  path: 'references',
+                  name: AppRoutes.tasteReferences,
+                  pageBuilder: (context, state) {
+                    return sharedAxisPage(
+                      state: state,
+                      child: const TasteReferencesPage(),
                     );
                   },
                 ),
@@ -100,10 +148,35 @@ final appShellRoute = StatefulShellRoute(
           path: AppRoutes.collection,
           name: AppRoutes.collection,
           pageBuilder: (context, state) {
-            return tabRootPage(state: state, child: const CollectionPage());
+            return tabRootPage(
+              state: state,
+              child: const TabRootReset(branch: 1, child: CollectionPage()),
+            );
           },
         ),
       ],
     ),
   ],
 );
+
+GoRoute _directionRoute({required String name, required String sessionName}) {
+  return GoRoute(
+    path: 'direction',
+    name: name,
+    pageBuilder: (context, state) {
+      return sharedAxisPage(
+        state: state,
+        child: DirectionPage(sessionRoute: sessionName),
+      );
+    },
+    routes: [
+      GoRoute(
+        path: 'session',
+        name: sessionName,
+        pageBuilder: (context, state) {
+          return sharedAxisPage(state: state, child: const SessionPage());
+        },
+      ),
+    ],
+  );
+}

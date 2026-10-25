@@ -14,10 +14,7 @@ class EyebrowText extends StatelessWidget {
       text,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: m11w600(context).copyWith(
-        color: color ?? context.colors.textSecondary,
-        letterSpacing: 2.2,
-      ),
+      style: m11w600(context).copyWith(color: color ?? context.colors.textSecondary, letterSpacing: 2.2),
     );
   }
 }

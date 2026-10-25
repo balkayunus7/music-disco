@@ -1,4 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:mobile_boilerplate/application/analytics/analytics_cubit.dart';
 import 'package:mobile_boilerplate/application/auth/auth_cubit.dart';
 import 'package:mobile_boilerplate/application/color_theme/color_theme_bloc.dart';
@@ -16,10 +17,14 @@ import 'package:music_disco/features/auth/data/impl_auth_service.dart';
 import 'package:music_disco/features/auth/data/impl_user_repository.dart';
 import 'package:music_disco/features/collection/bloc/collection_cubit.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
+import 'package:music_disco/features/discover/bloc/reference_search_cubit.dart';
 import 'package:music_disco/features/discover/data/mock_discovery_repository.dart';
+import 'package:music_disco/features/discover/data/deezer_reference_catalog.dart';
 import 'package:music_disco/features/discover/domain/use_cases/i_discovery_repository.dart';
+import 'package:music_disco/features/discover/domain/use_cases/i_reference_catalog.dart';
 import 'package:music_disco/features/player/bloc/youtube_player_cubit.dart';
 import 'package:music_disco/features/player/data/youtube_player_wrapper.dart';
+import 'package:music_disco/features/taste/bloc/taste_cubit.dart';
 import 'package:supabase/supabase.dart';
 
 Future<void> setupDependencies() async {
@@ -60,6 +65,13 @@ Future<void> setupDependencies() async {
     ..registerSingleton<ImplAnalyticsService>(const ImplAnalyticsService())
     ..registerSingleton<StoreCheckerService>(const StoreCheckerService())
     ..registerSingleton<IDiscoveryRepository>(MockDiscoveryRepository())
+    ..registerSingleton<http.Client>(
+      http.Client(),
+      dispose: (client) => client.close(),
+    )
+    ..registerSingleton<IReferenceCatalog>(
+      DeezerReferenceCatalog(getIt<http.Client>()),
+    )
     // Setup application dependencies
     ..registerFactory<AuthCubit>(
       () => AuthCubit(
@@ -82,6 +94,10 @@ Future<void> setupDependencies() async {
       () => DiscoverCubit(getIt<IDiscoveryRepository>()),
     )
     ..registerFactory<CollectionCubit>(CollectionCubit.new)
+    ..registerFactory<TasteCubit>(TasteCubit.new)
+    ..registerFactory<ReferenceSearchCubit>(
+      () => ReferenceSearchCubit(getIt<IReferenceCatalog>()),
+    )
     ..registerFactory<YoutubePlayerWrapper>(YoutubePlayerWrapper.new)
     ..registerFactory<YoutubePlayerCubit>(
       () => YoutubePlayerCubit(getIt<YoutubePlayerWrapper>()),

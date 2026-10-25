@@ -17,38 +17,23 @@ class SessionTrackInfo extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    track.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: a24(context),
-                  ),
+                  Text(track.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: a24(context)),
                   Sp.xsmall.heightBox,
                   Text(
                     track.artist,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: m13w600(context).copyWith(
-                      color: context.colors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: m13w600(context).copyWith(color: context.colors.textSecondary, fontWeight: FontWeight.w500),
                   ),
                 ],
               ),
             ),
             Sp.small.widthBox,
-            PillLabel(
-              text: LocaleKeys.session_new_find.tr(),
-              isStrong: false,
-              dense: true,
-            ),
+            PillLabel(text: LocaleKeys.session_new_find.tr(), isStrong: false, dense: true),
           ],
         ),
         Sp.small.heightBox,
-        Text(
-          track.noteKey.tr(),
-          style: m13w500(context).copyWith(color: context.colors.textSecondary),
-        ),
+        Text(track.noteKey.tr(), style: m13w500(context).copyWith(color: context.colors.textSecondary)),
       ],
     );
   }

@@ -16,6 +16,7 @@ import 'package:music_disco/core/widgets/display_headline.dart';
 import 'package:music_disco/core/widgets/eyebrow_text.dart';
 import 'package:music_disco/core/widgets/holo_disc.dart';
 import 'package:music_disco/core/widgets/jewel_case.dart';
+import 'package:music_disco/core/widgets/page_back_button.dart';
 import 'package:music_disco/core/widgets/pill_label.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
@@ -33,12 +34,9 @@ class MoodPage extends StatefulWidget {
   State<MoodPage> createState() => _MoodPageState();
 }
 
-class _MoodPageState extends State<MoodPage>
-    with RouteAwareAnalyticsMixin, RouteAwareAnalyticsPageParamsMixin {
+class _MoodPageState extends State<MoodPage> with RouteAwareAnalyticsMixin, RouteAwareAnalyticsPageParamsMixin {
   final GlobalKey _caseDiscKey = GlobalKey();
-  final Map<Mood, GlobalKey> _slotKeys = {
-    for (final mood in Mood.values) mood: GlobalKey(),
-  };
+  final Map<Mood, GlobalKey> _slotKeys = {for (final mood in Mood.values) mood: GlobalKey()};
 
   final Set<Mood> _airborne = {};
   late Mood? _caseMood = context.read<DiscoverCubit>().state.preferences.mood;
@@ -50,7 +48,6 @@ class _MoodPageState extends State<MoodPage>
     final previous = cubit.state.preferences.mood;
     if (next == previous || _airborne.isNotEmpty) return;
 
-    await HapticFeedback.selectionClick();
     cubit.selectMood(next);
 
     final caseRect = _globalRect(_caseDiscKey);
@@ -85,10 +82,16 @@ class _MoodPageState extends State<MoodPage>
       ),
     ]);
     if (!mounted) return;
+    HapticFeedback.lightImpact();
     setState(() {
       _airborne.clear();
       _caseMood = context.read<DiscoverCubit>().state.preferences.mood;
     });
+  }
+
+  void _onContinue() {
+    context.read<DiscoverCubit>().useMoodSource();
+    context.go(AppRoutes.moodDirection);
   }
 
   Rect? _globalRect(GlobalKey key) {
@@ -99,53 +102,27 @@ class _MoodPageState extends State<MoodPage>
 
   @override
   Widget build(BuildContext context) {
-    final mood = context.select<DiscoverCubit, Mood>(
-      (cubit) => cubit.state.preferences.mood,
-    );
+    final mood = context.select<DiscoverCubit, Mood>((cubit) => cubit.state.preferences.mood);
     return BrandPageBody(
       children: [
-        Row(
-          children: [
-            Expanded(child: EyebrowText(LocaleKeys.mood_step.tr())),
-            EyebrowText(LocaleKeys.mood_today.tr()),
-          ],
-        ),
-        Sp.large.heightBox,
-        DisplayHeadline(
-          first: LocaleKeys.mood_title_first.tr(),
-          second: LocaleKeys.mood_title_second.tr(),
-        ),
+        Row(children: [const PageBackButton(), const Spacer(), EyebrowText(LocaleKeys.mood_step.tr())]),
+        Sp.medium.heightBox,
+        DisplayHeadline(first: LocaleKeys.mood_title_first.tr(), second: LocaleKeys.mood_title_second.tr()),
         Sp.medium.heightBox,
         Text(
           LocaleKeys.mood_subtitle.tr(),
-          style: m14w600(context).copyWith(
-            color: context.colors.textSecondary,
-            fontWeight: FontWeight.w500,
-          ),
+          style: m14w600(context).copyWith(color: context.colors.textSecondary, fontWeight: FontWeight.w500),
         ),
         Sp.large.heightBox,
-        MoodCaseStage(
-          mood: _caseMood,
-          discKey: _caseDiscKey,
-          discSize: _caseDiscSize.r,
-        ),
+        MoodCaseStage(mood: _caseMood, discKey: _caseDiscKey, discSize: _caseDiscSize.r),
         Sp.medium.heightBox,
         MoodCaption(mood: mood),
         Sp.medium.heightBox,
         Center(
-          child: CtaBar(
-            text: LocaleKeys.mood_continue.tr(),
-            compact: true,
-            onTap: () => context.go(AppRoutes.direction),
-          ),
+          child: CtaBar(text: LocaleKeys.mood_continue.tr(), compact: true, onTap: _onContinue),
         ),
         Sp.xlarge.heightBox,
-        MoodDiscGrid(
-          selected: mood,
-          airborne: _airborne,
-          slotKeys: _slotKeys,
-          onSelected: _onMoodSelected,
-        ),
+        MoodDiscGrid(selected: mood, airborne: _airborne, slotKeys: _slotKeys, onSelected: _onMoodSelected),
       ],
     );
   }

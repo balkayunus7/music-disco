@@ -15,13 +15,10 @@ class PageBackButton extends StatelessWidget {
     return Pressable(
       onTap: () => context.pop(),
       semanticLabel: LocaleKeys.back.tr(),
+      haptic: TapHaptic.selection,
       child: Padding(
         padding: Sp.xsmall.padOnlyR(t: true, b: true, r: true),
-        child: Icon(
-          Icons.arrow_back_rounded,
-          color: context.colors.textPrimary,
-          size: Sp.large.r,
-        ),
+        child: Icon(Icons.arrow_back_rounded, color: context.colors.textPrimary, size: Sp.large.r),
       ),
     );
   }

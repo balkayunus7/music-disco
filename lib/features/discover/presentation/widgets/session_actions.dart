@@ -1,11 +1,7 @@
 part of '../pages/session_page.dart';
 
 class SessionSaveButton extends StatelessWidget {
-  const SessionSaveButton({
-    super.key,
-    required this.isSaved,
-    required this.onTap,
-  });
+  const SessionSaveButton({super.key, required this.isSaved, required this.onTap});
 
   final bool isSaved;
 
@@ -13,13 +9,12 @@ class SessionSaveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = isSaved
-        ? LocaleKeys.session_saved.tr()
-        : LocaleKeys.session_save.tr();
+    final label = isSaved ? LocaleKeys.session_saved.tr() : LocaleKeys.session_save.tr();
     return Pressable(
       onTap: onTap,
       selected: isSaved,
       semanticLabel: label,
+      haptic: TapHaptic.medium,
       child: ExcludeSemantics(
         child: AnimatedContainer(
           duration: 260.ms,
@@ -27,9 +22,7 @@ class SessionSaveButton extends StatelessWidget {
           height: Sp.xxxlarge.h - Sp.tiny.h,
           padding: Sp.large.padHR,
           decoration: BoxDecoration(
-            color: isSaved
-                ? context.colors.buttonSecondary
-                : context.colors.buttonSecondary.withValues(alpha: 0),
+            color: isSaved ? context.colors.buttonSecondary : context.colors.buttonSecondary.withValues(alpha: 0),
             borderRadius: Sp.huge.radiusR,
             border: Border.all(color: context.colors.border),
           ),
@@ -37,10 +30,7 @@ class SessionSaveButton extends StatelessWidget {
             duration: 220.ms,
             transitionBuilder: (child, animation) => FadeTransition(
               opacity: animation,
-              child: ScaleTransition(
-                scale: Tween<double>(begin: 0.85, end: 1).animate(animation),
-                child: child,
-              ),
+              child: ScaleTransition(scale: Tween<double>(begin: 0.85, end: 1).animate(animation), child: child),
             ),
             child: Row(
               key: ValueKey(isSaved),
@@ -79,9 +69,7 @@ class SessionGhostAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isActive
-        ? context.colors.textPrimary
-        : context.colors.textSecondary;
+    final color = isActive ? context.colors.textPrimary : context.colors.textSecondary;
     return Pressable(
       onTap: onTap,
       selected: isActive,
@@ -93,22 +81,14 @@ class SessionGhostAction extends StatelessWidget {
           padding: Sp.small.padHR,
           decoration: BoxDecoration(
             borderRadius: Sp.huge.radiusR,
-            border: Border.all(
-              color: isActive
-                  ? context.colors.border
-                  : context.colors.border.withValues(alpha: 0),
-            ),
+            border: Border.all(color: isActive ? context.colors.border : context.colors.border.withValues(alpha: 0)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             spacing: Sp.tiny.w + 2,
             children: [
               Icon(icon, color: color, size: Sp.small.r + 2),
-              Text(
-                label,
-                maxLines: 1,
-                style: m12w600(context).copyWith(color: color),
-              ),
+              Text(label, maxLines: 1, style: m12w600(context).copyWith(color: color)),
             ],
           ),
         ),
@@ -118,11 +98,7 @@ class SessionGhostAction extends StatelessWidget {
 }
 
 class SessionFeedbackPanel extends StatelessWidget {
-  const SessionFeedbackPanel({
-    super.key,
-    required this.isOpen,
-    required this.onSelected,
-  });
+  const SessionFeedbackPanel({super.key, required this.isOpen, required this.onSelected});
 
   final bool isOpen;
   final ValueChanged<TrackFeedback> onSelected;
@@ -147,9 +123,7 @@ class SessionFeedbackPanel extends StatelessWidget {
                 children: [
                   Text(
                     LocaleKeys.session_what_to_change.tr(),
-                    style: m12w500(
-                      context,
-                    ).copyWith(color: context.colors.textSecondary),
+                    style: m12w500(context).copyWith(color: context.colors.textSecondary),
                   ),
                   Sp.xsmall.heightBox,
                   Wrap(
@@ -173,11 +147,7 @@ class SessionFeedbackPanel extends StatelessWidget {
 }
 
 class _FeedbackChip extends StatelessWidget {
-  const _FeedbackChip({
-    required this.label,
-    required this.delayIndex,
-    required this.onTap,
-  });
+  const _FeedbackChip({required this.label, required this.delayIndex, required this.onTap});
 
   final String label;
 
@@ -192,10 +162,7 @@ class _FeedbackChip extends StatelessWidget {
       curve: Curves.easeOutCubic,
       builder: (context, value, child) => Opacity(
         opacity: value,
-        child: Transform.translate(
-          offset: Offset(0, (1 - value) * Sp.small.h),
-          child: child,
-        ),
+        child: Transform.translate(offset: Offset(0, (1 - value) * Sp.small.h), child: child),
       ),
       child: Pressable(
         onTap: onTap,
@@ -204,17 +171,9 @@ class _FeedbackChip extends StatelessWidget {
           height: Sp.xxlarge.h + Sp.tiny.h,
           alignment: Alignment.center,
           padding: Sp.medium.padHR,
-          decoration: BoxDecoration(
-            color: context.colors.surface,
-            borderRadius: Sp.huge.radiusR,
-          ),
+          decoration: BoxDecoration(color: context.colors.surface, borderRadius: Sp.huge.radiusR),
           child: ExcludeSemantics(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: m12w600(context),
-            ),
+            child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: m12w600(context)),
           ),
         ),
       ),
@@ -244,9 +203,7 @@ class SessionNoticeText extends StatelessWidget {
               child: Text(
                 text,
                 textAlign: TextAlign.center,
-                style: m12w500(
-                  context,
-                ).copyWith(color: context.colors.textDisabled),
+                style: m12w500(context).copyWith(color: context.colors.textDisabled),
               ),
             ),
     );

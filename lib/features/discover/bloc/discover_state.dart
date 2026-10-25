@@ -2,8 +2,6 @@ part of 'discover_cubit.dart';
 
 enum DiscoverRoundStatus { idle, loading, ready, failure, finished }
 
-enum DiscoverResumePoint { mood, direction, session }
-
 enum DiscoverNotice { none, feedbackTaken, knownSkipped }
 
 class DiscoverState extends Equatable {
@@ -14,6 +12,7 @@ class DiscoverState extends Equatable {
     this.currentIndex = 0,
     this.notice = DiscoverNotice.none,
     this.isReplacing = false,
+    this.roundSource,
   });
 
   static const int roundSize = 5;
@@ -25,9 +24,12 @@ class DiscoverState extends Equatable {
   final DiscoverNotice notice;
   final bool isReplacing;
 
+  final DiscoverySource? roundSource;
+
   Track? get currentTrack =>
       currentIndex < tracks.length ? tracks[currentIndex] : null;
   bool get hasPrevious => currentIndex > 0;
+  bool get canResume => roundSource != null;
   bool get isLastTrack =>
       tracks.isNotEmpty && currentIndex == tracks.length - 1;
 
@@ -36,14 +38,6 @@ class DiscoverState extends Equatable {
 
   String get rangeLabel =>
       '${_twoDigits(currentIndex + 1)}-${_twoDigits(tracks.length)}';
-
-  DiscoverResumePoint get resumePoint => switch (status) {
-    DiscoverRoundStatus.loading ||
-    DiscoverRoundStatus.ready => DiscoverResumePoint.session,
-    DiscoverRoundStatus.finished => DiscoverResumePoint.direction,
-    DiscoverRoundStatus.idle ||
-    DiscoverRoundStatus.failure => DiscoverResumePoint.mood,
-  };
 
   static String _twoDigits(int value) => value.toString().padLeft(2, '0');
 
@@ -54,6 +48,7 @@ class DiscoverState extends Equatable {
     int? currentIndex,
     DiscoverNotice? notice,
     bool? isReplacing,
+    DiscoverySource? roundSource,
   }) {
     return DiscoverState(
       preferences: preferences ?? this.preferences,
@@ -62,6 +57,7 @@ class DiscoverState extends Equatable {
       currentIndex: currentIndex ?? this.currentIndex,
       notice: notice ?? this.notice,
       isReplacing: isReplacing ?? this.isReplacing,
+      roundSource: roundSource ?? this.roundSource,
     );
   }
 
@@ -73,5 +69,6 @@ class DiscoverState extends Equatable {
     currentIndex,
     notice,
     isReplacing,
+    roundSource,
   ];
 }

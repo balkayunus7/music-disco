@@ -14,13 +14,19 @@ import 'package:music_disco/features/collection/bloc/collection_cubit.dart';
 import 'package:music_disco/features/core/home/helpers/home_page_mixin.dart';
 import 'package:music_disco/features/core/home/helpers/home_page_scope.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
+import 'package:music_disco/features/taste/bloc/taste_cubit.dart';
 
 part 'widgets/home_nav_bar.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({required this.navigationShell, super.key});
+  const HomePage({
+    required this.navigationShell,
+    this.isNavBarHidden = false,
+    super.key,
+  });
 
   final StatefulNavigationShell navigationShell;
+  final bool isNavBarHidden;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -37,17 +43,21 @@ class _HomePageState extends State<HomePage>
       providers: [
         BlocProvider(create: (_) => getIt<DiscoverCubit>()),
         BlocProvider(create: (_) => getIt<CollectionCubit>()),
+        BlocProvider(create: (_) => getIt<TasteCubit>()),
       ],
       child: HomePageScope(
         state: this,
         child: Scaffold(
           backgroundColor: context.colors.background,
           body: widget.navigationShell,
-          bottomNavigationBar: HomeNavBar(
-            currentIndex: widget.navigationShell.currentIndex,
-            collectionTargetKey: collectionTargetKey,
-            landingPulse: landingPulse,
-            onTap: onNavTap,
+          bottomNavigationBar: HomeNavBarReveal(
+            isHidden: widget.isNavBarHidden,
+            child: HomeNavBar(
+              currentIndex: widget.navigationShell.currentIndex,
+              collectionTargetKey: collectionTargetKey,
+              landingPulse: landingPulse,
+              onTap: onNavTap,
+            ),
           ),
         ),
       ),

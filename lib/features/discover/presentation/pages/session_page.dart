@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
@@ -12,7 +11,6 @@ import 'package:music_disco/core/util/text_style_helper.dart';
 import 'package:music_disco/core/widgets/app_snack_bar.dart';
 import 'package:music_disco/core/widgets/brand_page_body.dart';
 import 'package:music_disco/core/widgets/cta_bar.dart';
-import 'package:music_disco/core/widgets/display_headline.dart';
 import 'package:music_disco/core/widgets/eyebrow_text.dart';
 import 'package:music_disco/core/widgets/jewel_case.dart';
 import 'package:music_disco/core/widgets/page_back_button.dart';
@@ -87,12 +85,10 @@ class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixi
   }
 
   void _toggleFeedback() {
-    HapticFeedback.selectionClick();
     setState(() => _isFeedbackOpen = !_isFeedbackOpen);
   }
 
   void _reject(TrackFeedback feedback) {
-    HapticFeedback.lightImpact();
     setState(() => _isFeedbackOpen = false);
     _discover.rejectCurrent(feedback);
   }
@@ -104,7 +100,6 @@ class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixi
       return;
     }
 
-    HapticFeedback.mediumImpact();
     collection.save(track);
 
     final box = _saveButtonKey.currentContext?.findRenderObject() as RenderBox?;
@@ -130,7 +125,6 @@ class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixi
   }
 
   void _onNextTap(DiscoverState state) {
-    HapticFeedback.selectionClick();
     if (state.isLastTrack) {
       _player.stop();
       _discover.finishRound();
@@ -160,16 +154,16 @@ class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixi
         final track = state.currentTrack;
         return BrandPageBody(
           children: [
-            SessionHeader(rangeLabel: track == null ? null : state.rangeLabel),
-            Sp.large.heightBox,
-            DisplayHeadline(first: LocaleKeys.session_title_first.tr(), second: LocaleKeys.session_title_second.tr()),
-            Sp.medium.heightBox,
-            PreferenceSummaryBar(preferences: state.preferences, onTap: _openFrequencySheet),
+            SessionHeader(
+              rangeLabel: track == null ? null : state.rangeLabel,
+              preferences: state.preferences,
+              onTune: _openFrequencySheet,
+            ),
             Sp.large.heightBox,
             if (state.status == DiscoverRoundStatus.failure)
               SessionFailureView(onRetry: _discover.startRound)
             else if (track == null)
-              SessionLoadingView(mood: state.preferences.mood)
+              SessionLoadingView(mood: state.preferences.anchorMood)
             else ...[
               _buildTrackContent(state, track),
             ],
@@ -184,18 +178,15 @@ class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixi
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: Sp.xsmall.padHR,
-          child: Row(
-            children: [
-              Expanded(child: EyebrowText(LocaleKeys.session_next_find.tr())),
-              EyebrowText(state.progressLabel),
-            ],
-          ),
+        Row(
+          children: [
+            Expanded(child: EyebrowText(LocaleKeys.session_next_find.tr())),
+            EyebrowText(state.progressLabel),
+          ],
         ),
         Sp.small.heightBox,
         SessionPlayerCard(track: track),
-        Sp.medium.heightBox,
+        Sp.xlarge.heightBox,
         AnimatedOpacity(
           opacity: isBusy ? 0.45 : 1,
           duration: 200.ms,

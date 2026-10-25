@@ -15,22 +15,11 @@ class Track extends Equatable {
   final String id;
   final String title;
   final String artist;
-
   final Mood mood;
-
   final String noteKey;
   final Duration duration;
-
   final String youtubeId;
 
   @override
-  List<Object?> get props => [
-    id,
-    title,
-    artist,
-    mood,
-    noteKey,
-    duration,
-    youtubeId,
-  ];
+  List<Object?> get props => [id, title, artist, mood, noteKey, duration, youtubeId];
 }

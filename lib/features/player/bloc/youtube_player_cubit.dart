@@ -11,12 +11,8 @@ part 'youtube_player_state.dart';
 class YoutubePlayerCubit extends Cubit<YoutubePlayerState> {
   YoutubePlayerCubit(this._player) : super(const YoutubePlayerState()) {
     _subscriptions = [
-      _player.statusStream.listen(
-        (status) => emit(state.copyWith(status: status)),
-      ),
-      _player.positionStream.listen(
-        (position) => emit(state.copyWith(position: position)),
-      ),
+      _player.statusStream.listen((status) => emit(state.copyWith(status: status))),
+      _player.positionStream.listen((position) => emit(state.copyWith(position: position))),
       _player.durationStream.listen((duration) {
         if (duration > Duration.zero) emit(state.copyWith(duration: duration));
       }),
@@ -26,14 +22,9 @@ class YoutubePlayerCubit extends Cubit<YoutubePlayerState> {
   final YoutubePlayerWrapper _player;
   late final List<StreamSubscription<Object?>> _subscriptions;
 
-  Future<void> open(
-    String videoId, {
-    bool? autoPlay,
-    Duration fallbackDuration = Duration.zero,
-  }) async {
+  Future<void> open(String videoId, {bool? autoPlay, Duration fallbackDuration = Duration.zero}) async {
     if (videoId == state.videoId) return;
-    final shouldPlay =
-        autoPlay ?? (state.isPlaying || state.status == PlaybackStatus.ended);
+    final shouldPlay = autoPlay ?? (state.isPlaying || state.status == PlaybackStatus.ended);
     emit(
       YoutubePlayerState(
         videoId: videoId,
@@ -66,8 +57,7 @@ class YoutubePlayerCubit extends Cubit<YoutubePlayerState> {
     await _player.seekTo(target);
   }
 
-  Widget buildView({Color? backgroundColor}) =>
-      _player.buildView(backgroundColor: backgroundColor);
+  Widget buildView({Color? backgroundColor}) => _player.buildView(backgroundColor: backgroundColor);
 
   @override
   Future<void> close() async {

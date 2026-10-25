@@ -8,17 +8,31 @@ mixin HomePageMixin on State<HomePage> {
 
   final ValueNotifier<int> landingPulse = ValueNotifier(0);
 
+  final List<ValueNotifier<int>> branchEntries = [
+    ValueNotifier(0),
+    ValueNotifier(0),
+  ];
+
+  @override
+  void didUpdateWidget(HomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final index = widget.navigationShell.currentIndex;
+    if (index != oldWidget.navigationShell.currentIndex) {
+      branchEntries[index].value++;
+    }
+  }
+
   @override
   void dispose() {
     landingPulse.dispose();
+    for (final entries in branchEntries) {
+      entries.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> onNavTap(int index) async {
-    await HapticFeedback.selectionClick();
-    if (!mounted) return;
-    final shell = widget.navigationShell;
-    shell.goBranch(index, initialLocation: index == shell.currentIndex);
+  void onNavTap(int index) {
+    widget.navigationShell.goBranch(index, initialLocation: true);
   }
 
   Future<void> flyToCollection({

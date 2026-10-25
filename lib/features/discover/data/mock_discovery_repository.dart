@@ -108,7 +108,7 @@ class MockDiscoveryRepository implements IDiscoveryRepository {
         (track) => _calmMoods.contains(track.mood),
       ),
       TrackFeedback.notMyStyle => candidates.where(
-        (track) => track.mood != preferences.mood,
+        (track) => track.mood != preferences.anchorMood,
       ),
       TrackFeedback.alreadyKnown => candidates,
     };
@@ -116,8 +116,10 @@ class MockDiscoveryRepository implements IDiscoveryRepository {
   }
 
   List<Track> _ranked(DiscoveryPreferences preferences) {
+    final referenceArtist = preferences.activeReference?.artistName;
     int rank(Track track) {
-      final matchesMood = track.mood == preferences.mood;
+      if (track.artist == referenceArtist) return 99;
+      final matchesMood = track.mood == preferences.anchorMood;
       final moodRank = switch (preferences.distance) {
         DiscoveryDistance.close => matchesMood ? 0 : 2,
         DiscoveryDistance.bitDifferent => matchesMood ? 1 : 2,

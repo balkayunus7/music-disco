@@ -11,9 +11,7 @@ class SessionDiscStrip extends StatelessWidget {
 
   final List<Track> tracks;
   final int currentIndex;
-
   final ValueChanged<int>? onSelected;
-
   final VoidCallback? onPrevious;
 
   @override
@@ -29,11 +27,7 @@ class SessionDiscStrip extends StatelessWidget {
             child: AnimatedOpacity(
               opacity: onPrevious == null ? 0.3 : 1,
               duration: 200.ms,
-              child: Icon(
-                Icons.chevron_left_rounded,
-                color: context.colors.textSecondary,
-                size: Sp.large.r,
-              ),
+              child: Icon(Icons.chevron_left_rounded, color: context.colors.textSecondary, size: Sp.large.r),
             ),
           ),
         ),
@@ -45,9 +39,7 @@ class SessionDiscStrip extends StatelessWidget {
                 _StripDisc(
                   mood: track.mood,
                   isCurrent: index == currentIndex,
-                  semanticLabel: LocaleKeys.session_track_position.tr(
-                    args: ['${index + 1}', '${tracks.length}'],
-                  ),
+                  semanticLabel: LocaleKeys.session_track_position.tr(args: ['${index + 1}', '${tracks.length}']),
                   onTap: onSelected == null ? null : () => onSelected(index),
                 ),
             ],
@@ -59,12 +51,7 @@ class SessionDiscStrip extends StatelessWidget {
 }
 
 class _StripDisc extends StatelessWidget {
-  const _StripDisc({
-    required this.mood,
-    required this.isCurrent,
-    required this.semanticLabel,
-    required this.onTap,
-  });
+  const _StripDisc({required this.mood, required this.isCurrent, required this.semanticLabel, required this.onTap});
 
   final Mood mood;
   final bool isCurrent;
@@ -93,12 +80,7 @@ class _StripDisc extends StatelessWidget {
               width: 1.2,
             ),
           ),
-          child: MoodDisc(
-            mood: mood,
-            size: Sp.xxlarge.r + Sp.xsmall.r,
-            isDimmed: !isCurrent,
-            hasShadow: isCurrent,
-          ),
+          child: MoodDisc(mood: mood, size: Sp.xxlarge.r + Sp.xsmall.r, isDimmed: !isCurrent, hasShadow: isCurrent),
         ),
       ),
     );

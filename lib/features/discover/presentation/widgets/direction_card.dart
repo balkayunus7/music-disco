@@ -1,12 +1,7 @@
 part of '../pages/direction_page.dart';
 
 class DirectionCard extends StatelessWidget {
-  const DirectionCard({
-    super.key,
-    required this.mood,
-    required this.direction,
-    required this.onSelected,
-  });
+  const DirectionCard({super.key, required this.mood, required this.direction, required this.onSelected});
 
   final Mood mood;
   final DiscoveryDirection direction;
@@ -29,17 +24,11 @@ class DirectionCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _SideLabel(
-                  text: LocaleKeys.direction_company.tr(),
-                  isActive: isStay,
-                ),
+                child: _SideLabel(text: LocaleKeys.direction_company.tr(), isActive: isStay),
               ),
               _Waveform(energy: direction.energy),
               Expanded(
-                child: _SideLabel(
-                  text: LocaleKeys.direction_energy.tr(),
-                  isActive: !isStay,
-                ),
+                child: _SideLabel(text: LocaleKeys.direction_energy.tr(), isActive: !isStay),
               ),
             ],
           ),
@@ -72,9 +61,7 @@ class DirectionCard extends StatelessWidget {
               direction.captionKey.tr(),
               key: ValueKey(direction),
               textAlign: TextAlign.center,
-              style: m12w500(
-                context,
-              ).copyWith(color: context.colors.textSecondary),
+              style: m12w500(context).copyWith(color: context.colors.textSecondary),
             ),
           ),
         ],
@@ -112,8 +99,7 @@ class _DiscRail extends StatelessWidget {
               tween: Tween(end: isStay ? 0 : 0.5),
               duration: 560.ms,
               curve: Curves.easeInOutCubic,
-              builder: (context, turns, _) =>
-                  MoodDisc(mood: mood, size: discSize, turns: turns),
+              builder: (context, turns, _) => MoodDisc(mood: mood, size: discSize, turns: turns),
             ),
           ),
         ],
@@ -148,10 +134,9 @@ class _GhostSide extends StatelessWidget {
               ),
             Text(
               letter,
-              style: a32(context).copyWith(
-                fontSize: size * 0.62,
-                color: context.colors.textPrimary.withValues(alpha: 0.06),
-              ),
+              style: a32(
+                context,
+              ).copyWith(fontSize: size * 0.62, color: context.colors.textPrimary.withValues(alpha: 0.06)),
             ),
           ],
         ),
@@ -171,12 +156,9 @@ class _SideLabel extends StatelessWidget {
     return AnimatedDefaultTextStyle(
       duration: 240.ms,
       textAlign: TextAlign.center,
-      style: m10w700(context).copyWith(
-        letterSpacing: 2,
-        color: isActive
-            ? context.colors.textPrimary
-            : context.colors.textDisabled,
-      ),
+      style: m10w700(
+        context,
+      ).copyWith(letterSpacing: 2, color: isActive ? context.colors.textPrimary : context.colors.textDisabled),
       child: Text(text),
     );
   }
@@ -187,19 +169,7 @@ class _Waveform extends StatelessWidget {
 
   final double energy;
 
-  static const List<double> _pattern = [
-    0.35,
-    0.6,
-    0.45,
-    0.9,
-    0.55,
-    1,
-    0.55,
-    0.9,
-    0.45,
-    0.6,
-    0.35,
-  ];
+  static const List<double> _pattern = [0.35, 0.6, 0.45, 0.9, 0.55, 1, 0.55, 0.9, 0.45, 0.6, 0.35];
 
   @override
   Widget build(BuildContext context) {
@@ -217,9 +187,7 @@ class _Waveform extends StatelessWidget {
                 width: 2.w,
                 height: maxHeight * height * energy,
                 decoration: BoxDecoration(
-                  color: energy > 0.5
-                      ? context.colors.textPrimary
-                      : context.colors.textSecondary,
+                  color: energy > 0.5 ? context.colors.textPrimary : context.colors.textSecondary,
                   borderRadius: Sp.xsmall.radiusR,
                 ),
               ),
