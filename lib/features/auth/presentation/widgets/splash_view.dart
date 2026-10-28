@@ -26,14 +26,16 @@ class SplashView extends StatelessWidget {
                 Sp.xlarge.heightBox,
                 Text(
                   title.tr(),
-                  style: m22w800(context),
+                  style: hasFailed
+                      ? sheetTitleStyle(context)
+                      : logoTextStyle(context),
                   textAlign: TextAlign.center,
                 ),
                 Sp.small.heightBox,
                 Text(
                   message.tr(),
                   textAlign: TextAlign.center,
-                  style: m14w500(
+                  style: bodyTextStyle(
                     context,
                   ).copyWith(color: context.colors.textSecondary),
                 ),

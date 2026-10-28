@@ -15,30 +15,20 @@ class ReferenceSearchCubit extends Cubit<ReferenceSearchState> {
 
   int _request = 0;
 
-  Future<void> load({ReferenceKind? kind}) => _search(state.query, kind);
+  Future<void> load() => _search(state.query);
+
+  Future<void> retry() => _search(state.query);
 
   Future<void> updateQuery(String query) {
     if (query == state.query) return Future.value();
-    return _search(query, state.kind, debounced: true);
+    return _search(query, debounced: true);
   }
 
-  Future<void> selectKind(ReferenceKind kind) {
-    if (kind == state.kind && state.status != SearchStatus.idle) {
-      return Future.value();
-    }
-    return _search(state.query, kind);
-  }
-
-  Future<void> _search(
-    String query,
-    ReferenceKind? kind, {
-    bool debounced = false,
-  }) async {
+  Future<void> _search(String query, {bool debounced = false}) async {
     final request = ++_request;
     emit(
       ReferenceSearchState(
         query: query,
-        kind: kind,
         results: state.results,
         status: SearchStatus.loading,
       ),
@@ -48,7 +38,7 @@ class ReferenceSearchCubit extends Cubit<ReferenceSearchState> {
       if (isClosed || request != _request) return;
     }
     try {
-      final results = await _catalog.search(query, kind: kind);
+      final results = await _catalog.search(query);
       if (isClosed || request != _request) return;
       emit(state.copyWith(results: results, status: SearchStatus.ready));
     } on Object {

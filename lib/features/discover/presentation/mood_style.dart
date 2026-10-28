@@ -5,6 +5,7 @@ import 'package:music_disco/core/util/locale_keys.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_direction.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_distance.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_preferences.dart';
+import 'package:music_disco/features/discover/domain/models/genre.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/domain/models/music_reference.dart';
 import 'package:music_disco/features/discover/domain/models/reference_aspect.dart';
@@ -29,7 +30,8 @@ extension MoodStyle on Mood {
     Mood.noRules => LocaleKeys.mood_no_rules_tagline,
   };
 
-  String get discCaption => 'ARA SOUND COLLECTION · ${collectionNumber.toString().padLeft(2, '0')}';
+  String get discCaption =>
+      'ARA SOUND COLLECTION · ${collectionNumber.toString().padLeft(2, '0')}';
 
   DiscPalette get palette => switch (this) {
     Mood.afterHours => const DiscPalette(
@@ -119,19 +121,46 @@ extension ReferenceAspectStyle on ReferenceAspect {
     ReferenceAspect.rhythm => LocaleKeys.aspect_rhythm_caption,
     ReferenceAspect.overallStyle => LocaleKeys.aspect_overall_style_caption,
   };
+
+  String get summaryKey => switch (this) {
+    ReferenceAspect.atmosphere => LocaleKeys.reference_summary_atmosphere,
+    ReferenceAspect.vocals => LocaleKeys.reference_summary_vocals,
+    ReferenceAspect.rhythm => LocaleKeys.reference_summary_rhythm,
+    ReferenceAspect.overallStyle => LocaleKeys.reference_summary_overall_style,
+  };
+}
+
+extension GenreStyle on Genre {
+  String get labelKey => switch (this) {
+    Genre.alternative => LocaleKeys.genre_alternative,
+    Genre.pop => LocaleKeys.genre_pop,
+    Genre.electronic => LocaleKeys.genre_electronic,
+    Genre.rock => LocaleKeys.genre_rock,
+    Genre.hipHop => LocaleKeys.genre_hip_hop,
+    Genre.rnbSoul => LocaleKeys.genre_rnb_soul,
+    Genre.jazz => LocaleKeys.genre_jazz,
+    Genre.classical => LocaleKeys.genre_classical,
+  };
 }
 
 extension MusicReferenceStyle on MusicReference {
-  String get subtitle => artist ?? LocaleKeys.reference_kind_artist.tr();
+  String get subtitle => genres.isEmpty
+      ? LocaleKeys.reference_kind_artist.tr()
+      : [for (final genre in genres) genre.labelKey.tr()].join(' · ');
 
   String get initials {
     final words = name.trim().split(RegExp(r'\s+'));
-    final letters = words.length > 1 ? '${words[0][0]}${words[1][0]}' : name.trim().padRight(2).substring(0, 2);
+    final letters = words.length > 1
+        ? '${words[0][0]}${words[1][0]}'
+        : name.trim().padRight(2).substring(0, 2);
     return letters.trim().toUpperCase();
   }
 }
 
 extension DiscoveryPreferencesStyle on DiscoveryPreferences {
-  String get summary =>
-      [activeReference?.name ?? mood.labelKey.tr(), direction.shortLabelKey.tr(), distance.labelKey.tr()].join(' · ');
+  String get summary => [
+    activeReference?.name ?? mood.labelKey.tr(),
+    direction.shortLabelKey.tr(),
+    distance.labelKey.tr(),
+  ].join(' · ');
 }

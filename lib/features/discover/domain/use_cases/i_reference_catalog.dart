@@ -1,5 +1,5 @@
 import 'package:music_disco/features/discover/domain/models/music_reference.dart';
 
 abstract interface class IReferenceCatalog {
-  Future<List<MusicReference>> search(String query, {ReferenceKind? kind});
+  Future<List<MusicReference>> search(String query);
 }

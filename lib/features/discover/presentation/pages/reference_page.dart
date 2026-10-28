@@ -9,11 +9,10 @@ import 'package:music_disco/core/util/custom_app_sizes.dart';
 import 'package:music_disco/core/util/locale_keys.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
 import 'package:music_disco/core/widgets/brand_page_body.dart';
-import 'package:music_disco/core/widgets/choice_tile.dart';
 import 'package:music_disco/core/widgets/cta_bar.dart';
 import 'package:music_disco/core/widgets/display_headline.dart';
-import 'package:music_disco/core/widgets/eyebrow_text.dart';
-import 'package:music_disco/core/widgets/page_back_button.dart';
+import 'package:music_disco/core/widgets/app_page_bar.dart';
+import 'package:music_disco/core/widgets/pressable.dart';
 import 'package:music_disco/core/widgets/search_field.dart';
 import 'package:music_disco/core/widgets/text_link.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
@@ -21,11 +20,12 @@ import 'package:music_disco/features/discover/bloc/reference_search_cubit.dart';
 import 'package:music_disco/features/discover/domain/models/music_reference.dart';
 import 'package:music_disco/features/discover/domain/models/reference_aspect.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
-import 'package:music_disco/features/discover/presentation/widgets/mood_disc.dart';
+import 'package:music_disco/features/discover/presentation/widgets/reference_avatar.dart';
 import 'package:music_disco/features/discover/presentation/widgets/reference_row.dart';
 import 'package:music_disco/features/taste/bloc/taste_cubit.dart';
 
 part '../widgets/reference_aspect_grid.dart';
+part '../widgets/reference_quick_picks.dart';
 part '../widgets/reference_search_panel.dart';
 part '../widgets/reference_spotlight.dart';
 
@@ -34,7 +34,10 @@ class ReferencePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (_) => getIt<ReferenceSearchCubit>()..load(), child: const _ReferenceView());
+    return BlocProvider(
+      create: (context) => getIt<ReferenceSearchCubit>()..load(),
+      child: const _ReferenceView(),
+    );
   }
 }
 
@@ -51,15 +54,16 @@ class _ReferenceViewState extends State<_ReferenceView>
   final FocusNode _searchFocus = FocusNode();
 
   late MusicReference? _reference = _initialReference();
-  late ReferenceAspect _aspect = context.read<DiscoverCubit>().state.preferences.aspect;
+  late ReferenceAspect _aspect = context
+      .read<DiscoverCubit>()
+      .state
+      .preferences
+      .aspect;
   late bool _isSearching = _reference == null;
+  bool _focusSearch = false;
 
-  MusicReference? _initialReference() {
-    final saved = context.read<DiscoverCubit>().state.preferences.reference;
-    if (saved != null) return saved;
-    final references = context.read<TasteCubit>().state.saved.references;
-    return references.isEmpty ? null : references.first;
-  }
+  MusicReference? _initialReference() =>
+      context.read<DiscoverCubit>().state.preferences.reference;
 
   @override
   void dispose() {
@@ -79,7 +83,17 @@ class _ReferenceViewState extends State<_ReferenceView>
   }
 
   void _onChangeReference() {
-    setState(() => _isSearching = true);
+    setState(() {
+      _isSearching = true;
+      _focusSearch = true;
+    });
+  }
+
+  void _onCancelSearch() {
+    _searchFocus.unfocus();
+    _query.clear();
+    context.read<ReferenceSearchCubit>().updateQuery('');
+    setState(() => _isSearching = false);
   }
 
   void _onContinue() {
@@ -93,49 +107,90 @@ class _ReferenceViewState extends State<_ReferenceView>
   Widget build(BuildContext context) {
     final reference = _reference;
     final canContinue = reference != null && !_isSearching;
+    final savedReferences = context.select<TasteCubit, List<MusicReference>>(
+      (cubit) => cubit.state.saved.references,
+    );
+    final quickPicks = [
+      for (final saved in savedReferences)
+        if (saved.id != reference?.id) saved,
+    ];
     return BrandPageBody(
+      appBar: AppPageBar(
+        title: LocaleKeys.reference_step.tr(),
+        showBackButton: true,
+      ),
+      footer: CtaBar(
+        text: canContinue
+            ? LocaleKeys.discovery_continue.tr()
+            : LocaleKeys.reference_pick_first.tr(),
+        onTap: canContinue ? _onContinue : null,
+      ),
       children: [
-        Row(children: [const PageBackButton(), const Spacer(), EyebrowText(LocaleKeys.reference_step.tr())]),
+        DisplayHeadline(
+          first: LocaleKeys.reference_title_first.tr(),
+          second: LocaleKeys.reference_title_second.tr(),
+        ),
         Sp.medium.heightBox,
-        DisplayHeadline(first: LocaleKeys.reference_title_first.tr(), second: LocaleKeys.reference_title_second.tr()),
-        Sp.medium.heightBox,
-        Text(LocaleKeys.reference_subtitle.tr(), style: m14w500(context).copyWith(color: context.colors.textSecondary)),
+        Text(
+          LocaleKeys.reference_subtitle.tr(),
+          style: bodyTextStyle(
+            context,
+          ).copyWith(color: context.colors.textSecondary),
+        ),
         Sp.large.heightBox,
         AnimatedSwitcher(
-          duration: 320.ms,
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : 320.ms,
           switchInCurve: Curves.easeOutCubic,
           switchOutCurve: Curves.easeInCubic,
           transitionBuilder: (child, animation) => FadeTransition(
             opacity: animation,
-            child: SizeTransition(sizeFactor: animation, axisAlignment: -1, child: child),
+            child: SizeTransition(
+              sizeFactor: animation,
+              axisAlignment: -1,
+              child: child,
+            ),
           ),
           child: _isSearching || reference == null
               ? ReferenceSearchPanel(
                   key: const ValueKey('search'),
                   controller: _query,
                   focusNode: _searchFocus,
-                  selectedId: reference?.id,
+                  selected: reference,
+                  autofocus: _focusSearch,
                   onPicked: _onPicked,
+                  onCancel: reference == null ? null : _onCancelSearch,
                 )
               : Column(
                   key: const ValueKey('spotlight'),
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ReferenceSpotlight(reference: reference),
-                    Center(
-                      child: TextLink(text: LocaleKeys.reference_change.tr(), onTap: _onChangeReference),
+                    ReferenceSpotlight(
+                      reference: reference,
+                      onChange: _onChangeReference,
                     ),
-                    Sp.medium.heightBox,
-                    Text(LocaleKeys.reference_aspect_title.tr(), style: m16w700(context)),
+                    if (quickPicks.isNotEmpty) ...[
+                      Sp.large.heightBox,
+                      ReferenceQuickPicks(
+                        references: quickPicks,
+                        onPicked: _onPicked,
+                      ),
+                    ],
+                    Sp.large.heightBox,
+                    Text(
+                      LocaleKeys.reference_aspect_title.tr(),
+                      style: sectionTitleStyle(context),
+                    ),
                     Sp.small.heightBox,
-                    ReferenceAspectGrid(selected: _aspect, onSelected: (aspect) => setState(() => _aspect = aspect)),
+                    ReferenceAspectGrid(
+                      selected: _aspect,
+                      onSelected: (aspect) => setState(() => _aspect = aspect),
+                    ),
+                    Sp.large.heightBox,
+                    ReferenceSummary(reference: reference, aspect: _aspect),
                   ],
                 ),
-        ),
-        Sp.large.heightBox,
-        CtaBar(
-          text: canContinue ? LocaleKeys.reference_continue.tr() : LocaleKeys.reference_pick_first.tr(),
-          onTap: canContinue ? _onContinue : null,
         ),
       ],
     );

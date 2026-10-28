@@ -23,17 +23,22 @@ class RoundIconButton extends StatelessWidget {
       onTap: onTap,
       semanticLabel: semanticLabel,
       haptic: TapHaptic.selection,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: context.colors.surfaceSecondary,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          icon,
-          color: context.colors.textPrimary,
-          size: Sp.medium.r + 2,
+      child: SizedBox.square(
+        dimension: Sp.xxxlarge.r,
+        child: Center(
+          child: Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: context.colors.surfaceSecondary,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              color: context.colors.textPrimary,
+              size: Sp.medium.r + 2,
+            ),
+          ),
         ),
       ),
     );

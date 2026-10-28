@@ -2,7 +2,13 @@ part of 'discover_cubit.dart';
 
 enum DiscoverRoundStatus { idle, loading, ready, failure, finished }
 
-enum DiscoverNotice { none, feedbackTaken, knownSkipped }
+enum DiscoverNotice {
+  none,
+  feedbackTaken,
+  knownSkipped,
+  noAlternative,
+  requestFailed,
+}
 
 class DiscoverState extends Equatable {
   const DiscoverState({
@@ -29,7 +35,9 @@ class DiscoverState extends Equatable {
   Track? get currentTrack =>
       currentIndex < tracks.length ? tracks[currentIndex] : null;
   bool get hasPrevious => currentIndex > 0;
-  bool get canResume => roundSource != null;
+  bool get canResume =>
+      roundSource != null && status == DiscoverRoundStatus.ready;
+  bool get isShortRound => tracks.isNotEmpty && tracks.length < roundSize;
   bool get isLastTrack =>
       tracks.isNotEmpty && currentIndex == tracks.length - 1;
 

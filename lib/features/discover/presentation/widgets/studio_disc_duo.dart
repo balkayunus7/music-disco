@@ -7,8 +7,12 @@ class StudioDiscDuo extends StatefulWidget {
   State<StudioDiscDuo> createState() => _StudioDiscDuoState();
 }
 
-class _StudioDiscDuoState extends State<StudioDiscDuo> with SingleTickerProviderStateMixin {
-  late final AnimationController _spin = AnimationController(vsync: this, duration: const Duration(seconds: 48));
+class _StudioDiscDuoState extends State<StudioDiscDuo>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _spin = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 48),
+  );
   static const double _backTilt = -0.08;
   static const double _frontTilt = 0.06;
 
@@ -30,37 +34,58 @@ class _StudioDiscDuoState extends State<StudioDiscDuo> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    final frontSize = 184.r;
-    final backSize = 164.r;
-    final captionStyle = m10w700(context).copyWith(color: context.colors.textDisabled, letterSpacing: 2.4);
+    final frontSize = 116.r;
+    final backSize = 102.r;
+    final volumeStyle = eyebrowTextStyle(
+      context,
+    ).copyWith(color: context.colors.textDisabled, letterSpacing: 1.5);
     return ExcludeSemantics(
       child: SizedBox(
-        height: frontSize + Sp.xlarge.h,
+        height: frontSize + Sp.xsmall.h,
         child: Stack(
           alignment: Alignment.center,
           children: [
             Positioned(
               left: 0,
               top: Sp.xsmall.h,
-              child: RotatedBox(quarterTurns: 1, child: Text(LocaleKeys.studio_volume.tr(), style: captionStyle)),
-            ),
-            Align(
-              alignment: const Alignment(-0.42, -0.1),
-              child: AnimatedBuilder(
-                animation: _spin,
-                builder: (context, _) =>
-                    MoodDisc(mood: Mood.afterHours, size: backSize, turns: _backTilt + _spin.value),
+              child: RotatedBox(
+                quarterTurns: 1,
+                child: Text(LocaleKeys.studio_volume.tr(), style: volumeStyle),
               ),
             ),
             Align(
-              alignment: const Alignment(0.42, -0.4),
-              child: AnimatedBuilder(
-                animation: _spin,
-                builder: (context, _) =>
-                    MoodDisc(mood: Mood.noRules, size: frontSize, turns: _frontTilt + _spin.value * 0.8),
+              alignment: const Alignment(0, -0.5),
+              child: SizedBox(
+                width: 176.r,
+                height: frontSize,
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: AnimatedBuilder(
+                        animation: _spin,
+                        builder: (context, _) => MoodDisc(
+                          mood: Mood.afterHours,
+                          size: backSize,
+                          turns: _backTilt + _spin.value,
+                        ),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: AnimatedBuilder(
+                        animation: _spin,
+                        builder: (context, _) => MoodDisc(
+                          mood: Mood.noRules,
+                          size: frontSize,
+                          turns: _frontTilt + _spin.value * 0.8,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            Positioned(right: 0, bottom: 0, child: Text(LocaleKeys.studio_disc_caption.tr(), style: captionStyle)),
           ],
         ),
       ),

@@ -33,7 +33,9 @@ class ReferenceRow extends StatelessWidget {
       padding: Sp.small.padVR,
       decoration: hasDivider
           ? BoxDecoration(
-              border: Border(bottom: BorderSide(color: context.colors.borderSecondary)),
+              border: Border(
+                bottom: BorderSide(color: context.colors.borderSecondary),
+              ),
             )
           : null,
       child: Row(
@@ -49,13 +51,15 @@ class ReferenceRow extends StatelessWidget {
                   reference.name,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: m15w500(context).copyWith(fontWeight: FontWeight.w700),
+                  style: listTitleStyle(context),
                 ),
                 Text(
                   reference.subtitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: m13w500(context).copyWith(color: context.colors.textSecondary),
+                  style: bodyTextStyle(
+                    context,
+                  ).copyWith(color: context.colors.textSecondary),
                 ),
               ],
             ),
@@ -90,23 +94,36 @@ class ReferenceToggleMark extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = Sp.xlarge.r;
     return AnimatedContainer(
-      duration: 220.ms,
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : 220.ms,
       curve: Curves.easeOutCubic,
       width: size,
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: isSelected ? context.colors.textPrimary : context.colors.textPrimary.withValues(alpha: 0),
-        border: Border.all(color: isSelected ? context.colors.textPrimary : context.colors.border),
+        color: isSelected
+            ? context.colors.textPrimary
+            : context.colors.textPrimary.withValues(alpha: 0),
+        border: Border.all(
+          color: isSelected
+              ? context.colors.textPrimary
+              : context.colors.border,
+        ),
       ),
       child: AnimatedSwitcher(
-        duration: 180.ms,
-        transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : 180.ms,
+        transitionBuilder: (child, animation) =>
+            ScaleTransition(scale: animation, child: child),
         child: Icon(
           isSelected ? Icons.check_rounded : Icons.add_rounded,
           key: ValueKey(isSelected),
           size: Sp.medium.r - 2,
-          color: isSelected ? context.colors.textOnPrimary : context.colors.textSecondary,
+          color: isSelected
+              ? context.colors.textOnPrimary
+              : context.colors.textSecondary,
         ),
       ),
     );

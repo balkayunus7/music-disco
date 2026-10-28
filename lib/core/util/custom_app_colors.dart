@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:mobile_boilerplate/presentation/app_colors.dart';
 
 abstract final class _Graphite {
-  static const background = Color(0xFF121212);
-  static const surface = Color(0xFF1C1C1C);
-  static const surfaceSecondary = Color(0xFF2C2C2C);
-  static const primary = Color(0xFFECECEC);
-  static const secondary = Color(0xFF8A8A8A);
+  static const background = Color(0xFF101010);
+  static const surface = Color(0xFF191919);
+  static const surfaceSecondary = Color(0xFF1B1B1B);
+  static const primary = Color(0xFFEEEDE8);
+  static const secondary = Color(0xFF999999);
   static const accent = Color(0xFF3A3A3A);
-  static const border = Color(0xFF3C3C3C);
-  static const borderSecondary = Color(0xFF242424);
-  static const textPrimary = Color(0xFFF2F2F2);
-  static const textSecondary = Color(0xFFA3A3A3);
-  static const textDisabled = Color(0xFF6E6E6E);
-  static const textOnPrimary = Color(0xFF141414);
-  static const textOnSecondary = Color(0xFFF2F2F2);
+  static const border = Color(0x1FFFFFFF);
+  static const borderSecondary = Color(0x14FFFFFF);
+  static const textPrimary = Color(0xFFF3F2EE);
+  static const textSecondary = Color(0xFFAAAAAA);
+  static const textDisabled = Color(0xFF888888);
+  static const textOnPrimary = Color(0xFF151515);
+  static const textOnSecondary = Color(0xFFF3F2EE);
   static const buttonSecondary = Color(0xFF323232);
   static const buttonGhost = Color(0x00000000);
   static const buttonDisabled = Color(0xFF2A2A2A);
@@ -68,7 +68,7 @@ class CustomAppColorsLight extends AppColorsLight {
       );
 
   @override
-  Color get textTertiary => textDisabled;
+  Color get textTertiary => const Color(0xFF777777);
 }
 
 class CustomAppColorsDark extends AppColorsDark {
@@ -112,5 +112,13 @@ class CustomAppColorsDark extends AppColorsDark {
       );
 
   @override
-  Color get textTertiary => textDisabled;
+  Color get textTertiary => const Color(0xFF777777);
+}
+
+/// Semantic colors for the Ses izi loading screen.
+extension SoundTraceColors on BuildContext {
+  Color get loadingText => const Color(0xFFEEEDE8);
+  Color get loadingMutedText => const Color(0xFF727272);
+  Color get loadingStatusText => const Color(0xFFBFBFBF);
+  Color get loadingWave => const Color(0xFFDDDDDD);
 }

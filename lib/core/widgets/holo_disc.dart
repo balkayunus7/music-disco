@@ -38,7 +38,13 @@ class HoloDisc extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           boxShadow: hasShadow
-              ? [BoxShadow(color: context.colors.overlay, blurRadius: size * 0.12, offset: Offset(0, size * 0.05))]
+              ? [
+                  BoxShadow(
+                    color: context.colors.overlay,
+                    blurRadius: size * 0.12,
+                    offset: Offset(0, size * 0.05),
+                  ),
+                ]
               : null,
         ),
         child: AnimatedOpacity(
@@ -92,7 +98,12 @@ class EmptyDiscSlot extends StatelessWidget {
 }
 
 class _HoloDiscPainter extends CustomPainter {
-  _HoloDiscPainter({required this.palette, required this.holeColor, this.title, this.caption});
+  _HoloDiscPainter({
+    required this.palette,
+    required this.holeColor,
+    this.title,
+    this.caption,
+  });
 
   final DiscPalette palette;
   final Color holeColor;
@@ -126,10 +137,12 @@ class _HoloDiscPainter extends CustomPainter {
     final holo = Paint()
       ..shader = SweepGradient(
         colors: [
-          for (final color in DiscPalette.holoSpectrum) color.withValues(alpha: palette.holoStrength),
+          for (final color in DiscPalette.holoSpectrum)
+            color.withValues(alpha: palette.holoStrength),
           Colors.transparent,
           Colors.transparent,
-          for (final color in DiscPalette.holoSpectrum) color.withValues(alpha: palette.holoStrength * 0.7),
+          for (final color in DiscPalette.holoSpectrum)
+            color.withValues(alpha: palette.holoStrength * 0.7),
           Colors.transparent,
         ],
         transform: const GradientRotation(math.pi / 5),
@@ -139,7 +152,11 @@ class _HoloDiscPainter extends CustomPainter {
 
     final depth = Paint()
       ..shader = RadialGradient(
-        colors: [_sheen.withValues(alpha: 0.18), Colors.transparent, palette.deep.withValues(alpha: 0.25)],
+        colors: [
+          _sheen.withValues(alpha: 0.18),
+          Colors.transparent,
+          palette.deep.withValues(alpha: 0.25),
+        ],
         stops: const [0.2, 0.6, 1],
       ).createShader(discRect);
     canvas.drawCircle(center, radius, depth);
@@ -184,16 +201,30 @@ class _HoloDiscPainter extends CustomPainter {
   }
 
   void _paintHub(Canvas canvas, Offset center, double radius) {
-    canvas.drawCircle(center, radius * 0.3, Paint()..color = _sheen.withValues(alpha: 0.16));
+    canvas.drawCircle(
+      center,
+      radius * 0.3,
+      Paint()..color = _sheen.withValues(alpha: 0.16),
+    );
     canvas.drawCircle(
       center,
       radius * 0.21,
       Paint()
         ..shader = const SweepGradient(
-          colors: [Color(0xFFE6E6E6), Color(0xFF8C8C8C), Color(0xFFF5F5F5), Color(0xFF7A7A7A), Color(0xFFE6E6E6)],
+          colors: [
+            Color(0xFFE6E6E6),
+            Color(0xFF8C8C8C),
+            Color(0xFFF5F5F5),
+            Color(0xFF7A7A7A),
+            Color(0xFFE6E6E6),
+          ],
         ).createShader(Rect.fromCircle(center: center, radius: radius * 0.21)),
     );
-    canvas.drawCircle(center, radius * 0.165, Paint()..color = _sheen.withValues(alpha: 0.85));
+    canvas.drawCircle(
+      center,
+      radius * 0.165,
+      Paint()..color = _sheen.withValues(alpha: 0.85),
+    );
     canvas.drawCircle(center, radius * 0.13, Paint()..color = holeColor);
   }
 
@@ -205,6 +236,7 @@ class _HoloDiscPainter extends CustomPainter {
           text: title.replaceFirst(' ', '\n'),
           style: TextStyle(
             fontFamily: 'ArchivoBlack',
+            fontWeight: FontWeight.w400,
             fontSize: radius * 0.2,
             height: 0.9,
             color: _sheen.withValues(alpha: 0.95),
@@ -221,8 +253,8 @@ class _HoloDiscPainter extends CustomPainter {
         text: TextSpan(
           text: caption,
           style: TextStyle(
-            fontFamily: 'Montserrat',
-            package: 'mobile_boilerplate',
+            fontFamily: 'Manrope',
+            fontVariations: const [FontVariation('wght', 700)],
             fontSize: radius * 0.055,
             fontWeight: FontWeight.w700,
             letterSpacing: radius * 0.008,

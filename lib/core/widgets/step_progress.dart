@@ -25,7 +25,9 @@ class StepProgress extends StatelessWidget {
                     color: context.colors.surfaceSecondary,
                     child: TweenAnimationBuilder<double>(
                       tween: Tween(begin: 0, end: step <= current ? 1 : 0),
-                      duration: (420 + step * 120).ms,
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : (420 + step * 120).ms,
                       curve: Curves.easeOutCubic,
                       builder: (context, fill, _) => FractionallySizedBox(
                         alignment: Alignment.centerLeft,

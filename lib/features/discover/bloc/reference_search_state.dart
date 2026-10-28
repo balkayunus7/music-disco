@@ -5,13 +5,11 @@ enum SearchStatus { idle, loading, ready, failure }
 class ReferenceSearchState extends Equatable {
   const ReferenceSearchState({
     this.query = '',
-    this.kind,
     this.results = const [],
     this.status = SearchStatus.idle,
   });
 
   final String query;
-  final ReferenceKind? kind;
   final List<MusicReference> results;
   final SearchStatus status;
 
@@ -25,12 +23,11 @@ class ReferenceSearchState extends Equatable {
   }) {
     return ReferenceSearchState(
       query: query,
-      kind: kind,
       results: results ?? this.results,
       status: status ?? this.status,
     );
   }
 
   @override
-  List<Object?> get props => [query, kind, results, status];
+  List<Object?> get props => [query, results, status];
 }

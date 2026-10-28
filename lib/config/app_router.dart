@@ -11,12 +11,14 @@ import 'package:music_disco/features/core/home/home_page.dart';
 import 'package:music_disco/features/core/home/widgets/tab_root_reset.dart';
 import 'package:music_disco/features/discover/presentation/pages/direction_page.dart';
 import 'package:music_disco/features/discover/presentation/pages/discover_home_page.dart';
+import 'package:music_disco/features/discover/presentation/pages/discovery_loading_page.dart';
 import 'package:music_disco/features/discover/presentation/pages/mood_page.dart';
 import 'package:music_disco/features/discover/presentation/pages/reference_page.dart';
 import 'package:music_disco/features/discover/presentation/pages/session_page.dart';
 import 'package:music_disco/features/taste/presentation/pages/taste_genres_page.dart';
 import 'package:music_disco/features/taste/presentation/pages/taste_page.dart';
 import 'package:music_disco/features/taste/presentation/pages/taste_references_page.dart';
+import 'package:music_disco/features/settings/presentation/pages/settings_page.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -89,6 +91,7 @@ final appShellRoute = StatefulShellRoute(
               routes: [
                 _directionRoute(
                   name: AppRoutes.moodDirection,
+                  loadingName: AppRoutes.moodLoading,
                   sessionName: AppRoutes.moodSession,
                 ),
               ],
@@ -105,6 +108,7 @@ final appShellRoute = StatefulShellRoute(
               routes: [
                 _directionRoute(
                   name: AppRoutes.referenceDirection,
+                  loadingName: AppRoutes.referenceLoading,
                   sessionName: AppRoutes.referenceSession,
                 ),
               ],
@@ -156,20 +160,72 @@ final appShellRoute = StatefulShellRoute(
         ),
       ],
     ),
+    StatefulShellBranch(
+      routes: [
+        GoRoute(
+          path: AppRoutes.settings,
+          name: AppRoutes.settings,
+          pageBuilder: (context, state) => tabRootPage(
+            state: state,
+            child: const TabRootReset(branch: 2, child: SettingsPage()),
+          ),
+          routes: [
+            GoRoute(
+              path: 'taste',
+              name: AppRoutes.settingsTaste,
+              pageBuilder: (context, state) => sharedAxisPage(
+                state: state,
+                child: const TastePage(routeBase: AppRoutes.settingsTaste),
+              ),
+              routes: [
+                GoRoute(
+                  path: 'genres',
+                  name: AppRoutes.settingsTasteGenres,
+                  pageBuilder: (context, state) => sharedAxisPage(
+                    state: state,
+                    child: const TasteGenresPage(),
+                  ),
+                ),
+                GoRoute(
+                  path: 'references',
+                  name: AppRoutes.settingsTasteReferences,
+                  pageBuilder: (context, state) => sharedAxisPage(
+                    state: state,
+                    child: const TasteReferencesPage(),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    ),
   ],
 );
 
-GoRoute _directionRoute({required String name, required String sessionName}) {
+GoRoute _directionRoute({
+  required String name,
+  required String loadingName,
+  required String sessionName,
+}) {
   return GoRoute(
     path: 'direction',
     name: name,
     pageBuilder: (context, state) {
       return sharedAxisPage(
         state: state,
-        child: DirectionPage(sessionRoute: sessionName),
+        child: DirectionPage(loadingRoute: loadingName),
       );
     },
     routes: [
+      GoRoute(
+        path: 'loading',
+        name: loadingName,
+        pageBuilder: (context, state) => sharedAxisPage(
+          state: state,
+          child: DiscoveryLoadingPage(sessionRoute: sessionName),
+        ),
+      ),
       GoRoute(
         path: 'session',
         name: sessionName,

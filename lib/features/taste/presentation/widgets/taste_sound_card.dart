@@ -27,7 +27,9 @@ class TasteSoundCard extends StatelessWidget {
             children: [
               TweenAnimationBuilder<double>(
                 tween: Tween(end: turns),
-                duration: 640.ms,
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : 640.ms,
                 curve: Curves.easeOutBack,
                 builder: (context, value, _) => HoloDisc(
                   palette: Mood.noRules.palette,
@@ -42,7 +44,9 @@ class TasteSoundCard extends StatelessWidget {
                   spacing: Sp.tiny.h,
                   children: [
                     AnimatedSwitcher(
-                      duration: 220.ms,
+                      duration: MediaQuery.disableAnimationsOf(context)
+                          ? Duration.zero
+                          : 220.ms,
                       transitionBuilder: (child, animation) => FadeTransition(
                         opacity: animation,
                         child: SlideTransition(
@@ -60,10 +64,7 @@ class TasteSoundCard extends StatelessWidget {
                       child: Text(
                         profile.selectionLabel,
                         key: ValueKey(profile.selectionLabel),
-                        style: m13w600(context).copyWith(
-                          letterSpacing: 2,
-                          fontWeight: FontWeight.w800,
-                        ),
+                        style: eyebrowTextStyle(context),
                       ),
                     ),
                     EyebrowText(LocaleKeys.taste_disc_caption.tr()),

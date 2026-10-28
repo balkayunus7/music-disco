@@ -12,6 +12,7 @@ Future<void> flyDisc(
   double turns = 0.5,
   bool fadeOnLanding = false,
 }) async {
+  if (MediaQuery.disableAnimationsOf(context)) return;
   final overlay = Overlay.maybeOf(context, rootOverlay: true);
   final overlayBox = overlay?.context.findRenderObject() as RenderBox?;
   if (overlay == null || overlayBox == null || !overlayBox.hasSize) return;
@@ -64,9 +65,16 @@ class _DiscFlight extends StatefulWidget {
   State<_DiscFlight> createState() => _DiscFlightState();
 }
 
-class _DiscFlightState extends State<_DiscFlight> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: widget.duration);
-  late final Animation<double> _progress = CurvedAnimation(parent: _controller, curve: Curves.easeInOutCubic);
+class _DiscFlightState extends State<_DiscFlight>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: widget.duration,
+  );
+  late final Animation<double> _progress = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeInOutCubic,
+  );
 
   @override
   void initState() {
@@ -89,7 +97,9 @@ class _DiscFlightState extends State<_DiscFlight> with SingleTickerProviderState
           final t = _progress.value;
           final rect = Rect.lerp(widget.from, widget.to, t)!;
           final lift = 4 * t * (1 - t) * widget.arcHeight;
-          final opacity = widget.fadeOnLanding && t > 0.75 ? (1 - (t - 0.75) / 0.25).clamp(0.0, 1.0) : 1.0;
+          final opacity = widget.fadeOnLanding && t > 0.75
+              ? (1 - (t - 0.75) / 0.25).clamp(0.0, 1.0)
+              : 1.0;
           return Stack(
             children: [
               Positioned.fromRect(

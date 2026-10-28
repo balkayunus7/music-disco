@@ -11,7 +11,8 @@ enum DiscoveryDistance {
     final clamped = fraction.clamp(0.0, 1.0);
     var best = DiscoveryDistance.close;
     for (final distance in values) {
-      if ((distance.fraction - clamped).abs() < (best.fraction - clamped).abs()) {
+      if ((distance.fraction - clamped).abs() <
+          (best.fraction - clamped).abs()) {
         best = distance;
       }
     }

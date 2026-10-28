@@ -5,45 +5,83 @@ class DirectionOptionTile extends StatelessWidget {
     super.key,
     required this.icon,
     required this.label,
+    required this.caption,
+    required this.energy,
+    required this.accent,
     required this.isSelected,
     required this.onTap,
   });
 
   final IconData icon;
   final String label;
+  final String caption;
+  final double energy;
+  final Color accent;
   final bool isSelected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final foreground = isSelected ? context.colors.textPrimary : context.colors.textSecondary;
+    final foreground = isSelected
+        ? context.colors.textPrimary
+        : context.colors.textSecondary;
     return Pressable(
       onTap: onTap,
       selected: isSelected,
-      semanticLabel: label,
+      semanticLabel: '$label, $caption',
+      haptic: TapHaptic.selection,
       child: ExcludeSemantics(
         child: AnimatedContainer(
-          duration: 240.ms,
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : 240.ms,
           curve: Curves.easeOutCubic,
-          height: Sp.xxxlarge.h - Sp.tiny.h,
-          padding: Sp.small.padHR,
+          padding: EdgeInsets.all(Sp.medium.r),
           decoration: BoxDecoration(
-            color: isSelected ? context.colors.surfaceSecondary : context.colors.surface.withValues(alpha: 0),
-            borderRadius: Sp.huge.radiusR,
-            border: Border.all(color: isSelected ? context.colors.border : context.colors.borderSecondary),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                isSelected
+                    ? accent.withValues(alpha: 0.24)
+                    : context.colors.surface,
+                isSelected
+                    ? context.colors.surfaceSecondary
+                    : context.colors.surface,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(13),
+            border: Border.all(
+              color: isSelected
+                  ? context.colors.textSecondary
+                  : context.colors.borderSecondary,
+            ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: Sp.xsmall.w,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: foreground, size: Sp.medium.r),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: m13w600(context).copyWith(color: foreground),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Icon(icon, color: foreground, size: Sp.xlarge.r),
+                  _Waveform(energy: energy, isActive: isSelected),
+                ],
+              ),
+              Sp.small.heightBox,
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: listTitleStyle(context).copyWith(color: foreground),
+              ),
+              Sp.tiny.heightBox,
+              Text(
+                caption,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: secondaryTextStyle(
+                  context,
+                ).copyWith(color: context.colors.textSecondary),
               ),
             ],
           ),

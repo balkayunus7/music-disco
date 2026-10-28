@@ -31,7 +31,7 @@ class SearchField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final border = OutlineInputBorder(
-      borderRadius: Sp.medium.radiusR,
+      borderRadius: BorderRadius.circular(Sp.inputRadius),
       borderSide: BorderSide(color: context.colors.border),
     );
     return TextField(
@@ -41,32 +41,50 @@ class SearchField extends StatelessWidget {
       onChanged: onChanged,
       textInputAction: TextInputAction.search,
       cursorColor: context.colors.textPrimary,
-      style: m15w500(context),
+      style: inputTextStyle(context),
       decoration: InputDecoration(
+        constraints: const BoxConstraints(minHeight: Sp.cont),
         hintText: hint,
-        hintStyle: m15w500(context).copyWith(color: context.colors.textDisabled),
+        hintStyle: inputTextStyle(
+          context,
+        ).copyWith(color: context.colors.textDisabled),
         filled: true,
         fillColor: context.colors.surface,
         isDense: true,
-        contentPadding: EdgeInsets.symmetric(horizontal: Sp.medium.w, vertical: Sp.medium.h),
-        prefixIcon: Icon(Icons.search_rounded, color: context.colors.textSecondary, size: Sp.large.r),
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: Sp.medium.w,
+          vertical: Sp.medium.h,
+        ),
+        prefixIcon: Icon(
+          Icons.search_rounded,
+          color: context.colors.textSecondary,
+          size: Sp.large.r,
+        ),
         suffixIcon: ValueListenableBuilder<TextEditingValue>(
           valueListenable: controller,
           builder: (context, value, _) => AnimatedSwitcher(
-            duration: 180.ms,
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : 180.ms,
             child: value.text.isEmpty
                 ? const SizedBox.shrink()
                 : Pressable(
                     onTap: _clear,
                     semanticLabel: clearLabel,
                     haptic: TapHaptic.selection,
-                    child: Icon(Icons.close_rounded, color: context.colors.textSecondary, size: Sp.large.r),
+                    child: Icon(
+                      Icons.close_rounded,
+                      color: context.colors.textSecondary,
+                      size: Sp.large.r,
+                    ),
                   ),
           ),
         ),
         border: border,
         enabledBorder: border,
-        focusedBorder: border.copyWith(borderSide: BorderSide(color: context.colors.textSecondary)),
+        focusedBorder: border.copyWith(
+          borderSide: BorderSide(color: context.colors.textSecondary),
+        ),
       ),
     );
   }

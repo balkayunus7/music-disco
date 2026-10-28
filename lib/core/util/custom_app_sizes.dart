@@ -16,7 +16,14 @@ abstract final class Sp {
   static const double xxhuge = 128;
 
   // Semantic aliases
-  static const double screen = large;
+  static const double screen = 23;
+  static const double narrowScreen = 17;
+  static const double loadingScreen = 25;
+  static const double narrowLoadingScreen = 18;
+  static const double minTouchTarget = 44;
+  static const double primaryButtonHeight = 55;
+  static const double loadingButtonHeight = 53;
+  static const double inputRadius = 14;
   static const double button = medium;
   static const double input = small;
   static const double cont = 54;

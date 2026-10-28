@@ -1,3 +1,4 @@
+import 'package:music_disco/core/widgets/motion_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -10,11 +11,9 @@ import 'package:music_disco/core/util/text_style_helper.dart';
 import 'package:music_disco/core/widgets/brand_page_body.dart';
 import 'package:music_disco/core/widgets/cta_bar.dart';
 import 'package:music_disco/core/widgets/display_headline.dart';
-import 'package:music_disco/core/widgets/eyebrow_text.dart';
-import 'package:music_disco/core/widgets/page_back_button.dart';
+import 'package:music_disco/core/widgets/app_page_bar.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 import 'package:music_disco/core/widgets/search_field.dart';
-import 'package:music_disco/core/widgets/step_progress.dart';
 import 'package:music_disco/features/discover/bloc/reference_search_cubit.dart';
 import 'package:music_disco/features/discover/domain/models/music_reference.dart';
 import 'package:music_disco/features/discover/presentation/widgets/reference_row.dart';
@@ -22,7 +21,6 @@ import 'package:music_disco/features/taste/bloc/taste_cubit.dart';
 import 'package:music_disco/features/taste/domain/models/taste_profile.dart';
 import 'package:music_disco/features/taste/presentation/taste_style.dart';
 
-part '../widgets/reference_kind_tabs.dart';
 part '../widgets/selected_reference_chips.dart';
 
 class TasteReferencesPage extends StatelessWidget {
@@ -31,8 +29,7 @@ class TasteReferencesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          getIt<ReferenceSearchCubit>()..load(kind: ReferenceKind.artist),
+      create: (context) => getIt<ReferenceSearchCubit>()..load(),
       child: const _TasteReferencesView(),
     );
   }
@@ -72,21 +69,15 @@ class _TasteReferencesViewState extends State<_TasteReferencesView>
         final draft = state.draft;
         final isLimited = state.notice == TasteNotice.referenceLimit;
         return BrandPageBody(
+          appBar: AppPageBar(
+            title: LocaleKeys.taste_references_step.tr(),
+            showBackButton: true,
+          ),
           footer: CtaBar(
             text: LocaleKeys.taste_back_to_preferences.tr(),
             onTap: () => context.pop(),
           ),
           children: [
-            Row(
-              children: [
-                const PageBackButton(),
-                const Spacer(),
-                EyebrowText(LocaleKeys.taste_references_step.tr()),
-              ],
-            ),
-            Sp.medium.heightBox,
-            const StepProgress(current: 2, total: 2),
-            Sp.xlarge.heightBox,
             DisplayHeadline(
               first: LocaleKeys.taste_references_title_first.tr(),
               second: LocaleKeys.taste_references_title_second.tr(),
@@ -94,7 +85,7 @@ class _TasteReferencesViewState extends State<_TasteReferencesView>
             Sp.medium.heightBox,
             Text(
               LocaleKeys.taste_references_subtitle.tr(),
-              style: m14w500(
+              style: bodyTextStyle(
                 context,
               ).copyWith(color: context.colors.textSecondary),
             ),
@@ -104,18 +95,6 @@ class _TasteReferencesViewState extends State<_TasteReferencesView>
               hint: LocaleKeys.search_hint.tr(),
               clearLabel: LocaleKeys.search_clear.tr(),
               onChanged: search.updateQuery,
-            ),
-            Sp.medium.heightBox,
-            BlocSelector<
-              ReferenceSearchCubit,
-              ReferenceSearchState,
-              ReferenceKind?
-            >(
-              selector: (search) => search.kind,
-              builder: (context, kind) => ReferenceKindTabs(
-                selected: kind ?? ReferenceKind.artist,
-                onSelected: search.selectKind,
-              ),
             ),
             Sp.medium.heightBox,
             SelectedReferenceChips(
@@ -131,7 +110,9 @@ class _TasteReferencesViewState extends State<_TasteReferencesView>
             ),
             Sp.medium.heightBox,
             AnimatedSwitcher(
-              duration: 220.ms,
+              duration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : 220.ms,
               layoutBuilder: (current, previous) => Stack(
                 alignment: Alignment.centerLeft,
                 children: [...previous, ?current],
@@ -141,7 +122,7 @@ class _TasteReferencesViewState extends State<_TasteReferencesView>
                     ? LocaleKeys.taste_references_limit.tr()
                     : draft.referenceStatus,
                 key: ValueKey(isLimited ? 'limit' : draft.referenceStatus),
-                style: m13w500(context).copyWith(
+                style: bodyTextStyle(context).copyWith(
                   color: isLimited
                       ? context.colors.textPrimary
                       : context.colors.textSecondary,
@@ -175,13 +156,20 @@ class _ResultList extends StatelessWidget {
         LocaleKeys.search_no_results.tr(),
       _ => null,
     };
-    return AnimatedSize(
-      duration: 240.ms,
+    return MotionSize(
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : 240.ms,
       curve: Curves.easeOutCubic,
       alignment: Alignment.topCenter,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (search.status == SearchStatus.loading)
+            LinearProgressIndicator(
+              color: context.colors.primary,
+              backgroundColor: context.colors.borderSecondary,
+            ),
           for (final reference in search.results)
             ReferenceRow(
               key: ValueKey(reference.id),
@@ -201,7 +189,7 @@ class _ResultList extends StatelessWidget {
               padding: Sp.medium.padVR,
               child: Text(
                 message,
-                style: m13w500(
+                style: bodyTextStyle(
                   context,
                 ).copyWith(color: context.colors.textSecondary),
               ),

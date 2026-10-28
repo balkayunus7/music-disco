@@ -1,21 +1,8 @@
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:music_disco/core/util/locale_keys.dart';
-import 'package:music_disco/features/taste/domain/models/genre.dart';
+import 'package:music_disco/features/discover/presentation/mood_style.dart';
 import 'package:music_disco/features/taste/domain/models/music_language.dart';
 import 'package:music_disco/features/taste/domain/models/taste_profile.dart';
-
-extension GenreStyle on Genre {
-  String get labelKey => switch (this) {
-    Genre.alternative => LocaleKeys.genre_alternative,
-    Genre.pop => LocaleKeys.genre_pop,
-    Genre.electronic => LocaleKeys.genre_electronic,
-    Genre.rock => LocaleKeys.genre_rock,
-    Genre.hipHop => LocaleKeys.genre_hip_hop,
-    Genre.rnbSoul => LocaleKeys.genre_rnb_soul,
-    Genre.jazz => LocaleKeys.genre_jazz,
-    Genre.classical => LocaleKeys.genre_classical,
-  };
-}
 
 extension MusicLanguageStyle on MusicLanguage {
   String get labelKey => switch (this) {

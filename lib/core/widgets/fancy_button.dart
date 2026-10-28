@@ -5,7 +5,12 @@ import 'package:music_disco/core/util/custom_app_sizes.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
 
 class FancyButton extends StatelessWidget {
-  const FancyButton({super.key, required this.text, this.onTap, this.isLoading = false});
+  const FancyButton({
+    super.key,
+    required this.text,
+    this.onTap,
+    this.isLoading = false,
+  });
 
   final String text;
   final VoidCallback? onTap;
@@ -19,8 +24,11 @@ class FancyButton extends StatelessWidget {
         backgroundColor: context.colors.buttonPrimary,
         foregroundColor: context.colors.textOnPrimary,
         disabledBackgroundColor: context.colors.buttonDisabled,
+        minimumSize: const Size(Sp.minTouchTarget, Sp.primaryButtonHeight),
         padding: Sp.medium.padAllR,
-        shape: RoundedRectangleBorder(borderRadius: Sp.xlarge.radiusR),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Sp.medium),
+        ),
       ),
       child: isLoading
           ? Semantics(
@@ -28,14 +36,18 @@ class FancyButton extends StatelessWidget {
               liveRegion: true,
               child: SizedBox.square(
                 dimension: Sp.xlarge.r,
-                child: CircularProgressIndicator(color: context.colors.textOnPrimary),
+                child: CircularProgressIndicator(
+                  color: context.colors.textOnPrimary,
+                ),
               ),
             )
           : Text(
               text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: m16w700(context).copyWith(color: context.colors.textOnPrimary),
+              style: buttonTextStyle(
+                context,
+              ).copyWith(color: context.colors.textOnPrimary),
             ),
     );
   }

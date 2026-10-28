@@ -6,7 +6,12 @@ import 'package:music_disco/core/util/text_style_helper.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 
 class TextLink extends StatelessWidget {
-  const TextLink({super.key, required this.text, required this.onTap, this.trailingIcon});
+  const TextLink({
+    super.key,
+    required this.text,
+    required this.onTap,
+    this.trailingIcon,
+  });
 
   final String text;
   final VoidCallback onTap;
@@ -32,10 +37,11 @@ class TextLink extends StatelessWidget {
                   text,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: m13w500(context).copyWith(color: color),
+                  style: bodyTextStyle(context).copyWith(color: color),
                 ),
               ),
-              if (trailingIcon != null) Icon(trailingIcon, color: color, size: Sp.medium.r),
+              if (trailingIcon != null)
+                Icon(trailingIcon, color: color, size: Sp.medium.r),
             ],
           ),
         ),

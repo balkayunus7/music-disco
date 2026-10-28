@@ -1,7 +1,14 @@
 part of '../pages/collection_page.dart';
 
 class CollectionGrid extends StatelessWidget {
-  const CollectionGrid({super.key, required this.tracks});
+  const CollectionGrid({
+    super.key,
+    required this.tracks,
+    required this.onPlay,
+    required this.onManage,
+  });
+  final ValueChanged<Track>? onPlay;
+  final ValueChanged<Track>? onManage;
 
   final List<Track> tracks;
 
@@ -26,6 +33,8 @@ class CollectionGrid extends StatelessWidget {
                   child: CollectionTile(
                     key: ValueKey(track.id),
                     track: track,
+                    onPlay: onPlay == null ? null : () => onPlay!(track),
+                    onManage: onManage == null ? null : () => onManage!(track),
                     order: rowIndex * _columns + columnIndex,
                   ),
                 ),
@@ -38,7 +47,15 @@ class CollectionGrid extends StatelessWidget {
 }
 
 class CollectionTile extends StatelessWidget {
-  const CollectionTile({super.key, required this.track, required this.order});
+  const CollectionTile({
+    super.key,
+    required this.track,
+    required this.order,
+    required this.onPlay,
+    required this.onManage,
+  });
+  final VoidCallback? onPlay;
+  final VoidCallback? onManage;
 
   final Track track;
 
@@ -48,7 +65,9 @@ class CollectionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: (360 + order.clamp(0, 6) * 80).ms,
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : (360 + order.clamp(0, 6) * 80).ms,
       curve: Curves.easeOutCubic,
       builder: (context, value, child) => Opacity(
         opacity: value,
@@ -57,44 +76,85 @@ class CollectionTile extends StatelessWidget {
           child: child,
         ),
       ),
-      child: Semantics(
-        label: '${track.title}, ${track.artist}',
-        child: ExcludeSemantics(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AspectRatio(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Pressable(
+            semanticLabel: LocaleKeys.collection_play_track.tr(
+              args: [track.title, track.artist],
+            ),
+            onTap: onPlay,
+            child: ExcludeSemantics(
+              child: AspectRatio(
                 aspectRatio: 1,
-                child: JewelCase(
-                  hasSpine: false,
-                  contentPadding: Sp.xsmall.padAllR,
-                  child: LayoutBuilder(
-                    builder: (context, constraints) => MoodDisc(
-                      mood: track.mood,
-                      size: constraints.biggest.shortestSide,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: JewelCase(
+                        hasSpine: false,
+                        contentPadding: Sp.xsmall.padAllR,
+                        child: LayoutBuilder(
+                          builder: (context, constraints) => MoodDisc(
+                            mood: track.mood,
+                            size: constraints.biggest.shortestSide,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    Positioned(
+                      right: Sp.xsmall.r,
+                      bottom: Sp.xsmall.r,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: context.colors.surfaceSecondary,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Padding(
+                          padding: Sp.xsmall.padAllR,
+                          child: Icon(
+                            Icons.play_arrow_rounded,
+                            color: context.colors.textPrimary,
+                            size: Sp.large.r,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Sp.medium.heightBox,
-              Text(
-                track.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: m16w700(context),
+            ),
+          ),
+          Sp.medium.heightBox,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  track.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: listTitleStyle(context),
+                ),
               ),
-              Sp.xsmall.heightBox,
-              Text(
-                track.artist,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: m14w500(
-                  context,
-                ).copyWith(color: context.colors.textSecondary),
+              IconButton(
+                tooltip: LocaleKeys.collection_manage.tr(args: [track.title]),
+                onPressed: onManage,
+                icon: Icon(
+                  Icons.more_horiz_rounded,
+                  color: context.colors.textSecondary,
+                ),
               ),
             ],
           ),
-        ),
+          Sp.xsmall.heightBox,
+          Text(
+            track.artist,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: bodyTextStyle(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
+          ),
+        ],
       ),
     );
   }
@@ -119,7 +179,9 @@ class CollectionEmptyView extends StatelessWidget {
         Text(
           LocaleKeys.collection_empty.tr(),
           textAlign: TextAlign.center,
-          style: m14w500(context).copyWith(color: context.colors.textSecondary),
+          style: bodyTextStyle(
+            context,
+          ).copyWith(color: context.colors.textSecondary),
         ),
       ],
     );

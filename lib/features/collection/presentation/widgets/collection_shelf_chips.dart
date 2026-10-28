@@ -56,7 +56,9 @@ class CollectionShelfEmptyView extends StatelessWidget {
         child: Text(
           LocaleKeys.collection_shelf_empty.tr(),
           textAlign: TextAlign.center,
-          style: m14w500(context).copyWith(color: context.colors.textSecondary),
+          style: bodyTextStyle(
+            context,
+          ).copyWith(color: context.colors.textSecondary),
         ),
       ),
     );

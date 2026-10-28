@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:music_disco/core/widgets/disc_flight.dart';
 import 'package:music_disco/features/core/home/home_page.dart';
+import 'package:music_disco/features/settings/bloc/settings_cubit.dart';
 
 mixin HomePageMixin on State<HomePage> {
+  final ValueNotifier<int> activeBranch = ValueNotifier(0);
+
   final GlobalKey collectionTargetKey = GlobalKey();
 
   final ValueNotifier<int> landingPulse = ValueNotifier(0);
 
   final List<ValueNotifier<int>> branchEntries = [
+    ValueNotifier(0),
     ValueNotifier(0),
     ValueNotifier(0),
   ];
@@ -17,6 +22,7 @@ mixin HomePageMixin on State<HomePage> {
   void didUpdateWidget(HomePage oldWidget) {
     super.didUpdateWidget(oldWidget);
     final index = widget.navigationShell.currentIndex;
+    activeBranch.value = index;
     if (index != oldWidget.navigationShell.currentIndex) {
       branchEntries[index].value++;
     }
@@ -24,6 +30,7 @@ mixin HomePageMixin on State<HomePage> {
 
   @override
   void dispose() {
+    activeBranch.dispose();
     landingPulse.dispose();
     for (final entries in branchEntries) {
       entries.dispose();
@@ -39,6 +46,10 @@ mixin HomePageMixin on State<HomePage> {
     required Rect from,
     required Widget disc,
   }) async {
+    if (MediaQuery.disableAnimationsOf(context) ||
+        context.read<SettingsCubit>().state) {
+      return;
+    }
     final targetBox =
         collectionTargetKey.currentContext?.findRenderObject() as RenderBox?;
     if (targetBox == null || !targetBox.hasSize) return;

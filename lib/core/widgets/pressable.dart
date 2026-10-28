@@ -71,10 +71,20 @@ class _PressableState extends State<Pressable> {
         onTapUp: (_) => _setPressed(false),
         onTapCancel: () => _setPressed(false),
         child: AnimatedScale(
-          scale: _isPressed ? widget.pressedScale : 1,
-          duration: 120.ms,
+          scale: _isPressed && !MediaQuery.disableAnimationsOf(context)
+              ? widget.pressedScale
+              : 1,
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : 120.ms,
           curve: Curves.easeOut,
-          child: widget.child,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minWidth: Sp.minTouchTarget,
+              minHeight: Sp.minTouchTarget,
+            ),
+            child: widget.child,
+          ),
         ),
       ),
     );

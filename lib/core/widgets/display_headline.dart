@@ -1,38 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
+import 'package:music_disco/core/util/custom_app_colors.dart';
 
 class DisplayHeadline extends StatelessWidget {
-  const DisplayHeadline({super.key, required this.first, required this.second});
+  const DisplayHeadline({
+    super.key,
+    required this.first,
+    this.second = '',
+    this.role = HeadlineRole.general,
+  });
 
   final String first;
   final String second;
+  final HeadlineRole role;
 
   @override
-  Widget build(BuildContext context) {
-    final style = a32(context);
-    return Semantics(
-      header: true,
-      label: '$first $second',
-      child: ExcludeSemantics(
-        child: FittedBox(
-          fit: BoxFit.scaleDown,
-          alignment: Alignment.centerLeft,
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      final loading = role == HeadlineRole.loading;
+      final style = headlineTextStyle(context, constraints.maxWidth, role: role)
+          .copyWith(
+            color: loading ? context.loadingText : context.colors.textPrimary,
+          );
+      return Semantics(
+        header: true,
+        label: second.isEmpty ? first : '$first $second',
+        child: ExcludeSemantics(
           child: Text.rich(
             TextSpan(
               style: style,
               children: [
-                TextSpan(text: '$first '),
-                TextSpan(
-                  text: second,
-                  style: style.copyWith(color: context.colors.textDisabled),
-                ),
+                TextSpan(text: first),
+                if (second.isNotEmpty)
+                  TextSpan(
+                    text: ' $second',
+                    style: style.copyWith(
+                      color: loading
+                          ? context.loadingMutedText
+                          : context.colors.textTertiary,
+                    ),
+                  ),
               ],
             ),
             maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
 }

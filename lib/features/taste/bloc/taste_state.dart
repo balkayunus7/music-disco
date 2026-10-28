@@ -7,8 +7,10 @@ class TasteState extends Equatable {
     this.saved = const TasteProfile(),
     this.draft = const TasteProfile(),
     this.notice = TasteNotice.none,
+    this.isSaving = false,
   });
 
+  final bool isSaving;
   final TasteProfile saved;
   final TasteProfile draft;
   final TasteNotice notice;
@@ -16,11 +18,13 @@ class TasteState extends Equatable {
   bool get hasChanges => saved != draft;
 
   TasteState copyWith({
+    bool? isSaving,
     TasteProfile? saved,
     TasteProfile? draft,
     TasteNotice? notice,
   }) {
     return TasteState(
+      isSaving: isSaving ?? this.isSaving,
       saved: saved ?? this.saved,
       draft: draft ?? this.draft,
       notice: notice ?? this.notice,
@@ -28,5 +32,5 @@ class TasteState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [saved, draft, notice];
+  List<Object?> get props => [saved, draft, notice, isSaving];
 }

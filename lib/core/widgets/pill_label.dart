@@ -1,3 +1,4 @@
+import 'package:music_disco/core/widgets/motion_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
@@ -5,7 +6,12 @@ import 'package:music_disco/core/util/custom_app_sizes.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
 
 class PillLabel extends StatelessWidget {
-  const PillLabel({super.key, required this.text, this.isStrong = true, this.dense = false});
+  const PillLabel({
+    super.key,
+    required this.text,
+    this.isStrong = true,
+    this.dense = false,
+  });
 
   final String text;
 
@@ -14,11 +20,16 @@ class PillLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = (dense ? m13w600(context) : m14w600(context)).copyWith(
-      color: isStrong ? context.colors.textPrimary : context.colors.textSecondary,
-    );
-    return AnimatedSize(
-      duration: 220.ms,
+    final style = (dense ? listTitleStyle(context) : labelTextStyle(context))
+        .copyWith(
+          color: isStrong
+              ? context.colors.textPrimary
+              : context.colors.textSecondary,
+        );
+    return MotionSize(
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : 220.ms,
       curve: Curves.easeOutCubic,
       child: Container(
         padding: EdgeInsets.symmetric(
@@ -26,16 +37,32 @@ class PillLabel extends StatelessWidget {
           vertical: (dense ? Sp.xsmall : Sp.small).h,
         ),
         decoration: BoxDecoration(
-          color: isStrong ? context.colors.surfaceSecondary : context.colors.surface,
+          color: isStrong
+              ? context.colors.surfaceSecondary
+              : context.colors.surface,
           borderRadius: Sp.huge.radiusR,
         ),
         child: AnimatedSwitcher(
-          duration: 220.ms,
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : 220.ms,
           transitionBuilder: (child, animation) => FadeTransition(
             opacity: animation,
-            child: SizeTransition(sizeFactor: animation, axis: Axis.horizontal, axisAlignment: -1, child: child),
+            child: SizeTransition(
+              sizeFactor: animation,
+              axis: Axis.horizontal,
+              axisAlignment: -1,
+              child: child,
+            ),
           ),
-          child: Text(text, key: ValueKey(text), maxLines: 1, style: style),
+          child: Text(
+            text,
+            key: ValueKey(text),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: style,
+          ),
         ),
       ),
     );

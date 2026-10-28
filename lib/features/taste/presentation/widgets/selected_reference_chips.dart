@@ -12,8 +12,10 @@ class SelectedReferenceChips extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSize(
-      duration: 240.ms,
+    return MotionSize(
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : 240.ms,
       curve: Curves.easeOutCubic,
       alignment: Alignment.topLeft,
       child: references.isEmpty
@@ -51,7 +53,9 @@ class _RemovableChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.85, end: 1),
-      duration: 260.ms,
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : 260.ms,
       curve: Curves.easeOutBack,
       builder: (context, scale, child) =>
           Transform.scale(scale: scale, child: child),
@@ -75,7 +79,7 @@ class _RemovableChip extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: Sp.xsmall.w,
               children: [
-                Text(reference.name, style: m13w600(context)),
+                Text(reference.name, style: listTitleStyle(context)),
                 Icon(
                   Icons.close_rounded,
                   size: Sp.medium.r,

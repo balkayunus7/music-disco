@@ -14,6 +14,7 @@ class EntranceFade extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) return child;
     final delay = order.clamp(0, _maxOrder) * _stepMs;
     final total = _baseMs + delay;
     return TweenAnimationBuilder<double>(
@@ -22,7 +23,10 @@ class EntranceFade extends StatelessWidget {
       curve: Interval(delay / total, 1, curve: Curves.easeOutCubic),
       builder: (context, value, child) => Opacity(
         opacity: value,
-        child: Transform.translate(offset: Offset(0, (1 - value) * Sp.small.h), child: child),
+        child: Transform.translate(
+          offset: Offset(0, (1 - value) * Sp.small.h),
+          child: child,
+        ),
       ),
       child: child,
     );

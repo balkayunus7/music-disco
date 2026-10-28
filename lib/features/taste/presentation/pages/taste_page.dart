@@ -14,8 +14,7 @@ import 'package:music_disco/core/widgets/choice_tile.dart';
 import 'package:music_disco/core/widgets/cta_bar.dart';
 import 'package:music_disco/core/widgets/display_headline.dart';
 import 'package:music_disco/core/widgets/entrance_fade.dart';
-import 'package:music_disco/core/widgets/eyebrow_text.dart';
-import 'package:music_disco/core/widgets/page_back_button.dart';
+import 'package:music_disco/core/widgets/app_page_bar.dart';
 import 'package:music_disco/core/widgets/pill_label.dart';
 import 'package:music_disco/core/widgets/text_link.dart';
 import 'package:music_disco/features/discover/presentation/widgets/reference_row.dart';
@@ -27,13 +26,16 @@ import 'package:music_disco/features/taste/presentation/taste_style.dart';
 part '../widgets/taste_section.dart';
 
 class TastePage extends StatefulWidget {
-  const TastePage({super.key});
+  const TastePage({super.key, this.routeBase = AppRoutes.taste});
+
+  final String routeBase;
 
   @override
   State<TastePage> createState() => _TastePageState();
 }
 
-class _TastePageState extends State<TastePage> with RouteAwareAnalyticsMixin, RouteAwareAnalyticsPageParamsMixin {
+class _TastePageState extends State<TastePage>
+    with RouteAwareAnalyticsMixin, RouteAwareAnalyticsPageParamsMixin {
   TasteCubit get _taste => context.read<TasteCubit>();
 
   @override
@@ -42,33 +44,60 @@ class _TastePageState extends State<TastePage> with RouteAwareAnalyticsMixin, Ro
     _taste.startEditing();
   }
 
-  void _onSave() {
-    _taste.save();
+  Future<void> _onSave() async {
+    final saved = await _taste.save();
+    if (!mounted) return;
+    if (!saved) {
+      showAppSnackBar(context, message: LocaleKeys.settings_save_error.tr());
+      return;
+    }
     showAppSnackBar(context, message: LocaleKeys.taste_saved_snackbar.tr());
     context.pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    final draft = context.select<TasteCubit, TasteProfile>((cubit) => cubit.state.draft);
+    final draft = context.select<TasteCubit, TasteProfile>(
+      (cubit) => cubit.state.draft,
+    );
+    final isSaving = context.select<TasteCubit, bool>(
+      (cubit) => cubit.state.isSaving,
+    );
     return BrandPageBody(
-      footer: CtaBar(text: LocaleKeys.taste_save.tr(), icon: Icons.check_rounded, onTap: _onSave),
+      appBar: AppPageBar(
+        title: LocaleKeys.taste_eyebrow.tr(),
+        showBackButton: true,
+      ),
+      footer: CtaBar(
+        text: LocaleKeys.taste_save.tr(),
+        icon: Icons.check_rounded,
+        onTap: isSaving ? null : _onSave,
+      ),
       children: [
-        Row(children: [const PageBackButton(), const Spacer(), EyebrowText(LocaleKeys.taste_eyebrow.tr())]),
+        DisplayHeadline(
+          first: LocaleKeys.taste_title_first.tr(),
+          second: LocaleKeys.taste_title_second.tr(),
+        ),
         Sp.medium.heightBox,
-        DisplayHeadline(first: LocaleKeys.taste_title_first.tr(), second: LocaleKeys.taste_title_second.tr()),
-        Sp.medium.heightBox,
-        Text(LocaleKeys.taste_subtitle.tr(), style: m14w500(context).copyWith(color: context.colors.textSecondary)),
+        Text(
+          LocaleKeys.taste_subtitle.tr(),
+          style: bodyTextStyle(
+            context,
+          ).copyWith(color: context.colors.textSecondary),
+        ),
         Sp.xlarge.heightBox,
         EntranceFade(
           order: 0,
           child: TasteSection(
             title: LocaleKeys.taste_genres_title.tr(),
-            onEdit: () => context.go(AppRoutes.tasteGenres),
+            onEdit: () => context.go('${widget.routeBase}/genres'),
             child: Wrap(
               spacing: Sp.xsmall.w,
               runSpacing: Sp.xsmall.h,
-              children: [for (final label in draft.genreLabels) PillLabel(text: label, dense: true)],
+              children: [
+                for (final label in draft.genreLabels)
+                  PillLabel(text: label, dense: true),
+              ],
             ),
           ),
         ),
@@ -77,17 +106,22 @@ class _TastePageState extends State<TastePage> with RouteAwareAnalyticsMixin, Ro
           order: 1,
           child: TasteSection(
             title: LocaleKeys.taste_references_title.tr(),
-            onEdit: () => context.go(AppRoutes.tasteReferences),
+            onEdit: () => context.go('${widget.routeBase}/references'),
             child: draft.references.isEmpty
                 ? Text(
                     LocaleKeys.taste_references_empty.tr(),
-                    style: m13w500(context).copyWith(color: context.colors.textSecondary),
+                    style: bodyTextStyle(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                   )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       for (final reference in draft.references)
-                        ReferenceRow(key: ValueKey(reference.id), reference: reference),
+                        ReferenceRow(
+                          key: ValueKey(reference.id),
+                          reference: reference,
+                        ),
                     ],
                   ),
           ),

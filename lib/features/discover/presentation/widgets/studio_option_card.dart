@@ -61,10 +61,10 @@ class StudioOptionCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 2.h,
                   children: [
-                    Text(title, style: m14w700(context)),
+                    Text(title, style: discoveryCardTitleStyle(context)),
                     Text(
                       subtitle,
-                      style: m12w500(
+                      style: secondaryTextStyle(
                         context,
                       ).copyWith(color: context.colors.textSecondary),
                     ),
@@ -72,7 +72,7 @@ class StudioOptionCard extends StatelessWidget {
                 ),
               ),
               Icon(
-                Icons.north_east_rounded,
+                Icons.chevron_right_rounded,
                 color: context.colors.textSecondary,
                 size: Sp.medium.r,
               ),

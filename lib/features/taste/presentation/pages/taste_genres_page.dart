@@ -13,12 +13,11 @@ import 'package:music_disco/core/widgets/cta_bar.dart';
 import 'package:music_disco/core/widgets/display_headline.dart';
 import 'package:music_disco/core/widgets/eyebrow_text.dart';
 import 'package:music_disco/core/widgets/holo_disc.dart';
-import 'package:music_disco/core/widgets/page_back_button.dart';
-import 'package:music_disco/core/widgets/step_progress.dart';
+import 'package:music_disco/core/widgets/app_page_bar.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
 import 'package:music_disco/features/taste/bloc/taste_cubit.dart';
-import 'package:music_disco/features/taste/domain/models/genre.dart';
+import 'package:music_disco/features/discover/domain/models/genre.dart';
 import 'package:music_disco/features/taste/domain/models/taste_profile.dart';
 import 'package:music_disco/features/taste/presentation/taste_style.dart';
 
@@ -44,17 +43,21 @@ class _TasteGenresPageState extends State<TasteGenresPage>
   Widget build(BuildContext context) {
     final taste = context.read<TasteCubit>();
     return BlocBuilder<TasteCubit, TasteState>(
-      buildWhen: (previous, current) => previous.draft != current.draft || previous.notice != current.notice,
+      buildWhen: (previous, current) =>
+          previous.draft != current.draft || previous.notice != current.notice,
       builder: (context, state) {
         final draft = state.draft;
         final isLimited = state.notice == TasteNotice.genreLimit;
         return BrandPageBody(
-          footer: CtaBar(text: LocaleKeys.taste_back_to_preferences.tr(), onTap: () => context.pop()),
+          appBar: AppPageBar(
+            title: LocaleKeys.taste_genres_step.tr(),
+            showBackButton: true,
+          ),
+          footer: CtaBar(
+            text: LocaleKeys.taste_back_to_preferences.tr(),
+            onTap: () => context.pop(),
+          ),
           children: [
-            Row(children: [const PageBackButton(), const Spacer(), EyebrowText(LocaleKeys.taste_genres_step.tr())]),
-            Sp.medium.heightBox,
-            const StepProgress(current: 1, total: 2),
-            Sp.xlarge.heightBox,
             DisplayHeadline(
               first: LocaleKeys.taste_genres_title_first.tr(),
               second: LocaleKeys.taste_genres_title_second.tr(),
@@ -62,23 +65,36 @@ class _TasteGenresPageState extends State<TasteGenresPage>
             Sp.medium.heightBox,
             Text(
               LocaleKeys.taste_genres_subtitle.tr(),
-              style: m14w500(context).copyWith(color: context.colors.textSecondary),
+              style: bodyTextStyle(
+                context,
+              ).copyWith(color: context.colors.textSecondary),
             ),
             Sp.xlarge.heightBox,
             TasteSoundCard(profile: draft),
             Sp.medium.heightBox,
-            TasteGenreGrid(selected: draft.isMixed ? const [] : draft.genres, onToggle: taste.toggleGenre),
+            TasteGenreGrid(
+              selected: draft.isMixed ? const [] : draft.genres,
+              onToggle: taste.toggleGenre,
+            ),
             Sp.medium.heightBox,
             AnimatedSwitcher(
-              duration: 220.ms,
-              layoutBuilder: (current, previous) =>
-                  Stack(alignment: Alignment.centerLeft, children: [...previous, ?current]),
+              duration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : 220.ms,
+              layoutBuilder: (current, previous) => Stack(
+                alignment: Alignment.centerLeft,
+                children: [...previous, ?current],
+              ),
               child: Text(
-                isLimited ? LocaleKeys.taste_genres_limit.tr() : draft.genreStatus,
+                isLimited
+                    ? LocaleKeys.taste_genres_limit.tr()
+                    : draft.genreStatus,
                 key: ValueKey(isLimited ? 'limit' : draft.genreStatus),
-                style: m12w500(
-                  context,
-                ).copyWith(color: isLimited ? context.colors.textPrimary : context.colors.textSecondary),
+                style: secondaryTextStyle(context).copyWith(
+                  color: isLimited
+                      ? context.colors.textPrimary
+                      : context.colors.textSecondary,
+                ),
               ),
             ),
             Sp.medium.heightBox,

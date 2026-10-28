@@ -1,5 +1,7 @@
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
+import 'package:music_disco/features/discover/domain/models/genre.dart';
+import 'package:music_disco/features/taste/domain/models/music_language.dart';
 
 class Track extends Equatable {
   const Track({
@@ -10,8 +12,16 @@ class Track extends Equatable {
     required this.noteKey,
     required this.duration,
     required this.youtubeId,
+    this.genres = const [],
+    this.language = MusicLanguage.any,
+    this.energy = 0.5,
+    this.hasVocals = true,
   });
 
+  final List<Genre> genres;
+  final MusicLanguage language;
+  final double energy;
+  final bool hasVocals;
   final String id;
   final String title;
   final String artist;
@@ -21,5 +31,17 @@ class Track extends Equatable {
   final String youtubeId;
 
   @override
-  List<Object?> get props => [id, title, artist, mood, noteKey, duration, youtubeId];
+  List<Object?> get props => [
+    id,
+    title,
+    artist,
+    mood,
+    noteKey,
+    duration,
+    youtubeId,
+    genres,
+    language,
+    energy,
+    hasVocals,
+  ];
 }

@@ -25,7 +25,9 @@ class ChoiceTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = isSelected ? context.colors.textPrimary : context.colors.textSecondary;
+    final foreground = isSelected
+        ? context.colors.textPrimary
+        : context.colors.textSecondary;
     final icon = this.icon;
     return Pressable(
       onTap: onTap,
@@ -34,27 +36,47 @@ class ChoiceTile extends StatelessWidget {
       haptic: TapHaptic.selection,
       child: ExcludeSemantics(
         child: AnimatedContainer(
-          duration: 220.ms,
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : 220.ms,
           curve: Curves.easeOutCubic,
-          height: Sp.xxxlarge.h - Sp.tiny.h,
-          padding: Sp.medium.padHR,
+          constraints: const BoxConstraints(minHeight: Sp.minTouchTarget),
+          padding: EdgeInsets.symmetric(
+            horizontal: Sp.medium.w,
+            vertical: Sp.xsmall,
+          ),
           decoration: BoxDecoration(
-            color: isSelected ? context.colors.surfaceSecondary : context.colors.surface,
-            borderRadius: Sp.medium.radiusR,
-            border: Border.all(color: isSelected ? context.colors.textSecondary : context.colors.borderSecondary),
+            color: isSelected
+                ? context.colors.surfaceSecondary
+                : context.colors.surface,
+            borderRadius: BorderRadius.circular(13),
+            border: Border.all(
+              color: isSelected
+                  ? context.colors.textSecondary
+                  : context.colors.borderSecondary,
+            ),
           ),
           child: Row(
             mainAxisSize: isExpanded ? MainAxisSize.max : MainAxisSize.min,
-            mainAxisAlignment: hasIndicator ? MainAxisAlignment.start : MainAxisAlignment.center,
+            mainAxisAlignment: hasIndicator
+                ? MainAxisAlignment.start
+                : MainAxisAlignment.center,
             spacing: Sp.xsmall.w + 2,
             children: [
               if (hasIndicator) _SelectionDot(isSelected: isSelected),
-              if (icon != null) Icon(icon, color: foreground, size: Sp.medium.r),
+              if (icon != null)
+                Icon(icon, color: foreground, size: Sp.medium.r),
               Flexible(
                 child: AnimatedDefaultTextStyle(
-                  duration: 220.ms,
-                  style: m13w600(context).copyWith(color: foreground),
-                  child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  duration: MediaQuery.disableAnimationsOf(context)
+                      ? Duration.zero
+                      : 220.ms,
+                  style: listTitleStyle(context).copyWith(color: foreground),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
             ],
@@ -74,24 +96,35 @@ class _SelectionDot extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = Sp.medium.r + 2;
     return AnimatedContainer(
-      duration: 220.ms,
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : 220.ms,
       width: size,
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(color: isSelected ? context.colors.textPrimary : context.colors.border, width: 1.2),
+        border: Border.all(
+          color: isSelected
+              ? context.colors.textPrimary
+              : context.colors.border,
+          width: 1.2,
+        ),
       ),
       alignment: Alignment.center,
       child: AnimatedScale(
         scale: isSelected ? 1 : 0.4,
-        duration: 220.ms,
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : 220.ms,
         curve: Curves.easeOutBack,
         child: Container(
           width: size * 0.45,
           height: size * 0.45,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isSelected ? context.colors.textPrimary : context.colors.border,
+            color: isSelected
+                ? context.colors.textPrimary
+                : context.colors.border,
           ),
         ),
       ),

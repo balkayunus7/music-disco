@@ -16,15 +16,23 @@ class YoutubePlayerWrapper {
 
   final YoutubePlayerController _controller;
 
-  Stream<PlaybackStatus> get statusStream => _controller.stream.map(_statusOf).distinct();
+  Stream<PlaybackStatus> get statusStream =>
+      _controller.stream.map(_statusOf).distinct();
 
-  Stream<Duration> get positionStream => _controller.videoStateStream.map((state) => state.position);
+  Stream<Duration> get positionStream =>
+      _controller.videoStateStream.map((state) => state.position);
 
-  Stream<Duration> get durationStream => _controller.stream.map((value) => value.metaData.duration).distinct();
+  Stream<Duration> get durationStream =>
+      _controller.stream.map((value) => value.metaData.duration).distinct();
 
-  Future<void> cue(String videoId) => _controller.cueVideoById(videoId: videoId);
+  Future<void> cue(String videoId) =>
+      _controller.cueVideoById(videoId: videoId);
 
-  Future<void> load(String videoId) => _controller.loadVideoById(videoId: videoId);
+  Future<void> load(String videoId) =>
+      _controller.loadVideoById(videoId: videoId);
+
+  Future<void> setMuted(bool muted) =>
+      muted ? _controller.mute() : _controller.unMute();
 
   Future<void> play() => _controller.playVideo();
 
@@ -32,13 +40,18 @@ class YoutubePlayerWrapper {
 
   Future<void> stop() => _controller.stopVideo();
 
-  Future<void> seekTo(Duration position) =>
-      _controller.seekTo(seconds: position.inMilliseconds / 1000, allowSeekAhead: true);
+  Future<void> seekTo(Duration position) => _controller.seekTo(
+    seconds: position.inMilliseconds / 1000,
+    allowSeekAhead: true,
+  );
 
   Future<void> close() => _controller.close();
 
   Widget buildView({Color? backgroundColor}) {
-    return YoutubePlayer(controller: _controller, backgroundColor: backgroundColor);
+    return YoutubePlayer(
+      controller: _controller,
+      backgroundColor: backgroundColor,
+    );
   }
 
   static PlaybackStatus _statusOf(YoutubePlayerValue value) {

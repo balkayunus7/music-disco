@@ -1,5 +1,4 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
 import 'package:mobile_boilerplate/application/analytics/analytics_cubit.dart';
 import 'package:mobile_boilerplate/application/auth/auth_cubit.dart';
 import 'package:mobile_boilerplate/application/color_theme/color_theme_bloc.dart';
@@ -13,18 +12,22 @@ import 'package:mobile_boilerplate/infrastructure/color_theme/shared_pref_color_
 import 'package:mobile_boilerplate/infrastructure/network_time/ntp_network_time_service.dart';
 import 'package:mobile_boilerplate/wrapper/ntp_wrapper.dart';
 import 'package:music_disco/config/env_config.dart';
+import 'package:music_disco/core/util/music_color_theme_cache.dart';
 import 'package:music_disco/features/auth/data/impl_auth_service.dart';
 import 'package:music_disco/features/auth/data/impl_user_repository.dart';
 import 'package:music_disco/features/collection/bloc/collection_cubit.dart';
+import 'package:music_disco/features/collection/data/local_collection_store.dart';
+import 'package:music_disco/features/taste/data/local_taste_store.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
 import 'package:music_disco/features/discover/bloc/reference_search_cubit.dart';
-import 'package:music_disco/features/discover/data/mock_discovery_repository.dart';
-import 'package:music_disco/features/discover/data/deezer_reference_catalog.dart';
+import 'package:music_disco/features/discover/data/curated_discovery_repository.dart';
+import 'package:music_disco/features/discover/data/supabase_artist_catalog.dart';
 import 'package:music_disco/features/discover/domain/use_cases/i_discovery_repository.dart';
 import 'package:music_disco/features/discover/domain/use_cases/i_reference_catalog.dart';
 import 'package:music_disco/features/player/bloc/youtube_player_cubit.dart';
 import 'package:music_disco/features/player/data/youtube_player_wrapper.dart';
 import 'package:music_disco/features/taste/bloc/taste_cubit.dart';
+import 'package:music_disco/features/settings/bloc/settings_cubit.dart';
 import 'package:supabase/supabase.dart';
 
 Future<void> setupDependencies() async {
@@ -59,18 +62,14 @@ Future<void> setupDependencies() async {
       NtpNetworkTimeService(getIt<SharedPreferences>(), getIt<NtpWrapper>()),
     )
     ..registerSingleton<SharedPrefColorThemeCache>(
-      SharedPrefColorThemeCache(getIt<SharedPreferences>()),
+      MusicColorThemeCache(getIt<SharedPreferences>()),
     )
     ..registerSingleton<ImplAppTrackingService>(ImplAppTrackingService())
     ..registerSingleton<ImplAnalyticsService>(const ImplAnalyticsService())
     ..registerSingleton<StoreCheckerService>(const StoreCheckerService())
-    ..registerSingleton<IDiscoveryRepository>(MockDiscoveryRepository())
-    ..registerSingleton<http.Client>(
-      http.Client(),
-      dispose: (client) => client.close(),
-    )
+    ..registerSingleton<IDiscoveryRepository>(CuratedDiscoveryRepository())
     ..registerSingleton<IReferenceCatalog>(
-      DeezerReferenceCatalog(getIt<http.Client>()),
+      SupabaseArtistCatalog(getIt<SupabaseClient>()),
     )
     // Setup application dependencies
     ..registerFactory<AuthCubit>(
@@ -93,8 +92,23 @@ Future<void> setupDependencies() async {
     ..registerFactory<DiscoverCubit>(
       () => DiscoverCubit(getIt<IDiscoveryRepository>()),
     )
-    ..registerFactory<CollectionCubit>(CollectionCubit.new)
-    ..registerFactory<TasteCubit>(TasteCubit.new)
+    ..registerFactoryParam<CollectionCubit, String?, void>(
+      (userId, _) => CollectionCubit(
+        store: userId == null
+            ? null
+            : LocalCollectionStore(sharedPreferences, userId: userId),
+      ),
+    )
+    ..registerFactoryParam<TasteCubit, String?, void>(
+      (userId, _) => TasteCubit(
+        store: userId == null
+            ? null
+            : LocalTasteStore(sharedPreferences, userId: userId),
+      ),
+    )
+    ..registerFactory<SettingsCubit>(
+      () => SettingsCubit(getIt<SharedPreferences>()),
+    )
     ..registerFactory<ReferenceSearchCubit>(
       () => ReferenceSearchCubit(getIt<IReferenceCatalog>()),
     )

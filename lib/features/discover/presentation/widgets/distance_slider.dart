@@ -13,7 +13,12 @@ import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
 
 class DistanceSlider extends StatefulWidget {
-  const DistanceSlider({super.key, required this.value, required this.mood, required this.onChanged});
+  const DistanceSlider({
+    super.key,
+    required this.value,
+    required this.mood,
+    required this.onChanged,
+  });
 
   final DiscoveryDistance value;
   final Mood mood;
@@ -23,12 +28,20 @@ class DistanceSlider extends StatefulWidget {
   State<DistanceSlider> createState() => _DistanceSliderState();
 }
 
-class _DistanceSliderState extends State<DistanceSlider> with SingleTickerProviderStateMixin {
-  late final AnimationController _position = AnimationController(
-    vsync: this,
-    value: widget.value.fraction,
-    duration: 380.ms,
-  );
+class _DistanceSliderState extends State<DistanceSlider>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _position;
+
+  @override
+  void initState() {
+    super.initState();
+    _position = AnimationController(
+      vsync: this,
+      value: widget.value.fraction,
+      duration: 380.ms,
+    );
+  }
+
   bool _isDragging = false;
   DiscoveryDistance? _dragStop;
 
@@ -49,6 +62,10 @@ class _DistanceSliderState extends State<DistanceSlider> with SingleTickerProvid
   }
 
   void _settleOn(DiscoveryDistance distance) {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _position.value = distance.fraction;
+      return;
+    }
     _position.animateTo(distance.fraction, curve: Curves.easeOutCubic);
   }
 
@@ -98,7 +115,9 @@ class _DistanceSliderState extends State<DistanceSlider> with SingleTickerProvid
       slider: true,
       label: LocaleKeys.distance_title.tr(),
       value: widget.value.labelKey.tr(),
-      increasedValue: index < values.length - 1 ? values[index + 1].labelKey.tr() : null,
+      increasedValue: index < values.length - 1
+          ? values[index + 1].labelKey.tr()
+          : null,
       decreasedValue: index > 0 ? values[index - 1].labelKey.tr() : null,
       onIncrease: index < values.length - 1 ? () => _step(1) : null,
       onDecrease: index > 0 ? () => _step(-1) : null,
@@ -109,7 +128,8 @@ class _DistanceSliderState extends State<DistanceSlider> with SingleTickerProvid
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onHorizontalDragStart: _onDragStart,
-              onHorizontalDragUpdate: (details) => _onDragUpdate(details, travel),
+              onHorizontalDragUpdate: (details) =>
+                  _onDragUpdate(details, travel),
               onHorizontalDragEnd: (_) => _onDragEnd(),
               onHorizontalDragCancel: _onDragEnd,
               onTapUp: (details) => _onTapTrack(details, travel),
@@ -126,7 +146,9 @@ class _DistanceSliderState extends State<DistanceSlider> with SingleTickerProvid
                       needleColor: widget.mood.palette.light,
                       tickColor: context.colors.border,
                       stopColor: context.colors.textSecondary,
-                      labelStyle: m10w700(context).copyWith(color: context.colors.textDisabled),
+                      labelStyle: eyebrowTextStyle(
+                        context,
+                      ).copyWith(color: context.colors.textDisabled),
                     ),
                   ),
                 ),
@@ -158,7 +180,6 @@ class _TunerPainter extends CustomPainter {
   final Color stopColor;
   final TextStyle labelStyle;
 
-  static const List<int> _frequencies = [88, 92, 96, 100, 104, 108];
   static const double _tickGap = 8;
   static const double _tickHeight = 10;
   static const double _tickLift = 12;
@@ -188,16 +209,11 @@ class _TunerPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
     for (final fraction in stops) {
       final x = inset + width * fraction;
-      canvas.drawLine(Offset(x, baseline - _stopHeight), Offset(x, baseline), stop);
-    }
-
-    for (final (index, frequency) in _frequencies.indexed) {
-      final x = inset + width * index / (_frequencies.length - 1);
-      final label = TextPainter(
-        text: TextSpan(text: '$frequency', style: labelStyle),
-        textDirection: ui.TextDirection.ltr,
-      )..layout();
-      label.paint(canvas, Offset(x - label.width / 2, baseline + 4));
+      canvas.drawLine(
+        Offset(x, baseline - _stopHeight),
+        Offset(x, baseline),
+        stop,
+      );
     }
 
     final top = Offset(needleX, 4);
@@ -233,17 +249,37 @@ class _TunerPainter extends CustomPainter {
 }
 
 class DistanceSliderLabels extends StatelessWidget {
-  const DistanceSliderLabels({super.key});
+  const DistanceSliderLabels({super.key, required this.value});
+
+  final DiscoveryDistance value;
 
   @override
   Widget build(BuildContext context) {
-    final style = m13w500(context).copyWith(color: context.colors.textSecondary);
-    return Row(
-      children: [
-        Expanded(child: Text(LocaleKeys.distance_close.tr(), style: style)),
-        Sp.small.widthBox,
-        Text(LocaleKeys.distance_never_heard.tr(), style: style),
-      ],
+    const values = DiscoveryDistance.values;
+    return ExcludeSemantics(
+      child: Row(
+        spacing: Sp.xsmall.w,
+        children: [
+          for (final (index, distance) in values.indexed)
+            Expanded(
+              child: Text(
+                distance.labelKey.tr(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: index == 0
+                    ? TextAlign.start
+                    : index == values.length - 1
+                    ? TextAlign.end
+                    : TextAlign.center,
+                style: labelTextStyle(context).copyWith(
+                  color: distance == value
+                      ? context.colors.textPrimary
+                      : context.colors.textSecondary,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

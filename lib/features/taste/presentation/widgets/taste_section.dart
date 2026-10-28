@@ -23,7 +23,7 @@ class TasteSection extends StatelessWidget {
             Expanded(
               child: Semantics(
                 header: true,
-                child: Text(title, style: m18w700(context)),
+                child: Text(title, style: sectionTitleStyle(context)),
               ),
             ),
             if (onEdit != null)

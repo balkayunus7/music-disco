@@ -12,6 +12,7 @@ CustomTransitionPage<void> sharedAxisPage({
     transitionDuration: const Duration(milliseconds: 420),
     reverseTransitionDuration: const Duration(milliseconds: 320),
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      if (MediaQuery.disableAnimationsOf(context)) return child;
       final incoming = CurvedAnimation(
         parent: animation,
         curve: Curves.easeOutCubic,

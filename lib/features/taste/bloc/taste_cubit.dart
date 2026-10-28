@@ -1,15 +1,24 @@
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:music_disco/features/discover/domain/models/music_reference.dart';
-import 'package:music_disco/features/taste/domain/models/genre.dart';
+import 'package:music_disco/features/discover/domain/models/genre.dart';
 import 'package:music_disco/features/taste/domain/models/music_language.dart';
 import 'package:music_disco/features/taste/domain/models/taste_profile.dart';
+
+import 'package:music_disco/features/taste/domain/use_cases/i_taste_store.dart';
 
 part 'taste_state.dart';
 
 class TasteCubit extends Cubit<TasteState> {
-  TasteCubit() : super(const TasteState());
+  TasteCubit({ITasteStore? store}) : _store = store, super(_restore(store));
+  final ITasteStore? _store;
+
+  static TasteState _restore(ITasteStore? store) {
+    final saved = store?.read() ?? const TasteProfile();
+    return TasteState(saved: saved, draft: saved);
+  }
 
   void startEditing() {
+    if (state.isSaving) return;
     emit(TasteState(saved: state.saved, draft: state.saved));
   }
 
@@ -69,11 +78,25 @@ class TasteCubit extends Cubit<TasteState> {
     _emitDraft(state.draft.copyWith(language: language));
   }
 
-  void save() {
-    emit(TasteState(saved: state.draft, draft: state.draft));
+  Future<bool> save() async {
+    if (state.isSaving) return false;
+    final draft = state.draft;
+    if (_store != null) {
+      emit(state.copyWith(isSaving: true));
+      try {
+        await _store.write(draft);
+      } on Object {
+        if (!isClosed) emit(state.copyWith(isSaving: false));
+        return false;
+      }
+    }
+    if (isClosed) return false;
+    emit(TasteState(saved: draft, draft: draft));
+    return true;
   }
 
   void _emitDraft(TasteProfile draft) {
+    if (state.isSaving) return;
     emit(state.copyWith(draft: draft, notice: TasteNotice.none));
   }
 }

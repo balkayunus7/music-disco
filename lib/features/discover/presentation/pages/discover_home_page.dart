@@ -1,3 +1,4 @@
+import 'package:music_disco/core/widgets/motion_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -9,13 +10,12 @@ import 'package:music_disco/core/util/custom_app_sizes.dart';
 import 'package:music_disco/core/util/locale_keys.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
 import 'package:music_disco/core/widgets/brand_page_body.dart';
-import 'package:music_disco/core/widgets/cta_bar.dart';
 import 'package:music_disco/core/widgets/display_headline.dart';
 import 'package:music_disco/core/widgets/entrance_fade.dart';
-import 'package:music_disco/core/widgets/eyebrow_text.dart';
 import 'package:music_disco/core/widgets/pill_label.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
-import 'package:music_disco/core/widgets/round_icon_button.dart';
+import 'package:music_disco/core/widgets/text_link.dart';
+import 'package:music_disco/core/widgets/app_page_bar.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_source.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
@@ -29,6 +29,7 @@ import 'package:music_disco/features/taste/presentation/taste_style.dart';
 part '../widgets/studio_disc_duo.dart';
 part '../widgets/studio_option_card.dart';
 part '../widgets/studio_starting_point.dart';
+part '../widgets/studio_resume_card.dart';
 
 class DiscoverHomePage extends StatefulWidget {
   const DiscoverHomePage({super.key});
@@ -54,46 +55,33 @@ class _DiscoverHomePageState extends State<DiscoverHomePage>
       (cubit) => cubit.state.saved,
     );
     final roundSource = context.select<DiscoverCubit, DiscoverySource?>(
-      (cubit) => cubit.state.roundSource,
+      (cubit) => cubit.state.canResume ? cubit.state.roundSource : null,
     );
     return BrandPageBody(
+      contentTopSpacing: Sp.tiny,
+      appBar: AppPageBar(title: LocaleKeys.studio_eyebrow.tr()),
       children: [
-        EntranceFade(
-          order: 0,
-          child: Row(
-            children: [
-              Expanded(child: EyebrowText(LocaleKeys.studio_eyebrow.tr())),
-              RoundIconButton(
-                icon: Icons.tune_rounded,
-                semanticLabel: LocaleKeys.taste_edit.tr(),
-                onTap: _openTaste,
-              ),
-            ],
-          ),
-        ),
-        Sp.medium.heightBox,
         EntranceFade(
           order: 1,
           child: DisplayHeadline(
+            role: HeadlineRole.home,
             first: LocaleKeys.studio_title_first.tr(),
             second: LocaleKeys.studio_title_second.tr(),
           ),
         ),
-        Sp.medium.heightBox,
+        Sp.xsmall.heightBox,
         EntranceFade(
           order: 2,
           child: Text(
             LocaleKeys.studio_subtitle.tr(),
-            style: m14w500(
+            style: bodyTextStyle(
               context,
             ).copyWith(color: context.colors.textSecondary),
           ),
         ),
         Sp.large.heightBox,
-        const EntranceFade(order: 3, child: StudioDiscDuo()),
-        Sp.xlarge.heightBox,
         EntranceFade(
-          order: 4,
+          order: 3,
           child: StudioOptionCard(
             icon: Icons.graphic_eq_rounded,
             title: LocaleKeys.studio_by_feeling_title.tr(),
@@ -104,7 +92,7 @@ class _DiscoverHomePageState extends State<DiscoverHomePage>
         ),
         Sp.xsmall.heightBox,
         EntranceFade(
-          order: 5,
+          order: 4,
           child: StudioOptionCard(
             icon: Icons.album_outlined,
             title: LocaleKeys.studio_similar_title.tr(),
@@ -113,21 +101,29 @@ class _DiscoverHomePageState extends State<DiscoverHomePage>
           ),
         ),
         Sp.xlarge.heightBox,
+        const EntranceFade(order: 5, child: StudioDiscDuo()),
+        Sp.xlarge.heightBox,
         Divider(height: 1, color: context.colors.borderSecondary),
-        Sp.small.heightBox,
+        Sp.tiny.heightBox,
         EntranceFade(
           order: 6,
-          child: StudioStartingPoint(profile: profile, onEdit: _openTaste),
+          child: StudioStartingPoint(
+            genreLabels: profile.startingGenreLabels,
+            references: profile.references,
+            onEdit: _openTaste,
+          ),
         ),
-        AnimatedSize(
-          duration: 280.ms,
+        MotionSize(
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : 280.ms,
           curve: Curves.easeOutCubic,
           alignment: Alignment.topCenter,
           child: roundSource == null
               ? const SizedBox(width: double.infinity)
               : Padding(
-                  padding: Sp.large.padTopR,
-                  child: CtaBar(text: LocaleKeys.studio_resume.tr(), icon: Icons.undo_rounded, onTap: () => _resume(roundSource)),
+                  padding: Sp.medium.padTopR,
+                  child: StudioResumeCard(onTap: () => _resume(roundSource)),
                 ),
         ),
       ],

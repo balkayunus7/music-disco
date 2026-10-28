@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
 class BranchFadeContainer extends StatefulWidget {
-  const BranchFadeContainer({super.key, required this.currentIndex, required this.children});
+  const BranchFadeContainer({
+    super.key,
+    required this.currentIndex,
+    required this.children,
+  });
 
   final int currentIndex;
   final List<Widget> children;
@@ -10,19 +14,28 @@ class BranchFadeContainer extends StatefulWidget {
   State<BranchFadeContainer> createState() => _BranchFadeContainerState();
 }
 
-class _BranchFadeContainerState extends State<BranchFadeContainer> with SingleTickerProviderStateMixin {
+class _BranchFadeContainerState extends State<BranchFadeContainer>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 280),
     value: 1,
   );
-  late final Animation<double> _fade = CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
+  late final Animation<double> _fade = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeOutCubic,
+  );
   int? _previousIndex;
 
   @override
   void didUpdateWidget(BranchFadeContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.currentIndex != widget.currentIndex) {
+      if (MediaQuery.disableAnimationsOf(context)) {
+        _previousIndex = null;
+        _controller.value = 1;
+        return;
+      }
       _previousIndex = oldWidget.currentIndex;
       _controller.forward(from: 0).whenComplete(() {
         if (mounted) setState(() => _previousIndex = null);
@@ -40,7 +53,10 @@ class _BranchFadeContainerState extends State<BranchFadeContainer> with SingleTi
   Widget build(BuildContext context) {
     return Stack(
       fit: StackFit.expand,
-      children: [for (final (index, child) in widget.children.indexed) _buildBranch(index, child)],
+      children: [
+        for (final (index, child) in widget.children.indexed)
+          _buildBranch(index, child),
+      ],
     );
   }
 
