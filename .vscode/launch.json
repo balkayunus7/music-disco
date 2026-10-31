@@ -10,6 +10,17 @@
       "toolArgs": ["--dart-define-from-file=.env.local.json"]
     },
     {
+      "name": "music_disco (debug, HTTP Toolkit)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "flutterMode": "debug",
+      "toolArgs": [
+        "--dart-define-from-file=.env.local.json",
+        "--dart-define=HTTP_TOOLKIT_PROXY=localhost:8000"
+      ]
+    },
+    {
       "name": "music_disco (profile)",
       "request": "launch",
       "type": "dart",

@@ -20,7 +20,6 @@ class MoodCaseStage extends StatelessWidget {
         dimension: discSize + Sp.large.r,
         child: JewelCase(
           hasSpine: false,
-          contentPadding: Sp.xsmall.padAllR,
           child: SizedBox.square(
             key: discKey,
             dimension: discSize,

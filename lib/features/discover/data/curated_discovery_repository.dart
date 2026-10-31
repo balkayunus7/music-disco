@@ -170,6 +170,7 @@ class CuratedDiscoveryRepository implements IDiscoveryRepository {
     DiscoveryPreferences preferences, {
     required TrackFeedback feedback,
     required Set<String> excludeIds,
+    String? rejectedTrackId,
   }) async {
     if (latency > Duration.zero) await Future<void>.delayed(latency);
     final candidates = _ranked(preferences, excludeIds);

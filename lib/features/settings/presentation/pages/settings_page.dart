@@ -42,10 +42,18 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool _aboutExpanded = false;
 
-  Future<T?> _choose<T>({required String title, required T selected, required Map<T, String> options}) {
+  Future<T?> _choose<T>({
+    required String title,
+    required T selected,
+    required Map<T, String> options,
+  }) {
     return showAppBottomSheet<T>(
       context,
-      builder: (_) => SettingsChoiceSheet(title: title, selected: selected, options: options),
+      builder: (_) => SettingsChoiceSheet(
+        title: title,
+        selected: selected,
+        options: options,
+      ),
     );
   }
 
@@ -58,7 +66,10 @@ class _SettingsPageState extends State<SettingsPage> {
         onSave: (value) async {
           if (!auth.state.isAuthenticated) return false;
           await auth.updateUser(properties: MusicUserProperties(name: value));
-          return auth.state.failOrUpdatedOption.fold(() => false, (result) => result.isRight());
+          return auth.state.failOrUpdatedOption.fold(
+            () => false,
+            (result) => result.isRight(),
+          );
         },
       ),
     );
@@ -69,7 +80,10 @@ class _SettingsPageState extends State<SettingsPage> {
     final language = await _choose(
       title: LocaleKeys.settings_song_language.tr(),
       selected: taste.state.saved.language,
-      options: {for (final language in MusicLanguage.values) language: language.labelKey.tr()},
+      options: {
+        for (final language in MusicLanguage.values)
+          language: language.labelKey.tr(),
+      },
     );
     if (!mounted || language == null) return;
     taste.startEditing();
@@ -84,7 +98,10 @@ class _SettingsPageState extends State<SettingsPage> {
     final selected = await _choose(
       title: LocaleKeys.settings_app_language.tr(),
       selected: current,
-      options: {for (final language in LocaleLanguage.values) language: language.nativeName},
+      options: {
+        for (final language in LocaleLanguage.values)
+          language: language.nativeName,
+      },
     );
     if (!mounted || selected == null || selected == current) return;
     await context.setLocale(selected.locale);
@@ -100,7 +117,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _openLink(String value) async {
     if (value.trim().isEmpty) {
-      showAppSnackBar(context, message: LocaleKeys.settings_link_unavailable.tr());
+      showAppSnackBar(
+        context,
+        message: LocaleKeys.settings_link_unavailable.tr(),
+      );
       return;
     }
     final uri = Uri.tryParse(value.trim());
@@ -118,7 +138,10 @@ class _SettingsPageState extends State<SettingsPage> {
 
   void _restorePurchases() {
     // Store purchases and server subscription sync are not configured yet.
-    showAppSnackBar(context, message: LocaleKeys.settings_restore_unavailable.tr());
+    showAppSnackBar(
+      context,
+      message: LocaleKeys.settings_restore_unavailable.tr(),
+    );
   }
 
   @override
@@ -131,11 +154,18 @@ class _SettingsPageState extends State<SettingsPage> {
     return BrandPageBody(
       appBar: AppPageBar(title: LocaleKeys.settings_eyebrow.tr()),
       children: [
-        DisplayHeadline(first: LocaleKeys.nav_settings.tr(), role: HeadlineRole.settings),
+        DisplayHeadline(
+          first: LocaleKeys.nav_settings.tr(),
+          role: HeadlineRole.settings,
+        ),
         Sp.large.heightBox,
         SettingsProfileCard(
-          name: user?.name?.trim().isNotEmpty == true ? user!.name! : LocaleKeys.settings_listener.tr(),
-          summary: LocaleKeys.settings_collection_summary.tr(args: ['${collection.count}', '${collection.shelfCount}']),
+          name: user?.name?.trim().isNotEmpty == true
+              ? user!.name!
+              : LocaleKeys.settings_listener.tr(),
+          summary: LocaleKeys.settings_collection_summary.tr(
+            args: ['${collection.count}', '${collection.shelfCount}'],
+          ),
           onEdit: () => _editProfile(user?.name),
           onCollection: () => context.go(AppRoutes.collection),
         ),
@@ -201,21 +231,33 @@ class _SettingsPageState extends State<SettingsPage> {
               icon: Icons.help_outline_rounded,
               title: LocaleKeys.settings_support.tr(),
               onTap: () => _openLink(appConfig.mailToUrl),
-              trailing: Icon(Icons.north_east_rounded, size: Sp.medium.r, color: context.colors.textTertiary),
+              trailing: Icon(
+                Icons.north_east_rounded,
+                size: Sp.medium.r,
+                color: context.colors.textTertiary,
+              ),
             ),
             const SettingsDivider(),
             SettingsRow(
               icon: Icons.shield_outlined,
               title: LocaleKeys.settings_privacy.tr(),
               onTap: () => _openLink(appConfig.privacyPolicyUrl),
-              trailing: Icon(Icons.north_east_rounded, size: Sp.medium.r, color: context.colors.textTertiary),
+              trailing: Icon(
+                Icons.north_east_rounded,
+                size: Sp.medium.r,
+                color: context.colors.textTertiary,
+              ),
             ),
             const SettingsDivider(),
             SettingsRow(
               icon: Icons.description_outlined,
               title: LocaleKeys.settings_terms.tr(),
               onTap: () => _openLink(appConfig.termsOfServiceUrl),
-              trailing: Icon(Icons.north_east_rounded, size: Sp.medium.r, color: context.colors.textTertiary),
+              trailing: Icon(
+                Icons.north_east_rounded,
+                size: Sp.medium.r,
+                color: context.colors.textTertiary,
+              ),
             ),
           ],
         ),
@@ -235,7 +277,9 @@ class _SettingsPageState extends State<SettingsPage> {
             padding: Sp.medium.padAllR,
             child: Text(
               LocaleKeys.settings_about_body.tr(),
-              style: bodyTextStyle(context).copyWith(color: context.colors.textSecondary, height: 1.6),
+              style: bodyTextStyle(
+                context,
+              ).copyWith(color: context.colors.textSecondary, height: 1.6),
             ),
           ),
       ],

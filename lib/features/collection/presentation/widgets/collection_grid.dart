@@ -97,7 +97,6 @@ class CollectionTile extends StatelessWidget {
                     Positioned.fill(
                       child: JewelCase(
                         hasSpine: false,
-                        contentPadding: Sp.xsmall.padAllR,
                         child: LayoutBuilder(
                           builder: (context, constraints) => MoodDisc(
                             mood: track.mood,

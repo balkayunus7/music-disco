@@ -170,6 +170,13 @@ class _ResultList extends StatelessWidget {
               color: context.colors.primary,
               backgroundColor: context.colors.borderSecondary,
             ),
+          if (!search.hasQuery && search.results.isNotEmpty) ...[
+            Text(
+              LocaleKeys.reference_suggested_title.tr(),
+              style: sectionTitleStyle(context),
+            ),
+            Sp.small.heightBox,
+          ],
           for (final reference in search.results)
             ReferenceRow(
               key: ValueKey(reference.id),

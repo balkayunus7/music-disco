@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_boilerplate/application/auth/auth_cubit.dart';
@@ -37,33 +38,38 @@ class _SplashPageState extends State<SplashPage>
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<AuthCubit, AuthState>(
-          listenWhen: (previous, current) {
-            return !previous.isAuthenticated && current.isAuthenticated;
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.light.copyWith(
+        statusBarColor: context.colors.background,
+      ),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AuthCubit, AuthState>(
+            listenWhen: (previous, current) {
+              return !previous.isAuthenticated && current.isAuthenticated;
+            },
+            listener: (context, state) => context.go(AppRoutes.home),
+          ),
+          BlocListener<AuthCubit, AuthState>(
+            listenWhen: (previous, current) {
+              return !previous.canCreateGuest && current.canCreateGuest;
+            },
+            listener: (context, state) async {
+              await context.read<AuthCubit>().signInAnonymously();
+            },
+          ),
+        ],
+        child: BlocBuilder<AuthCubit, AuthState>(
+          buildWhen: (previous, current) {
+            return previous.hasStartupFailed != current.hasStartupFailed;
           },
-          listener: (context, state) => context.go(AppRoutes.home),
+          builder: (context, state) {
+            return SplashView(
+              hasFailed: state.hasStartupFailed,
+              onRetry: onRetry,
+            );
+          },
         ),
-        BlocListener<AuthCubit, AuthState>(
-          listenWhen: (previous, current) {
-            return !previous.canCreateGuest && current.canCreateGuest;
-          },
-          listener: (context, state) async {
-            await context.read<AuthCubit>().signInAnonymously();
-          },
-        ),
-      ],
-      child: BlocBuilder<AuthCubit, AuthState>(
-        buildWhen: (previous, current) {
-          return previous.hasStartupFailed != current.hasStartupFailed;
-        },
-        builder: (context, state) {
-          return SplashView(
-            hasFailed: state.hasStartupFailed,
-            onRetry: onRetry,
-          );
-        },
       ),
     );
   }

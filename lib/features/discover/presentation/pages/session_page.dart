@@ -10,6 +10,7 @@ import 'package:music_disco/core/util/locale_keys.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
 import 'package:music_disco/core/widgets/app_snack_bar.dart';
 import 'package:music_disco/core/widgets/brand_page_body.dart';
+import 'package:music_disco/core/widgets/broken_disc.dart';
 import 'package:music_disco/core/widgets/cta_bar.dart';
 import 'package:music_disco/core/widgets/display_headline.dart';
 import 'package:music_disco/core/widgets/app_page_bar.dart';
@@ -243,6 +244,17 @@ class _SessionViewState extends State<_SessionView>
                     onCollection: () => context.go(AppRoutes.collection),
                   )
                 : null,
+            fillRemaining: state.status == DiscoverRoundStatus.failure
+                ? Center(
+                    child: SessionFailureView(
+                      failure: state.failure,
+                      onRetry: () => _discover.startRound(
+                        taste: context.read<TasteCubit>().state.saved,
+                      ),
+                      onChangePreferences: () => context.go(AppRoutes.taste),
+                    ),
+                  )
+                : null,
             appBar: AppPageBar(
               title: state.status == DiscoverRoundStatus.finished
                   ? LocaleKeys.session_completed_step.tr()
@@ -267,12 +279,7 @@ class _SessionViewState extends State<_SessionView>
                   },
                 )
               else if (state.status == DiscoverRoundStatus.failure)
-                SessionFailureView(
-                  onRetry: () => _discover.startRound(
-                    taste: context.read<TasteCubit>().state.saved,
-                  ),
-                  onChangePreferences: () => context.go(AppRoutes.taste),
-                )
+                const SizedBox.shrink()
               else if (track == null)
                 DiscoveryLoadingView(
                   isSearching: state.status == DiscoverRoundStatus.loading,

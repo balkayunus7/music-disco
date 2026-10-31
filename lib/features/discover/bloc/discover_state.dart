@@ -2,6 +2,8 @@ part of 'discover_cubit.dart';
 
 enum DiscoverRoundStatus { idle, loading, ready, failure, finished }
 
+enum DiscoverFailure { none, noResults, unavailable }
+
 enum DiscoverNotice {
   none,
   feedbackTaken,
@@ -19,9 +21,10 @@ class DiscoverState extends Equatable {
     this.notice = DiscoverNotice.none,
     this.isReplacing = false,
     this.roundSource,
+    this.failure = DiscoverFailure.none,
   });
 
-  static const int roundSize = 5;
+  static const int roundSize = 4;
 
   final DiscoveryPreferences preferences;
   final DiscoverRoundStatus status;
@@ -29,6 +32,7 @@ class DiscoverState extends Equatable {
   final int currentIndex;
   final DiscoverNotice notice;
   final bool isReplacing;
+  final DiscoverFailure failure;
 
   final DiscoverySource? roundSource;
 
@@ -57,6 +61,7 @@ class DiscoverState extends Equatable {
     DiscoverNotice? notice,
     bool? isReplacing,
     DiscoverySource? roundSource,
+    DiscoverFailure? failure,
   }) {
     return DiscoverState(
       preferences: preferences ?? this.preferences,
@@ -66,6 +71,7 @@ class DiscoverState extends Equatable {
       notice: notice ?? this.notice,
       isReplacing: isReplacing ?? this.isReplacing,
       roundSource: roundSource ?? this.roundSource,
+      failure: failure ?? this.failure,
     );
   }
 
@@ -78,5 +84,6 @@ class DiscoverState extends Equatable {
     notice,
     isReplacing,
     roundSource,
+    failure,
   ];
 }

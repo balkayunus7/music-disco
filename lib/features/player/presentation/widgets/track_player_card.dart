@@ -21,7 +21,6 @@ class TrackPlayerCard extends StatelessWidget {
       context,
     ).copyWith(color: context.colors.textDisabled, letterSpacing: 1.4);
     return JewelCase(
-      contentPadding: Sp.tiny.padAllR,
       footer: Row(
         children: [
           Expanded(

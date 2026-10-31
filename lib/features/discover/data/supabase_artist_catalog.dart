@@ -11,6 +11,9 @@ class SupabaseArtistCatalog implements IReferenceCatalog {
   final SupabaseClient _client;
 
   static const int resultLimit = 12;
+  static final _uuid = RegExp(
+    r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+  );
 
   static const Map<String, Genre> _genreKeys = {
     'alternative': Genre.alternative,
@@ -41,6 +44,18 @@ class SupabaseArtistCatalog implements IReferenceCatalog {
       params: {'query': query.trim(), 'result_limit': resultLimit},
     );
     return [for (final row in rows.cast<Map<String, dynamic>>()) _fromRow(row)];
+  }
+
+  @override
+  Future<List<MusicReference>> findByIds(Set<String> ids) async {
+    // Older local catalogs used slugs; they cannot be queried as UUIDs.
+    final catalogIds = ids.where(_uuid.hasMatch).toList();
+    if (catalogIds.isEmpty) return const [];
+    final rows = await _client
+        .from('artists')
+        .select('id, name, genres, image_url')
+        .inFilter('id', catalogIds);
+    return [for (final row in rows) _fromRow(row)];
   }
 
   MusicReference _fromRow(Map<String, dynamic> row) {

@@ -13,5 +13,6 @@ abstract interface class IDiscoveryRepository {
     DiscoveryPreferences preferences, {
     required TrackFeedback feedback,
     required Set<String> excludeIds,
+    String? rejectedTrackId,
   });
 }

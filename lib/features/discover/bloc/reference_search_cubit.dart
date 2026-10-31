@@ -14,10 +14,36 @@ class ReferenceSearchCubit extends Cubit<ReferenceSearchState> {
   final Duration debounce;
 
   int _request = 0;
+  Set<String> _referenceIds = const {};
+  int _refreshRequest = 0;
 
-  Future<void> load() => _search(state.query);
+  Future<void> load({Iterable<MusicReference> references = const []}) async {
+    _referenceIds = {for (final reference in references) reference.id};
+    await Future.wait([_search(state.query), _refreshReferences()]);
+  }
 
-  Future<void> retry() => _search(state.query);
+  Future<void> retry() async {
+    await Future.wait([_search(state.query), _refreshReferences()]);
+  }
+
+  Future<void> _refreshReferences() async {
+    final request = ++_refreshRequest;
+    if (_referenceIds.isEmpty) return;
+    try {
+      final references = await _catalog.findByIds(_referenceIds);
+      if (isClosed || request != _refreshRequest) return;
+      emit(
+        state.copyWith(
+          catalogReferences: Map.unmodifiable({
+            ...state.catalogReferences,
+            for (final reference in references) reference.id: reference,
+          }),
+        ),
+      );
+    } on Object {
+      // Saved artists stay available when catalog details cannot be refreshed.
+    }
+  }
 
   Future<void> updateQuery(String query) {
     if (query == state.query) return Future.value();
@@ -26,13 +52,7 @@ class ReferenceSearchCubit extends Cubit<ReferenceSearchState> {
 
   Future<void> _search(String query, {bool debounced = false}) async {
     final request = ++_request;
-    emit(
-      ReferenceSearchState(
-        query: query,
-        results: state.results,
-        status: SearchStatus.loading,
-      ),
-    );
+    emit(state.copyWith(query: query, status: SearchStatus.loading));
     if (debounced && debounce > Duration.zero) {
       await Future<void>.delayed(debounce);
       if (isClosed || request != _request) return;

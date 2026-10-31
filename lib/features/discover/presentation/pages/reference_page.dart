@@ -35,7 +35,13 @@ class ReferencePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => getIt<ReferenceSearchCubit>()..load(),
+      create: (context) => getIt<ReferenceSearchCubit>()
+        ..load(
+          references: [
+            ...context.read<TasteCubit>().state.saved.references,
+            ?context.read<DiscoverCubit>().state.preferences.reference,
+          ],
+        ),
       child: const _ReferenceView(),
     );
   }
@@ -99,20 +105,24 @@ class _ReferenceViewState extends State<_ReferenceView>
   void _onContinue() {
     final reference = _reference;
     if (reference == null) return;
-    context.read<DiscoverCubit>().selectReference(reference, _aspect);
+    final current = context.read<ReferenceSearchCubit>().state.resolve(
+      reference,
+    );
+    context.read<DiscoverCubit>().selectReference(current, _aspect);
     context.go(AppRoutes.referenceDirection);
   }
 
   @override
   Widget build(BuildContext context) {
-    final reference = _reference;
+    final catalog = context.watch<ReferenceSearchCubit>().state;
+    final reference = _reference == null ? null : catalog.resolve(_reference!);
     final canContinue = reference != null && !_isSearching;
     final savedReferences = context.select<TasteCubit, List<MusicReference>>(
       (cubit) => cubit.state.saved.references,
     );
     final quickPicks = [
       for (final saved in savedReferences)
-        if (saved.id != reference?.id) saved,
+        if (saved.id != reference?.id) catalog.resolve(saved),
     ];
     return BrandPageBody(
       appBar: AppPageBar(

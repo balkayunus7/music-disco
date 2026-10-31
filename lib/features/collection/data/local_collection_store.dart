@@ -47,6 +47,9 @@ class LocalCollectionStore implements ICollectionStore {
                 MusicLanguage.any,
             energy: (row['energy'] as num?)?.toDouble() ?? 0.5,
             hasVocals: row['hasVocals'] as bool? ?? true,
+            recommendationReasons: Map<String, String>.from(
+              row['recommendationReasons'] as Map? ?? const {},
+            ),
           );
           if (!tracks.any((saved) => saved.id == track.id)) tracks.add(track);
         } on Object {
@@ -122,6 +125,7 @@ class LocalCollectionStore implements ICollectionStore {
               'language': t.language.name,
               'energy': t.energy,
               'hasVocals': t.hasVocals,
+              'recommendationReasons': t.recommendationReasons,
               'id': t.id,
               'title': t.title,
               'artist': t.artist,
