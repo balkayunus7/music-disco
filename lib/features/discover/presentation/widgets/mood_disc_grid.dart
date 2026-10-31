@@ -14,31 +14,34 @@ class MoodDiscGrid extends StatelessWidget {
   final Map<Mood, GlobalKey> slotKeys;
   final ValueChanged<Mood> onSelected;
 
-  static const int _columns = 3;
+  static const _rows = [
+    [Mood.afterHours, Mood.turnItUp, Mood.softSide],
+    [Mood.slowDown, Mood.oldFeeling, Mood.noRules],
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final rows = [
-      for (var i = 0; i < Mood.values.length; i += _columns)
-        Mood.values.sublist(i, i + _columns),
-    ];
     return Column(
-      spacing: Sp.medium.h,
+      spacing: Sp.xsmall.h,
       children: [
-        for (final row in rows)
-          Row(
-            children: [
-              for (final mood in row)
-                Expanded(
-                  child: _MoodSlot(
-                    mood: mood,
-                    slotKey: slotKeys[mood]!,
-                    isSelected: mood == selected,
-                    isAirborne: airborne.contains(mood),
-                    onTap: () => onSelected(mood),
+        for (final row in _rows)
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                for (final mood in row)
+                  Expanded(
+                    child: _MoodSlot(
+                      mood: mood,
+                      slotKey: slotKeys[mood]!,
+                      isSelected: mood == selected,
+                      isAirborne: airborne.contains(mood),
+                      isBusy: airborne.isNotEmpty,
+                      onTap: () => onSelected(mood),
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
       ],
     );
@@ -51,6 +54,7 @@ class _MoodSlot extends StatelessWidget {
     required this.slotKey,
     required this.isSelected,
     required this.isAirborne,
+    required this.isBusy,
     required this.onTap,
   });
 
@@ -58,57 +62,86 @@ class _MoodSlot extends StatelessWidget {
   final GlobalKey slotKey;
   final bool isSelected;
   final bool isAirborne;
+  final bool isBusy;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final discSize = Sp.huge.r;
-    final isEmpty = isSelected || isAirborne;
     return Pressable(
-      onTap: onTap,
+      onTap: isBusy ? null : onTap,
       selected: isSelected,
       semanticLabel: mood.labelKey.tr(),
       child: ExcludeSemantics(
         child: Column(
           children: [
-            SizedBox.square(
-              key: slotKey,
-              dimension: discSize,
-              child: AnimatedSwitcher(
-                duration: 160.ms,
-                child: isEmpty
-                    ? EmptyDiscSlot(
-                        key: const ValueKey('empty'),
-                        size: discSize,
-                      )
-                    : MoodDisc(
-                        key: const ValueKey('disc'),
-                        mood: mood,
-                        size: discSize,
+            Stack(
+              children: [
+                AnimatedContainer(
+                  duration: MediaQuery.disableAnimationsOf(context)
+                      ? Duration.zero
+                      : 220.ms,
+                  padding: Sp.tiny.padAllR,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isSelected
+                          ? context.colors.textPrimary
+                          : context.colors.buttonGhost,
+                      width: 2,
+                    ),
+                  ),
+                  child: SizedBox.square(
+                    key: slotKey,
+                    dimension: discSize,
+                    child: MoodDisc(
+                      mood: mood,
+                      size: discSize,
+                      isDimmed: isSelected || isAirborne,
+                      hasShadow: !isSelected,
+                    ),
+                  ),
+                ),
+                if (isSelected)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      padding: Sp.tiny.padAllR,
+                      decoration: BoxDecoration(
+                        color: context.colors.textPrimary,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: context.colors.background,
+                          width: 2,
+                        ),
                       ),
-              ),
-            ),
-            Sp.small.heightBox,
-            AnimatedSwitcher(
-              duration: 220.ms,
-              child: isSelected
-                  ? FittedBox(
-                      key: const ValueKey('pill'),
-                      fit: BoxFit.scaleDown,
-                      child: PillLabel(text: mood.labelKey.tr(), dense: true),
-                    )
-                  : Padding(
-                      key: const ValueKey('plain'),
-                      padding: EdgeInsets.symmetric(vertical: Sp.xsmall.h),
-                      child: Text(
-                        mood.labelKey.tr(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: m13w600(
-                          context,
-                        ).copyWith(color: context.colors.textSecondary),
+                      child: Icon(
+                        Icons.check_rounded,
+                        color: context.colors.textOnPrimary,
+                        size: Sp.small.r,
                       ),
                     ),
+                  ),
+              ],
+            ),
+            Sp.tiny.heightBox,
+            ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: Sp.minTouchTarget),
+              child: Padding(
+                padding: Sp.tiny.padAllR,
+                child: Text(
+                  mood.labelKey.tr(),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: listTitleStyle(context).copyWith(
+                    color: isSelected
+                        ? context.colors.textPrimary
+                        : context.colors.textSecondary,
+                  ),
+                ),
+              ),
             ),
           ],
         ),

@@ -2,10 +2,10 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 enum LocaleLanguage {
-  en('en'),
-  tr('tr');
+  en('en', 'English'),
+  tr('tr', 'Türkçe');
 
-  const LocaleLanguage(this.value);
+  const LocaleLanguage(this.value, this.nativeName);
 
   factory LocaleLanguage.fromLocale(Locale locale) {
     return LocaleLanguage.values.firstWhere(
@@ -15,6 +15,7 @@ enum LocaleLanguage {
   }
 
   final String value;
+  final String nativeName;
 
   Locale get locale => Locale(value);
 }

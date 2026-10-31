@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,7 +11,6 @@ import 'package:music_disco/core/util/text_style_helper.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_distance.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
-import 'package:music_disco/features/discover/presentation/widgets/mood_disc.dart';
 
 class DistanceSlider extends StatefulWidget {
   const DistanceSlider({
@@ -29,15 +30,22 @@ class DistanceSlider extends StatefulWidget {
 
 class _DistanceSliderState extends State<DistanceSlider>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _position = AnimationController(
-    vsync: this,
-    value: widget.value.fraction,
-    duration: 380.ms,
-  );
+  late final AnimationController _position;
+
+  @override
+  void initState() {
+    super.initState();
+    _position = AnimationController(
+      vsync: this,
+      value: widget.value.fraction,
+      duration: 380.ms,
+    );
+  }
+
   bool _isDragging = false;
   DiscoveryDistance? _dragStop;
 
-  static const double _turnsPerTravel = 1.25;
+  static const double _inset = 8;
 
   @override
   void didUpdateWidget(DistanceSlider oldWidget) {
@@ -54,10 +62,15 @@ class _DistanceSliderState extends State<DistanceSlider>
   }
 
   void _settleOn(DiscoveryDistance distance) {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _position.value = distance.fraction;
+      return;
+    }
     _position.animateTo(distance.fraction, curve: Curves.easeOutCubic);
   }
 
   void _select(DiscoveryDistance distance) {
+    HapticFeedback.lightImpact();
     _settleOn(distance);
     if (distance != widget.value) widget.onChanged(distance);
   }
@@ -82,9 +95,9 @@ class _DistanceSliderState extends State<DistanceSlider>
     _select(DiscoveryDistance.nearest(_position.value));
   }
 
-  void _onTapTrack(TapUpDetails details, double thumbSize, double travel) {
+  void _onTapTrack(TapUpDetails details, double travel) {
     if (travel <= 0) return;
-    final fraction = (details.localPosition.dx - thumbSize / 2) / travel;
+    final fraction = (details.localPosition.dx - _inset) / travel;
     _select(DiscoveryDistance.nearest(fraction));
   }
 
@@ -111,8 +124,7 @@ class _DistanceSliderState extends State<DistanceSlider>
       child: ExcludeSemantics(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final thumbSize = Sp.xxlarge.r + Sp.xsmall.r;
-            final travel = constraints.maxWidth - thumbSize;
+            final travel = constraints.maxWidth - _inset * 2;
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
               onHorizontalDragStart: _onDragStart,
@@ -120,36 +132,24 @@ class _DistanceSliderState extends State<DistanceSlider>
                   _onDragUpdate(details, travel),
               onHorizontalDragEnd: (_) => _onDragEnd(),
               onHorizontalDragCancel: _onDragEnd,
-              onTapUp: (details) => _onTapTrack(details, thumbSize, travel),
+              onTapUp: (details) => _onTapTrack(details, travel),
               child: SizedBox(
-                height: thumbSize + Sp.small.h,
+                height: Sp.huge.h,
+                width: double.infinity,
                 child: AnimatedBuilder(
                   animation: _position,
-                  builder: (context, _) => Stack(
-                    clipBehavior: Clip.none,
-                    children: [
-                      Positioned.fill(
-                        child: CustomPaint(
-                          painter: _TrackPainter(
-                            progress: _position.value,
-                            inset: thumbSize / 2,
-                            stops: [for (final d in values) d.fraction],
-                            lineColor: context.colors.border,
-                            activeColor: context.colors.textSecondary,
-                            tickColor: context.colors.borderSecondary,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        left: travel * _position.value,
-                        top: 0,
-                        child: _Thumb(
-                          mood: widget.mood,
-                          size: thumbSize,
-                          turns: _position.value * _turnsPerTravel,
-                        ),
-                      ),
-                    ],
+                  builder: (context, _) => CustomPaint(
+                    painter: _TunerPainter(
+                      progress: _position.value,
+                      inset: _inset,
+                      stops: [for (final d in values) d.fraction],
+                      needleColor: widget.mood.palette.light,
+                      tickColor: context.colors.border,
+                      stopColor: context.colors.textSecondary,
+                      labelStyle: eyebrowTextStyle(
+                        context,
+                      ).copyWith(color: context.colors.textDisabled),
+                    ),
                   ),
                 ),
               ),
@@ -161,113 +161,125 @@ class _DistanceSliderState extends State<DistanceSlider>
   }
 }
 
-class _Thumb extends StatelessWidget {
-  const _Thumb({required this.mood, required this.size, required this.turns});
-
-  final Mood mood;
-  final double size;
-  final double turns;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      padding: 2.5.padAllR,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: context.colors.background,
-        border: Border.all(
-          color: context.colors.textPrimary.withValues(alpha: 0.85),
-          width: 1.6,
-        ),
-        boxShadow: [
-          BoxShadow(color: context.colors.overlay, blurRadius: Sp.medium.r),
-        ],
-      ),
-      child: MoodDisc(
-        mood: mood,
-        size: size - 2.5.r * 2 - 3.2,
-        turns: turns,
-        hasShadow: false,
-      ),
-    );
-  }
-}
-
-class _TrackPainter extends CustomPainter {
-  _TrackPainter({
+class _TunerPainter extends CustomPainter {
+  _TunerPainter({
     required this.progress,
     required this.inset,
     required this.stops,
-    required this.lineColor,
-    required this.activeColor,
+    required this.needleColor,
     required this.tickColor,
+    required this.stopColor,
+    required this.labelStyle,
   });
 
   final double progress;
   final double inset;
   final List<double> stops;
-  final Color lineColor;
-  final Color activeColor;
+  final Color needleColor;
   final Color tickColor;
+  final Color stopColor;
+  final TextStyle labelStyle;
+
+  static const double _tickGap = 8;
+  static const double _tickHeight = 10;
+  static const double _tickLift = 12;
+  static const double _liftRadius = 36;
+  static const double _stopHeight = 22;
+  static const double _labelHeight = 16;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final y = inset;
-    final start = inset;
-    final end = size.width - inset;
-    final width = end - start;
-    final line = Paint()
-      ..color = lineColor
+    final width = size.width - inset * 2;
+    final baseline = size.height - _labelHeight;
+    final needleX = inset + width * progress;
+
+    final tick = Paint()
+      ..strokeWidth = 1.4
+      ..strokeCap = StrokeCap.round;
+    for (var x = inset; x <= inset + width + 0.5; x += _tickGap) {
+      final closeness = (1 - (x - needleX).abs() / _liftRadius).clamp(0.0, 1.0);
+      final height = _tickHeight + _tickLift * closeness;
+      tick.color = Color.lerp(tickColor, needleColor, closeness * 0.7)!;
+      canvas.drawLine(Offset(x, baseline - height), Offset(x, baseline), tick);
+    }
+
+    final stop = Paint()
+      ..color = stopColor
       ..strokeWidth = 2
       ..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(start, y), Offset(end, y), line);
-    canvas.drawLine(
-      Offset(start, y),
-      Offset(start + width * progress, y),
-      line..color = activeColor,
-    );
-
-    for (final stop in stops) {
-      canvas.drawCircle(
-        Offset(start + width * stop, y),
-        4,
-        Paint()..color = stop <= progress + 0.001 ? activeColor : lineColor,
+    for (final fraction in stops) {
+      final x = inset + width * fraction;
+      canvas.drawLine(
+        Offset(x, baseline - _stopHeight),
+        Offset(x, baseline),
+        stop,
       );
     }
 
-    final tick = Paint()
-      ..color = tickColor
-      ..strokeWidth = 1.5;
-    final tickTop = y + inset * 0.45;
-    for (var x = start; x <= end; x += 9) {
-      canvas.drawLine(Offset(x, tickTop), Offset(x, tickTop + 10), tick);
-    }
+    final top = Offset(needleX, 4);
+    final bottom = Offset(needleX, baseline + 2);
+    canvas.drawLine(
+      top,
+      bottom,
+      Paint()
+        ..color = needleColor.withValues(alpha: 0.55)
+        ..strokeWidth = 6
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 5),
+    );
+    canvas.drawLine(
+      top,
+      bottom,
+      Paint()
+        ..color = needleColor
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.drawCircle(top, 4, Paint()..color = needleColor);
   }
 
   @override
-  bool shouldRepaint(_TrackPainter oldDelegate) {
+  bool shouldRepaint(_TunerPainter oldDelegate) {
     return oldDelegate.progress != progress ||
-        oldDelegate.lineColor != lineColor ||
-        oldDelegate.activeColor != activeColor;
+        oldDelegate.needleColor != needleColor ||
+        oldDelegate.tickColor != tickColor ||
+        oldDelegate.stopColor != stopColor ||
+        oldDelegate.labelStyle != labelStyle;
   }
 }
 
 class DistanceSliderLabels extends StatelessWidget {
-  const DistanceSliderLabels({super.key});
+  const DistanceSliderLabels({super.key, required this.value});
+
+  final DiscoveryDistance value;
 
   @override
   Widget build(BuildContext context) {
-    final style = m13w500(
-      context,
-    ).copyWith(color: context.colors.textSecondary);
-    return Row(
-      children: [
-        Expanded(child: Text(LocaleKeys.distance_close.tr(), style: style)),
-        Sp.small.widthBox,
-        Text(LocaleKeys.distance_never_heard.tr(), style: style),
-      ],
+    const values = DiscoveryDistance.values;
+    return ExcludeSemantics(
+      child: Row(
+        spacing: Sp.xsmall.w,
+        children: [
+          for (final (index, distance) in values.indexed)
+            Expanded(
+              child: Text(
+                distance.labelKey.tr(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: index == 0
+                    ? TextAlign.start
+                    : index == values.length - 1
+                    ? TextAlign.end
+                    : TextAlign.center,
+                style: labelTextStyle(context).copyWith(
+                  color: distance == value
+                      ? context.colors.textPrimary
+                      : context.colors.textSecondary,
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

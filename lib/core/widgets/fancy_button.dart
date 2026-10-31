@@ -24,8 +24,11 @@ class FancyButton extends StatelessWidget {
         backgroundColor: context.colors.buttonPrimary,
         foregroundColor: context.colors.textOnPrimary,
         disabledBackgroundColor: context.colors.buttonDisabled,
+        minimumSize: const Size(Sp.minTouchTarget, Sp.primaryButtonHeight),
         padding: Sp.medium.padAllR,
-        shape: RoundedRectangleBorder(borderRadius: Sp.xlarge.radiusR),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Sp.medium),
+        ),
       ),
       child: isLoading
           ? Semantics(
@@ -42,7 +45,7 @@ class FancyButton extends StatelessWidget {
               text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: m16w700(
+              style: buttonTextStyle(
                 context,
               ).copyWith(color: context.colors.textOnPrimary),
             ),

@@ -13,7 +13,6 @@ class JewelCase extends StatelessWidget {
   });
 
   final Widget child;
-
   final Widget? footer;
   final bool hasSpine;
   final EdgeInsetsGeometry? contentPadding;

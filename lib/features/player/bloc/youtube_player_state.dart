@@ -3,15 +3,16 @@ part of 'youtube_player_cubit.dart';
 class YoutubePlayerState extends Equatable {
   const YoutubePlayerState({
     this.videoId,
+    this.isMuted = false,
     this.status = PlaybackStatus.idle,
     this.position = Duration.zero,
     this.duration = Duration.zero,
   });
 
+  final bool isMuted;
   final String? videoId;
   final PlaybackStatus status;
   final Duration position;
-
   final Duration duration;
 
   bool get isPlaying => status.isActive;
@@ -25,12 +26,14 @@ class YoutubePlayerState extends Equatable {
   String get durationLabel => formatPlaybackTime(duration);
 
   YoutubePlayerState copyWith({
+    bool? isMuted,
     String? videoId,
     PlaybackStatus? status,
     Duration? position,
     Duration? duration,
   }) {
     return YoutubePlayerState(
+      isMuted: isMuted ?? this.isMuted,
       videoId: videoId ?? this.videoId,
       status: status ?? this.status,
       position: position ?? this.position,
@@ -39,5 +42,5 @@ class YoutubePlayerState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [videoId, status, position, duration];
+  List<Object?> get props => [videoId, status, position, duration, isMuted];
 }

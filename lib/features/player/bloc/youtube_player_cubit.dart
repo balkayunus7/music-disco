@@ -37,6 +37,7 @@ class YoutubePlayerCubit extends Cubit<YoutubePlayerState> {
     emit(
       YoutubePlayerState(
         videoId: videoId,
+        isMuted: state.isMuted,
         status: shouldPlay ? PlaybackStatus.buffering : PlaybackStatus.idle,
         duration: fallbackDuration,
       ),
@@ -46,6 +47,21 @@ class YoutubePlayerCubit extends Cubit<YoutubePlayerState> {
     } else {
       await _player.cue(videoId);
     }
+  }
+
+  Future<void> toggleMute() async {
+    final muted = !state.isMuted;
+    await _player.setMuted(muted);
+    if (!isClosed) emit(state.copyWith(isMuted: muted));
+  }
+
+  Future<void> retry() async {
+    final id = state.videoId;
+    if (id == null) return;
+    emit(
+      state.copyWith(status: PlaybackStatus.buffering, position: Duration.zero),
+    );
+    await _player.load(id);
   }
 
   Future<void> play() => _player.play();
@@ -71,10 +87,10 @@ class YoutubePlayerCubit extends Cubit<YoutubePlayerState> {
 
   @override
   Future<void> close() async {
-    for (final subscription in _subscriptions) {
-      await subscription.cancel();
-    }
-    await _player.close();
+    await Future.wait<void>([
+      for (final subscription in _subscriptions) subscription.cancel(),
+      _player.close(),
+    ]);
     return super.close();
   }
 }

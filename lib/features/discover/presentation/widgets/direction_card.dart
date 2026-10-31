@@ -12,180 +12,41 @@ class DirectionCard extends StatelessWidget {
   final DiscoveryDirection direction;
   final ValueChanged<DiscoveryDirection> onSelected;
 
+  IconData _icon(DiscoveryDirection option) => switch (option) {
+    DiscoveryDirection.stay => Icons.repeat_rounded,
+    DiscoveryDirection.lift => Icons.graphic_eq_rounded,
+  };
+
   @override
   Widget build(BuildContext context) {
-    final isStay = direction == DiscoveryDirection.stay;
-    return Container(
-      padding: Sp.medium.padAllR,
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: Sp.xxlarge.radiusR,
-        border: Border.all(color: context.colors.borderSecondary),
-      ),
-      child: Column(
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: Sp.xsmall.w,
         children: [
-          _DiscRail(mood: mood, isStay: isStay),
-          Sp.small.heightBox,
-          Row(
-            children: [
-              Expanded(
-                child: _SideLabel(
-                  text: LocaleKeys.direction_company.tr(),
-                  isActive: isStay,
-                ),
+          for (final option in DiscoveryDirection.values)
+            Expanded(
+              child: DirectionOptionTile(
+                icon: _icon(option),
+                label: option.shortLabelKey.tr(),
+                caption: option.captionKey.tr(),
+                energy: option.energy,
+                accent: mood.palette.base,
+                isSelected: option == direction,
+                onTap: () => onSelected(option),
               ),
-              _Waveform(energy: direction.energy),
-              Expanded(
-                child: _SideLabel(
-                  text: LocaleKeys.direction_energy.tr(),
-                  isActive: !isStay,
-                ),
-              ),
-            ],
-          ),
-          Sp.medium.heightBox,
-          Row(
-            spacing: Sp.xsmall.w,
-            children: [
-              Expanded(
-                child: DirectionOptionTile(
-                  icon: Icons.repeat_rounded,
-                  label: DiscoveryDirection.stay.shortLabelKey.tr(),
-                  isSelected: isStay,
-                  onTap: () => onSelected(DiscoveryDirection.stay),
-                ),
-              ),
-              Expanded(
-                child: DirectionOptionTile(
-                  icon: Icons.graphic_eq_rounded,
-                  label: DiscoveryDirection.lift.shortLabelKey.tr(),
-                  isSelected: !isStay,
-                  onTap: () => onSelected(DiscoveryDirection.lift),
-                ),
-              ),
-            ],
-          ),
-          Sp.small.heightBox,
-          AnimatedSwitcher(
-            duration: 240.ms,
-            child: Text(
-              direction.captionKey.tr(),
-              key: ValueKey(direction),
-              textAlign: TextAlign.center,
-              style: m12w500(
-                context,
-              ).copyWith(color: context.colors.textSecondary),
             ),
-          ),
         ],
       ),
-    );
-  }
-}
-
-class _DiscRail extends StatelessWidget {
-  const _DiscRail({required this.mood, required this.isStay});
-
-  final Mood mood;
-  final bool isStay;
-
-  @override
-  Widget build(BuildContext context) {
-    final discSize = Sp.xhuge.r + Sp.small.r;
-    return SizedBox(
-      height: discSize,
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.centerLeft,
-            child: _GhostSide(letter: 'A', size: discSize),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: _GhostSide(letter: 'B', size: discSize),
-          ),
-          AnimatedAlign(
-            alignment: isStay ? Alignment.centerLeft : Alignment.centerRight,
-            duration: 560.ms,
-            curve: Curves.easeInOutCubic,
-            child: TweenAnimationBuilder<double>(
-              tween: Tween(end: isStay ? 0 : 0.5),
-              duration: 560.ms,
-              curve: Curves.easeInOutCubic,
-              builder: (context, turns, _) =>
-                  MoodDisc(mood: mood, size: discSize, turns: turns),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _GhostSide extends StatelessWidget {
-  const _GhostSide({required this.letter, required this.size});
-
-  final String letter;
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    final ring = context.colors.textPrimary.withValues(alpha: 0.07);
-    return ExcludeSemantics(
-      child: SizedBox.square(
-        dimension: size,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            for (final factor in [1.0, 0.72, 0.42])
-              Container(
-                width: size * factor,
-                height: size * factor,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: ring, width: 1.2),
-                ),
-              ),
-            Text(
-              letter,
-              style: a32(context).copyWith(
-                fontSize: size * 0.62,
-                color: context.colors.textPrimary.withValues(alpha: 0.06),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SideLabel extends StatelessWidget {
-  const _SideLabel({required this.text, required this.isActive});
-
-  final String text;
-  final bool isActive;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedDefaultTextStyle(
-      duration: 240.ms,
-      textAlign: TextAlign.center,
-      style: m10w700(context).copyWith(
-        letterSpacing: 2,
-        color: isActive
-            ? context.colors.textPrimary
-            : context.colors.textDisabled,
-      ),
-      child: Text(text),
     );
   }
 }
 
 class _Waveform extends StatelessWidget {
-  const _Waveform({required this.energy});
+  const _Waveform({required this.energy, required this.isActive});
 
   final double energy;
+  final bool isActive;
 
   static const List<double> _pattern = [
     0.35,
@@ -212,14 +73,16 @@ class _Waveform extends StatelessWidget {
           children: [
             for (final (index, height) in _pattern.indexed)
               AnimatedContainer(
-                duration: (280 + (index - 5).abs() * 40).ms,
+                duration: MediaQuery.disableAnimationsOf(context)
+                    ? Duration.zero
+                    : (280 + (index - 5).abs() * 40).ms,
                 curve: Curves.easeOutBack,
                 width: 2.w,
                 height: maxHeight * height * energy,
                 decoration: BoxDecoration(
-                  color: energy > 0.5
+                  color: isActive
                       ? context.colors.textPrimary
-                      : context.colors.textSecondary,
+                      : context.colors.textDisabled,
                   borderRadius: Sp.xsmall.radiusR,
                 ),
               ),

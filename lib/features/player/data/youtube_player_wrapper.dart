@@ -31,6 +31,9 @@ class YoutubePlayerWrapper {
   Future<void> load(String videoId) =>
       _controller.loadVideoById(videoId: videoId);
 
+  Future<void> setMuted(bool muted) =>
+      muted ? _controller.mute() : _controller.unMute();
+
   Future<void> play() => _controller.playVideo();
 
   Future<void> pause() => _controller.pauseVideo();

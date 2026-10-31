@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
@@ -13,27 +12,33 @@ import 'package:music_disco/core/widgets/app_snack_bar.dart';
 import 'package:music_disco/core/widgets/brand_page_body.dart';
 import 'package:music_disco/core/widgets/cta_bar.dart';
 import 'package:music_disco/core/widgets/display_headline.dart';
-import 'package:music_disco/core/widgets/eyebrow_text.dart';
-import 'package:music_disco/core/widgets/jewel_case.dart';
-import 'package:music_disco/core/widgets/page_back_button.dart';
-import 'package:music_disco/core/widgets/pill_label.dart';
+import 'package:music_disco/core/widgets/app_page_bar.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
+import 'package:music_disco/core/widgets/pill_label.dart';
 import 'package:music_disco/features/collection/bloc/collection_cubit.dart';
+import 'package:music_disco/features/collection/presentation/widgets/shelf_picker.dart';
 import 'package:music_disco/features/core/home/helpers/home_page_scope.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
-import 'package:music_disco/features/discover/domain/models/discovery_preferences.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/domain/models/track.dart';
 import 'package:music_disco/features/discover/domain/models/track_feedback.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
 import 'package:music_disco/features/discover/presentation/widgets/frequency_sheet.dart';
+import 'package:music_disco/features/discover/presentation/widgets/discovery_loading_view.dart';
 import 'package:music_disco/features/discover/presentation/widgets/mood_disc.dart';
 import 'package:music_disco/features/player/bloc/youtube_player_cubit.dart';
 import 'package:music_disco/features/player/domain/models/playback_status.dart';
 
+import 'package:music_disco/core/widgets/text_link.dart';
+import 'package:music_disco/core/widgets/motion_size.dart';
+import 'package:music_disco/features/taste/bloc/taste_cubit.dart';
+import 'package:music_disco/features/taste/domain/models/music_language.dart';
+import 'package:music_disco/features/taste/presentation/taste_style.dart';
+import 'package:music_disco/features/player/presentation/widgets/track_player_card.dart';
+
+part '../widgets/session_completed_view.dart';
 part '../widgets/session_actions.dart';
 part '../widgets/session_disc_strip.dart';
-part '../widgets/session_header.dart';
 part '../widgets/session_player_card.dart';
 part '../widgets/session_status_views.dart';
 part '../widgets/session_track_info.dart';
@@ -43,7 +48,10 @@ class SessionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (_) => getIt<YoutubePlayerCubit>(), child: const _SessionView());
+    return BlocProvider(
+      create: (_) => getIt<YoutubePlayerCubit>(),
+      child: const _SessionView(),
+    );
   }
 }
 
@@ -54,9 +62,30 @@ class _SessionView extends StatefulWidget {
   State<_SessionView> createState() => _SessionViewState();
 }
 
-class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixin, RouteAwareAnalyticsPageParamsMixin {
+class _SessionViewState extends State<_SessionView>
+    with RouteAwareAnalyticsMixin, RouteAwareAnalyticsPageParamsMixin {
   final GlobalKey _saveButtonKey = GlobalKey();
   bool _isFeedbackOpen = false;
+  ValueNotifier<int>? _activeBranch;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final branch = HomePageScope.of(context).state.activeBranch;
+    if (identical(branch, _activeBranch)) return;
+    _activeBranch?.removeListener(_onBranchChanged);
+    _activeBranch = branch..addListener(_onBranchChanged);
+  }
+
+  void _onBranchChanged() {
+    if (mounted && _activeBranch?.value != 0) _player.pause();
+  }
+
+  @override
+  void dispose() {
+    _activeBranch?.removeListener(_onBranchChanged);
+    super.dispose();
+  }
 
   DiscoverCubit get _discover => context.read<DiscoverCubit>();
   YoutubePlayerCubit get _player => context.read<YoutubePlayerCubit>();
@@ -71,12 +100,22 @@ class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixi
 
   void _openTrack(Track? track) {
     if (track == null) return;
-    _player.open(track.youtubeId, fallbackDuration: track.duration);
+    _player.open(
+      track.youtubeId,
+      autoPlay: true,
+      fallbackDuration: track.duration,
+    );
   }
 
   void _onPlaybackChanged(BuildContext context, YoutubePlayerState player) {
-    if (player.status != PlaybackStatus.ended) return;
-    if (!_discover.state.isLastTrack) _discover.next();
+    if (player.status != PlaybackStatus.ended || _activeBranch?.value != 0) {
+      return;
+    }
+    if (_discover.state.isReplacing ||
+        _discover.state.status != DiscoverRoundStatus.ready) {
+      return;
+    }
+    _onNextTap(_discover.state);
   }
 
   Future<void> _openFrequencySheet() async {
@@ -86,26 +125,38 @@ class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixi
     await _discover.applyPreferences(next);
   }
 
+  void _leave() => context.go(AppRoutes.home);
+
   void _toggleFeedback() {
-    HapticFeedback.selectionClick();
     setState(() => _isFeedbackOpen = !_isFeedbackOpen);
   }
 
   void _reject(TrackFeedback feedback) {
-    HapticFeedback.lightImpact();
     setState(() => _isFeedbackOpen = false);
     _discover.rejectCurrent(feedback);
   }
 
-  void _onSaveTap(Track track, {required bool isSaved}) {
+  Future<void> _onSaveTap(Track track, {required bool isSaved}) async {
     final collection = context.read<CollectionCubit>();
     if (isSaved) {
-      collection.remove(track.id);
+      final removed = await collection.remove(track.id);
+      if (!mounted || removed) return;
+      showAppSnackBar(context, message: LocaleKeys.settings_save_error.tr());
       return;
     }
 
-    HapticFeedback.mediumImpact();
-    collection.save(track);
+    final pick = await showShelfPicker(context, collection: collection.state);
+    if (!mounted || pick == null) return;
+    final saved = await collection.save(
+      track,
+      shelfId: pick.existingId,
+      newShelfName: pick.newName,
+    );
+    if (!mounted) return;
+    if (!saved) {
+      showAppSnackBar(context, message: LocaleKeys.settings_save_error.tr());
+      return;
+    }
 
     final box = _saveButtonKey.currentContext?.findRenderObject() as RenderBox?;
     if (box != null && box.hasSize) {
@@ -121,20 +172,26 @@ class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixi
       );
     }
 
+    final shelf = collection.state.shelfOf(track.id);
     showAppSnackBar(
       context,
-      message: LocaleKeys.session_saved_snackbar.tr(),
+      message: shelf == null
+          ? LocaleKeys.session_saved_snackbar.tr()
+          : LocaleKeys.collection_saved_to.tr(args: [shelf.name]),
       actionLabel: LocaleKeys.session_undo.tr(),
-      onAction: () => collection.remove(track.id),
+      onAction: () async {
+        final removed = await collection.remove(track.id);
+        if (!mounted || removed) return;
+        showAppSnackBar(context, message: LocaleKeys.settings_save_error.tr());
+      },
     );
   }
 
   void _onNextTap(DiscoverState state) {
-    HapticFeedback.selectionClick();
     if (state.isLastTrack) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       _player.stop();
       _discover.finishRound();
-      context.go(AppRoutes.collection);
     } else {
       _discover.next();
     }
@@ -142,76 +199,139 @@ class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixi
 
   @override
   Widget build(BuildContext context) {
+    final collection = context.watch<CollectionCubit>().state;
     return BlocListener<YoutubePlayerCubit, YoutubePlayerState>(
       listenWhen: (previous, current) => previous.status != current.status,
       listener: _onPlaybackChanged,
-      child: _buildRound(context),
+      child: _buildRound(context, collection),
     );
   }
 
-  Widget _buildRound(BuildContext context) {
+  Widget _buildRound(BuildContext context, CollectionState collection) {
     return BlocConsumer<DiscoverCubit, DiscoverState>(
-      listenWhen: (previous, current) => previous.currentTrack?.id != current.currentTrack?.id,
+      listenWhen: (previous, current) =>
+          previous.currentTrack?.id != current.currentTrack?.id,
       listener: (context, state) {
         _openTrack(state.currentTrack);
         if (_isFeedbackOpen) setState(() => _isFeedbackOpen = false);
       },
       builder: (context, state) {
         final track = state.currentTrack;
-        return BrandPageBody(
-          children: [
-            SessionHeader(rangeLabel: track == null ? null : state.rangeLabel),
-            Sp.large.heightBox,
-            DisplayHeadline(first: LocaleKeys.session_title_first.tr(), second: LocaleKeys.session_title_second.tr()),
-            Sp.medium.heightBox,
-            PreferenceSummaryBar(preferences: state.preferences, onTap: _openFrequencySheet),
-            Sp.large.heightBox,
-            if (state.status == DiscoverRoundStatus.failure)
-              SessionFailureView(onRetry: _discover.startRound)
-            else if (track == null)
-              SessionLoadingView(mood: state.preferences.mood)
-            else ...[
-              _buildTrackContent(state, track),
+        final canTune =
+            state.status == DiscoverRoundStatus.ready &&
+            !state.isReplacing &&
+            !state.isLastTrack;
+        final isRoundActive =
+            state.status != DiscoverRoundStatus.finished &&
+            state.status != DiscoverRoundStatus.failure;
+        final isLoading = state.status == DiscoverRoundStatus.loading;
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop && !isLoading) _leave();
+          },
+          child: BrandPageBody(
+            key: ValueKey(state.status == DiscoverRoundStatus.finished),
+            footer: isRoundActive && track != null
+                ? _buildTrackFooter(state, track, isSaving: collection.isSaving)
+                : state.status == DiscoverRoundStatus.finished
+                ? SessionCompletedActions(
+                    hasSaved: collection.countOf(state.tracks) > 0,
+                    onNewRound: () => _discover.startRound(
+                      taste: context.read<TasteCubit>().state.saved,
+                    ),
+                    onCollection: () => context.go(AppRoutes.collection),
+                  )
+                : null,
+            appBar: AppPageBar(
+              title: state.status == DiscoverRoundStatus.finished
+                  ? LocaleKeys.session_completed_step.tr()
+                  : LocaleKeys.session_step.tr(
+                      args: [track == null ? '—' : state.progressLabel],
+                    ),
+              showBackButton: !isLoading,
+              onBack: _leave,
+              actionIcon: canTune ? Icons.tune_rounded : null,
+              actionLabel: canTune
+                  ? '${LocaleKeys.frequency_sheet_eyebrow.tr()}: ${state.preferences.summary}'
+                  : null,
+              onAction: canTune ? _openFrequencySheet : null,
+            ),
+            children: [
+              if (state.status == DiscoverRoundStatus.finished)
+                SessionCompletedView(
+                  tracks: state.tracks,
+                  savedIds: {
+                    for (final track in state.tracks)
+                      if (collection.contains(track.id)) track.id,
+                  },
+                )
+              else if (state.status == DiscoverRoundStatus.failure)
+                SessionFailureView(
+                  onRetry: () => _discover.startRound(
+                    taste: context.read<TasteCubit>().state.saved,
+                  ),
+                  onChangePreferences: () => context.go(AppRoutes.taste),
+                )
+              else if (track == null)
+                DiscoveryLoadingView(
+                  isSearching: state.status == DiscoverRoundStatus.loading,
+                )
+              else ...[
+                _buildTrackContent(state, track, isSaving: collection.isSaving),
+              ],
             ],
-          ],
+          ),
         );
       },
     );
   }
 
-  Widget _buildTrackContent(DiscoverState state, Track track) {
-    final isBusy = state.isReplacing;
+  Widget _buildTrackContent(
+    DiscoverState state,
+    Track track, {
+    required bool isSaving,
+  }) {
+    final isBusy = state.isReplacing || isSaving;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: Sp.xsmall.padHR,
-          child: Row(
-            children: [
-              Expanded(child: EyebrowText(LocaleKeys.session_next_find.tr())),
-              EyebrowText(state.progressLabel),
-            ],
+        if (state.isShortRound) ...[
+          Text(
+            LocaleKeys.session_short_round.tr(args: ['${state.tracks.length}']),
+            style: secondaryTextStyle(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
           ),
-        ),
-        Sp.small.heightBox,
+          Sp.small.heightBox,
+        ],
         SessionPlayerCard(track: track),
-        Sp.medium.heightBox,
+        Sp.large.heightBox,
         AnimatedOpacity(
           opacity: isBusy ? 0.45 : 1,
-          duration: 200.ms,
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : 200.ms,
           child: AnimatedSwitcher(
-            duration: 360.ms,
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : 360.ms,
             switchInCurve: Curves.easeOutCubic,
             switchOutCurve: Curves.easeInCubic,
             transitionBuilder: (child, animation) => FadeTransition(
               opacity: animation,
               child: SlideTransition(
-                position: Tween<Offset>(begin: const Offset(0.06, 0), end: Offset.zero).animate(animation),
+                position: Tween<Offset>(
+                  begin: const Offset(0.06, 0),
+                  end: Offset.zero,
+                ).animate(animation),
                 child: child,
               ),
             ),
-            layoutBuilder: (current, previous) =>
-                Stack(alignment: Alignment.topCenter, children: [...previous, ?current]),
+            layoutBuilder: (current, previous) => Stack(
+              alignment: Alignment.topCenter,
+              children: [...previous, ?current],
+            ),
             child: Column(
               key: ValueKey(track.id),
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -219,38 +339,61 @@ class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixi
             ),
           ),
         ),
-        Sp.large.heightBox,
+        Sp.medium.heightBox,
         SessionDiscStrip(
           tracks: state.tracks,
           currentIndex: state.currentIndex,
           onSelected: isBusy ? null : _discover.goTo,
           onPrevious: state.hasPrevious && !isBusy ? _discover.previous : null,
         ),
-        Sp.large.heightBox,
+      ],
+    );
+  }
+
+  Widget _buildTrackFooter(
+    DiscoverState state,
+    Track track, {
+    required bool isSaving,
+  }) {
+    final isBusy = state.isReplacing || isSaving;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: Sp.xsmall.w,
           children: [
-            BlocSelector<CollectionCubit, CollectionState, bool>(
-              selector: (collection) => collection.contains(track.id),
-              builder: (context, isSaved) => SessionSaveButton(
-                key: _saveButtonKey,
-                isSaved: isSaved,
-                onTap: isBusy ? null : () => _onSaveTap(track, isSaved: isSaved),
+            Expanded(
+              child: BlocSelector<CollectionCubit, CollectionState, bool>(
+                selector: (collection) => collection.contains(track.id),
+                builder: (context, isSaved) => SessionSaveButton(
+                  key: _saveButtonKey,
+                  isSaved: isSaved,
+                  onTap: isBusy
+                      ? null
+                      : () => _onSaveTap(track, isSaved: isSaved),
+                ),
               ),
             ),
-            CtaBar(
-              compact: true,
-              text: state.isLastTrack ? LocaleKeys.session_finish.tr() : LocaleKeys.session_next.tr(),
-              icon: Icons.arrow_forward_rounded,
-              onTap: isBusy ? null : () => _onNextTap(state),
+            Expanded(
+              child: CtaBar(
+                compact: true,
+                text: state.isLastTrack
+                    ? LocaleKeys.session_finish.tr()
+                    : LocaleKeys.session_next.tr(),
+                icon: Icons.arrow_forward_rounded,
+                onTap: isBusy ? null : () => _onNextTap(state),
+                playerAction: true,
+              ),
             ),
           ],
         ),
         Sp.xsmall.heightBox,
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
           spacing: Sp.xsmall.w,
+          runSpacing: Sp.tiny.h,
           children: [
             SessionGhostAction(
               icon: Icons.album_outlined,
@@ -266,8 +409,22 @@ class _SessionViewState extends State<_SessionView> with RouteAwareAnalyticsMixi
           ],
         ),
         SessionFeedbackPanel(isOpen: _isFeedbackOpen, onSelected: _reject),
-        Sp.medium.heightBox,
+        if (state.isReplacing)
+          Center(
+            child: SizedBox.square(
+              dimension: Sp.large.r,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: context.colors.primary,
+              ),
+            ),
+          ),
         SessionNoticeText(notice: state.notice),
+        if (state.notice == DiscoverNotice.noAlternative)
+          TextLink(
+            text: LocaleKeys.discovery_customize.tr(),
+            onTap: _openFrequencySheet,
+          ),
       ],
     );
   }

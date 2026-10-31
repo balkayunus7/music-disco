@@ -3,10 +3,11 @@ import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_e
 import 'package:music_disco/core/util/text_style_helper.dart';
 
 class EyebrowText extends StatelessWidget {
-  const EyebrowText(this.text, {super.key, this.color});
+  const EyebrowText(this.text, {super.key, this.color, this.loading = false});
 
   final String text;
   final Color? color;
+  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -14,10 +15,10 @@ class EyebrowText extends StatelessWidget {
       text,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: m11w600(context).copyWith(
-        color: color ?? context.colors.textSecondary,
-        letterSpacing: 2.2,
-      ),
+      style: eyebrowTextStyle(
+        context,
+        loading: loading,
+      ).copyWith(color: color ?? context.colors.textSecondary),
     );
   }
 }

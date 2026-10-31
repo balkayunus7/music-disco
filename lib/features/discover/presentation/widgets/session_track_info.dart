@@ -7,6 +7,10 @@ class SessionTrackInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tags = [
+      for (final genre in track.genres) genre.labelKey.tr(),
+      if (track.language != MusicLanguage.any) track.language.labelKey.tr(),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -21,17 +25,16 @@ class SessionTrackInfo extends StatelessWidget {
                     track.title,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: a24(context),
+                    style: trackTitleStyle(context),
                   ),
                   Sp.xsmall.heightBox,
                   Text(
                     track.artist,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: m13w600(context).copyWith(
-                      color: context.colors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: bodyTextStyle(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                   ),
                 ],
               ),
@@ -44,12 +47,42 @@ class SessionTrackInfo extends StatelessWidget {
             ),
           ],
         ),
-        Sp.small.heightBox,
-        Text(
-          track.noteKey.tr(),
-          style: m13w500(context).copyWith(color: context.colors.textSecondary),
-        ),
+        if (tags.isNotEmpty) ...[
+          Sp.small.heightBox,
+          Wrap(
+            spacing: Sp.xsmall.w,
+            runSpacing: Sp.xsmall.h,
+            children: [for (final tag in tags) _TrackTag(label: tag)],
+          ),
+        ],
       ],
+    );
+  }
+}
+
+class _TrackTag extends StatelessWidget {
+  const _TrackTag({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: Sp.small.w,
+        vertical: Sp.tiny.h,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: Sp.huge.radiusR,
+        border: Border.all(color: context.colors.border),
+      ),
+      child: Text(
+        label,
+        maxLines: 1,
+        style: labelTextStyle(
+          context,
+        ).copyWith(color: context.colors.textSecondary),
+      ),
     );
   }
 }

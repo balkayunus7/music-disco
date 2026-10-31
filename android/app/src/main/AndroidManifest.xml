@@ -3,6 +3,7 @@
     <application
         android:label="Music Disco"
         android:allowBackup="false"
+        android:localeConfig="@xml/locales_config"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

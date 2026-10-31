@@ -8,19 +8,26 @@ import 'package:music_disco/core/util/locale_keys.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 
 class PageBackButton extends StatelessWidget {
-  const PageBackButton({super.key});
+  const PageBackButton({super.key, this.onBack});
+
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
     return Pressable(
-      onTap: () => context.pop(),
+      onTap: onBack ?? context.pop,
       semanticLabel: LocaleKeys.back.tr(),
-      child: Padding(
-        padding: Sp.xsmall.padOnlyR(t: true, b: true, r: true),
-        child: Icon(
-          Icons.arrow_back_rounded,
-          color: context.colors.textPrimary,
-          size: Sp.large.r,
+      haptic: TapHaptic.selection,
+      child: SizedBox(
+        width: Sp.minTouchTarget,
+        height: Sp.xxxlarge.r,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Icon(
+            Icons.arrow_back_rounded,
+            color: context.colors.textPrimary,
+            size: Sp.large.r,
+          ),
         ),
       ),
     );

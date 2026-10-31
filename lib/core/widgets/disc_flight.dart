@@ -12,6 +12,7 @@ Future<void> flyDisc(
   double turns = 0.5,
   bool fadeOnLanding = false,
 }) async {
+  if (MediaQuery.disableAnimationsOf(context)) return;
   final overlay = Overlay.maybeOf(context, rootOverlay: true);
   final overlayBox = overlay?.context.findRenderObject() as RenderBox?;
   if (overlay == null || overlayBox == null || !overlayBox.hasSize) return;

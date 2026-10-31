@@ -410,3 +410,7 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 # This function validates the caller with auth.getUser before using admin access.
 [functions.delete-account]
 verify_jwt = false
+
+# Called only with the x-refresh-secret header; writes the artist catalog with service access.
+[functions.refresh-artists]
+verify_jwt = false

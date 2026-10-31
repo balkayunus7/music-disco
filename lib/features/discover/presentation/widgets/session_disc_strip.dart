@@ -1,6 +1,6 @@
 part of '../pages/session_page.dart';
 
-class SessionDiscStrip extends StatelessWidget {
+class SessionDiscStrip extends StatefulWidget {
   const SessionDiscStrip({
     super.key,
     required this.tracks,
@@ -11,24 +11,54 @@ class SessionDiscStrip extends StatelessWidget {
 
   final List<Track> tracks;
   final int currentIndex;
-
   final ValueChanged<int>? onSelected;
-
   final VoidCallback? onPrevious;
 
   @override
+  State<SessionDiscStrip> createState() => _SessionDiscStripState();
+}
+
+class _SessionDiscStripState extends State<SessionDiscStrip> {
+  final List<GlobalKey> _discKeys = [];
+
+  @override
+  void didUpdateWidget(SessionDiscStrip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.currentIndex == widget.currentIndex) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || widget.currentIndex >= _discKeys.length) return;
+      final discContext = _discKeys[widget.currentIndex].currentContext;
+      if (discContext == null) return;
+      Scrollable.ensureVisible(
+        discContext,
+        alignment: 0.5,
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : 260.ms,
+        curve: Curves.easeOutCubic,
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final onSelected = this.onSelected;
+    final onSelected = widget.onSelected;
+    final tracks = widget.tracks;
+    while (_discKeys.length < tracks.length) {
+      _discKeys.add(GlobalKey());
+    }
     return Row(
       children: [
         Pressable(
-          onTap: onPrevious,
+          onTap: widget.onPrevious,
           semanticLabel: LocaleKeys.session_previous_track.tr(),
           child: Padding(
             padding: Sp.xsmall.padAllR,
             child: AnimatedOpacity(
-              opacity: onPrevious == null ? 0.3 : 1,
-              duration: 200.ms,
+              opacity: widget.onPrevious == null ? 0.3 : 1,
+              duration: MediaQuery.disableAnimationsOf(context)
+                  ? Duration.zero
+                  : 200.ms,
               child: Icon(
                 Icons.chevron_left_rounded,
                 color: context.colors.textSecondary,
@@ -38,21 +68,35 @@ class SessionDiscStrip extends StatelessWidget {
           ),
         ),
         Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              for (final (index, track) in tracks.indexed)
-                _StripDisc(
-                  mood: track.mood,
-                  isCurrent: index == currentIndex,
-                  semanticLabel: LocaleKeys.session_track_position.tr(
-                    args: ['${index + 1}', '${tracks.length}'],
-                  ),
-                  onTap: onSelected == null ? null : () => onSelected(index),
+          child: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(vertical: Sp.tiny.h),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  spacing: Sp.large.w,
+                  children: [
+                    for (final (index, track) in tracks.indexed)
+                      _StripDisc(
+                        key: _discKeys[index],
+                        mood: track.mood,
+                        isCurrent: index == widget.currentIndex,
+                        semanticLabel: LocaleKeys.session_track_position.tr(
+                          args: ['${index + 1}', '${tracks.length}'],
+                        ),
+                        onTap: onSelected == null
+                            ? null
+                            : () => onSelected(index),
+                      ),
+                  ],
                 ),
-            ],
+              ),
+            ),
           ),
         ),
+        SizedBox(width: Sp.large.r + Sp.xsmall.r * 2),
       ],
     );
   }
@@ -60,6 +104,7 @@ class SessionDiscStrip extends StatelessWidget {
 
 class _StripDisc extends StatelessWidget {
   const _StripDisc({
+    super.key,
     required this.mood,
     required this.isCurrent,
     required this.semanticLabel,
@@ -79,10 +124,14 @@ class _StripDisc extends StatelessWidget {
       semanticLabel: semanticLabel,
       child: AnimatedScale(
         scale: isCurrent ? 1.08 : 0.92,
-        duration: 260.ms,
+        duration: MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : 260.ms,
         curve: Curves.easeOutBack,
         child: AnimatedContainer(
-          duration: 260.ms,
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : 260.ms,
           padding: 3.padAllR,
           decoration: BoxDecoration(
             shape: BoxShape.circle,

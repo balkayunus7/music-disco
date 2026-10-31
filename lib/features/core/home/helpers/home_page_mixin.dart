@@ -1,30 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:music_disco/config/app_routes.dart';
+import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:music_disco/core/widgets/disc_flight.dart';
 import 'package:music_disco/features/core/home/home_page.dart';
+import 'package:music_disco/features/settings/bloc/settings_cubit.dart';
 
 mixin HomePageMixin on State<HomePage> {
+  final ValueNotifier<int> activeBranch = ValueNotifier(0);
+
   final GlobalKey collectionTargetKey = GlobalKey();
 
   final ValueNotifier<int> landingPulse = ValueNotifier(0);
 
+  final List<ValueNotifier<int>> branchEntries = [
+    ValueNotifier(0),
+    ValueNotifier(0),
+    ValueNotifier(0),
+  ];
+
+  @override
+  void didUpdateWidget(HomePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    activeBranch.value = widget.navigationShell.currentIndex;
+  }
+
   @override
   void dispose() {
+    activeBranch.dispose();
     landingPulse.dispose();
+    for (final entries in branchEntries) {
+      entries.dispose();
+    }
     super.dispose();
   }
 
-  Future<void> onNavTap(int index) async {
-    await HapticFeedback.selectionClick();
-    if (!mounted) return;
+  static const List<String> _branchRoots = [
+    AppRoutes.discover,
+    AppRoutes.collection,
+    AppRoutes.settings,
+  ];
+
+  void onNavTap(int index) {
     final shell = widget.navigationShell;
-    shell.goBranch(index, initialLocation: index == shell.currentIndex);
+    final isCurrent = index == shell.currentIndex;
+    final isAtRoot = GoRouterState.of(context).uri.path == _branchRoots[index];
+    shell.goBranch(index, initialLocation: isCurrent);
+    if (isCurrent && !isAtRoot) branchEntries[index].value++;
   }
 
   Future<void> flyToCollection({
     required Rect from,
     required Widget disc,
   }) async {
+    if (MediaQuery.disableAnimationsOf(context) ||
+        context.read<SettingsCubit>().state) {
+      return;
+    }
     final targetBox =
         collectionTargetKey.currentContext?.findRenderObject() as RenderBox?;
     if (targetBox == null || !targetBox.hasSize) return;

@@ -20,7 +20,7 @@ void showAppSnackBar(
         backgroundColor: context.colors.surfaceSecondary,
         elevation: 0,
         duration: const Duration(seconds: 3),
-        margin: EdgeInsets.fromLTRB(Sp.xlarge.w, 0, Sp.xlarge.w, Sp.small.h),
+        margin: EdgeInsets.fromLTRB(Sp.screen.w, 0, Sp.screen.w, Sp.small.h),
         padding: EdgeInsets.symmetric(
           horizontal: Sp.large.w,
           vertical: Sp.medium.h,
@@ -28,7 +28,7 @@ void showAppSnackBar(
         shape: RoundedRectangleBorder(borderRadius: Sp.medium.radiusR),
         content: Row(
           children: [
-            Expanded(child: Text(message, style: m14w500(context))),
+            Expanded(child: Text(message, style: bodyTextStyle(context))),
             if (actionLabel != null && onAction != null)
               Pressable(
                 semanticLabel: actionLabel,
@@ -36,12 +36,17 @@ void showAppSnackBar(
                   messenger.hideCurrentSnackBar();
                   onAction();
                 },
-                child: Text(
-                  actionLabel,
-                  style: m14w500(context).copyWith(
-                    fontWeight: FontWeight.w700,
-                    decoration: TextDecoration.underline,
-                    decorationColor: context.colors.textPrimary,
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: Sp.small.w),
+                    child: Text(
+                      actionLabel,
+                      style: bodyTextStyle(context).copyWith(
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.underline,
+                        decorationColor: context.colors.textPrimary,
+                      ),
+                    ),
                   ),
                 ),
               ),

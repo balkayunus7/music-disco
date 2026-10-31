@@ -20,9 +20,12 @@ class SessionSaveButton extends StatelessWidget {
       onTap: onTap,
       selected: isSaved,
       semanticLabel: label,
+      haptic: TapHaptic.medium,
       child: ExcludeSemantics(
         child: AnimatedContainer(
-          duration: 260.ms,
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : 260.ms,
           curve: Curves.easeOutCubic,
           height: Sp.xxxlarge.h - Sp.tiny.h,
           padding: Sp.large.padHR,
@@ -34,7 +37,9 @@ class SessionSaveButton extends StatelessWidget {
             border: Border.all(color: context.colors.border),
           ),
           child: AnimatedSwitcher(
-            duration: 220.ms,
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : 220.ms,
             transitionBuilder: (child, animation) => FadeTransition(
               opacity: animation,
               child: ScaleTransition(
@@ -50,9 +55,16 @@ class SessionSaveButton extends StatelessWidget {
                 Icon(
                   isSaved ? Icons.check_rounded : Icons.add_rounded,
                   color: context.colors.textPrimary,
-                  size: Sp.medium.r,
+                  size: Sp.large.r,
                 ),
-                Text(label, maxLines: 1, style: m13w600(context)),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: smallButtonTextStyle(context),
+                  ),
+                ),
               ],
             ),
           ),
@@ -88,7 +100,9 @@ class SessionGhostAction extends StatelessWidget {
       semanticLabel: label,
       child: ExcludeSemantics(
         child: AnimatedContainer(
-          duration: 240.ms,
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : 240.ms,
           height: Sp.xxlarge.h + Sp.tiny.h,
           padding: Sp.small.padHR,
           decoration: BoxDecoration(
@@ -107,7 +121,7 @@ class SessionGhostAction extends StatelessWidget {
               Text(
                 label,
                 maxLines: 1,
-                style: m12w600(context).copyWith(color: color),
+                style: labelTextStyle(context).copyWith(color: color),
               ),
             ],
           ),
@@ -135,8 +149,10 @@ class SessionFeedbackPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSize(
-      duration: 300.ms,
+    return MotionSize(
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : 300.ms,
       curve: Curves.easeOutCubic,
       alignment: Alignment.topCenter,
       child: !isOpen
@@ -147,7 +163,7 @@ class SessionFeedbackPanel extends StatelessWidget {
                 children: [
                   Text(
                     LocaleKeys.session_what_to_change.tr(),
-                    style: m12w500(
+                    style: secondaryTextStyle(
                       context,
                     ).copyWith(color: context.colors.textSecondary),
                   ),
@@ -188,7 +204,9 @@ class _FeedbackChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: (240 + delayIndex * 70).ms,
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : (240 + delayIndex * 70).ms,
       curve: Curves.easeOutCubic,
       builder: (context, value, child) => Opacity(
         opacity: value,
@@ -213,7 +231,7 @@ class _FeedbackChip extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: m12w600(context),
+              style: labelTextStyle(context),
             ),
           ),
         ),
@@ -233,9 +251,13 @@ class SessionNoticeText extends StatelessWidget {
       DiscoverNotice.none => null,
       DiscoverNotice.feedbackTaken => LocaleKeys.session_feedback_taken.tr(),
       DiscoverNotice.knownSkipped => LocaleKeys.session_known_skipped.tr(),
+      DiscoverNotice.noAlternative => LocaleKeys.session_no_alternative.tr(),
+      DiscoverNotice.requestFailed => LocaleKeys.session_request_failed.tr(),
     };
     return AnimatedSwitcher(
-      duration: 260.ms,
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : 260.ms,
       child: text == null
           ? const SizedBox.shrink()
           : Semantics(
@@ -244,7 +266,7 @@ class SessionNoticeText extends StatelessWidget {
               child: Text(
                 text,
                 textAlign: TextAlign.center,
-                style: m12w500(
+                style: secondaryTextStyle(
                   context,
                 ).copyWith(color: context.colors.textDisabled),
               ),

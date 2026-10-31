@@ -236,6 +236,7 @@ class _HoloDiscPainter extends CustomPainter {
           text: title.replaceFirst(' ', '\n'),
           style: TextStyle(
             fontFamily: 'ArchivoBlack',
+            fontWeight: FontWeight.w400,
             fontSize: radius * 0.2,
             height: 0.9,
             color: _sheen.withValues(alpha: 0.95),
@@ -252,8 +253,8 @@ class _HoloDiscPainter extends CustomPainter {
         text: TextSpan(
           text: caption,
           style: TextStyle(
-            fontFamily: 'Montserrat',
-            package: 'mobile_boilerplate',
+            fontFamily: 'Manrope',
+            fontVariations: const [FontVariation('wght', 700)],
             fontSize: radius * 0.055,
             fontWeight: FontWeight.w700,
             letterSpacing: radius * 0.008,
