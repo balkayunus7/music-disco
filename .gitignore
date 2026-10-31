@@ -30,3 +30,6 @@ doc/api/
 .idea/
 *.iml
 .DS_Store
+
+supabase/
+docs/RECOMMENDATIONS.md

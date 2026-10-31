@@ -62,7 +62,7 @@ class ReferenceSearchPanel extends StatelessWidget {
             final saved = !search.hasQuery
                 ? [
                     for (final reference in savedReferences)
-                      if (taken.add(reference.id)) reference,
+                      if (taken.add(reference.id)) search.resolve(reference),
                   ]
                 : const <MusicReference>[];
             final results = [

@@ -17,9 +17,10 @@ class ReferenceAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUrl = reference.imageUrl;
-    if (imageUrl == null) return _fallback(context);
+    if (imageUrl == null || imageUrl.trim().isEmpty) return _fallback(context);
     return ClipOval(
       child: Image.network(
+        key: ValueKey(imageUrl),
         imageUrl,
         width: size,
         height: size,

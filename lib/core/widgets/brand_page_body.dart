@@ -32,13 +32,16 @@ class BrandPageBody extends StatelessWidget {
         ? (narrow ? Sp.narrowLoadingScreen : Sp.loadingScreen)
         : (narrow ? Sp.narrowScreen : Sp.screen);
     final fill = fillRemaining;
+    final bottomSpacing = footer == null
+        ? Sp.xxlarge
+        : Sp.xxlarge + Sp.xlarge + Sp.small;
     final scroll = fill == null
         ? SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(
               horizontal,
               contentTopSpacing.h,
               horizontal,
-              Sp.xxlarge.h,
+              bottomSpacing.h,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,

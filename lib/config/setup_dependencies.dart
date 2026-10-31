@@ -20,9 +20,10 @@ import 'package:music_disco/features/collection/data/local_collection_store.dart
 import 'package:music_disco/features/taste/data/local_taste_store.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
 import 'package:music_disco/features/discover/bloc/reference_search_cubit.dart';
-import 'package:music_disco/features/discover/data/curated_discovery_repository.dart';
+import 'package:music_disco/features/discover/data/supabase_discovery_repository.dart';
 import 'package:music_disco/features/discover/data/supabase_artist_catalog.dart';
 import 'package:music_disco/features/discover/domain/use_cases/i_discovery_repository.dart';
+import 'package:music_disco/features/discover/domain/use_cases/i_discovery_feedback_repository.dart';
 import 'package:music_disco/features/discover/domain/use_cases/i_reference_catalog.dart';
 import 'package:music_disco/features/player/bloc/youtube_player_cubit.dart';
 import 'package:music_disco/features/player/data/youtube_player_wrapper.dart';
@@ -67,7 +68,15 @@ Future<void> setupDependencies() async {
     ..registerSingleton<ImplAppTrackingService>(ImplAppTrackingService())
     ..registerSingleton<ImplAnalyticsService>(const ImplAnalyticsService())
     ..registerSingleton<StoreCheckerService>(const StoreCheckerService())
-    ..registerSingleton<IDiscoveryRepository>(CuratedDiscoveryRepository())
+    ..registerSingleton<SupabaseDiscoveryRepository>(
+      SupabaseDiscoveryRepository(getIt<SupabaseClient>()),
+    )
+    ..registerSingleton<IDiscoveryRepository>(
+      getIt<SupabaseDiscoveryRepository>(),
+    )
+    ..registerSingleton<IDiscoveryFeedbackRepository>(
+      getIt<SupabaseDiscoveryRepository>(),
+    )
     ..registerSingleton<IReferenceCatalog>(
       SupabaseArtistCatalog(getIt<SupabaseClient>()),
     )
@@ -94,6 +103,10 @@ Future<void> setupDependencies() async {
     )
     ..registerFactoryParam<CollectionCubit, String?, void>(
       (userId, _) => CollectionCubit(
+        feedbackRepository: getIt<IDiscoveryFeedbackRepository>(),
+        canRecordFeedback: () =>
+            userId != null &&
+            getIt<SupabaseClient>().auth.currentUser?.id == userId,
         store: userId == null
             ? null
             : LocalCollectionStore(sharedPreferences, userId: userId),

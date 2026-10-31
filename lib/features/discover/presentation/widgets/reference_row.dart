@@ -30,7 +30,7 @@ class ReferenceRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final trailing = this.trailing;
     final row = Container(
-      padding: Sp.small.padVR,
+      padding: Sp.xsmall.padVR,
       decoration: hasDivider
           ? BoxDecoration(
               border: Border(
@@ -39,7 +39,7 @@ class ReferenceRow extends StatelessWidget {
             )
           : null,
       child: Row(
-        spacing: Sp.medium.w,
+        spacing: Sp.small.w,
         children: [
           ReferenceAvatar(reference: reference, size: Sp.xxxlarge.r - 4),
           Expanded(
@@ -53,14 +53,15 @@ class ReferenceRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: listTitleStyle(context),
                 ),
-                Text(
-                  reference.subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: bodyTextStyle(
-                    context,
-                  ).copyWith(color: context.colors.textSecondary),
-                ),
+                if (reference.genres.isNotEmpty)
+                  Text(
+                    reference.subtitle,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: secondaryTextStyle(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
+                  ),
               ],
             ),
           ),

@@ -17,7 +17,7 @@ part 'discover_state.dart';
 class DiscoverCubit extends Cubit<DiscoverState> {
   DiscoverCubit(
     this._repository, {
-    this.requestTimeout = const Duration(seconds: 20),
+    this.requestTimeout = const Duration(seconds: 60),
   }) : super(const DiscoverState());
 
   final IDiscoveryRepository _repository;
@@ -81,6 +81,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
         currentIndex: 0,
         notice: DiscoverNotice.none,
         isReplacing: false,
+        failure: DiscoverFailure.none,
         roundSource: state.preferences.source,
       ),
     );
@@ -98,12 +99,18 @@ class DiscoverCubit extends Cubit<DiscoverState> {
           status: tracks.isEmpty
               ? DiscoverRoundStatus.failure
               : DiscoverRoundStatus.ready,
+          failure: tracks.isEmpty ? DiscoverFailure.noResults : null,
           tracks: tracks,
         ),
       );
     } on Object {
       if (isClosed || request != _request) return;
-      emit(state.copyWith(status: DiscoverRoundStatus.failure));
+      emit(
+        state.copyWith(
+          status: DiscoverRoundStatus.failure,
+          failure: DiscoverFailure.unavailable,
+        ),
+      );
     }
   }
 
@@ -151,6 +158,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
           .fetchReplacement(
             state.preferences,
             feedback: feedback,
+            rejectedTrackId: current.id,
             excludeIds: {..._rejectedIds, ...state.tracks.map((t) => t.id)},
           )
           .timeout(requestTimeout);

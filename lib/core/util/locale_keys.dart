@@ -4,6 +4,7 @@
 
 abstract class LocaleKeys {
   static const app_name = 'app_name';
+  static const session_why_this_track = 'session_why_this_track';
   static const starting = 'starting';
   static const welcome = 'welcome';
   static const home_description = 'home_description';
@@ -70,6 +71,10 @@ abstract class LocaleKeys {
   static const session_undo = 'session_undo';
   static const session_loading = 'session_loading';
   static const session_error = 'session_error';
+  static const session_error_empty_title = 'session_error_empty_title';
+  static const session_error_unavailable_title =
+      'session_error_unavailable_title';
+  static const session_error_unavailable = 'session_error_unavailable';
   static const session_previous_track = 'session_previous_track';
   static const session_track_position = 'session_track_position';
   static const session_play = 'session_play';

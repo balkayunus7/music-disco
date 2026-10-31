@@ -21,7 +21,7 @@ class JewelCase extends StatelessWidget {
   Widget build(BuildContext context) {
     final highlight = context.colors.textPrimary;
     return Container(
-      padding: (Sp.tiny + 1).padAllR,
+      padding: (Sp.tiny).padAllR,
       decoration: BoxDecoration(
         borderRadius: Sp.small.radiusR,
         border: Border.all(
@@ -56,7 +56,7 @@ class JewelCase extends StatelessWidget {
           builder: (context, constraints) {
             final isSized = constraints.hasBoundedHeight;
             final content = Padding(
-              padding: contentPadding ?? Sp.small.padAllR,
+              padding: contentPadding ?? EdgeInsets.zero,
               child: isSized ? Center(child: child) : child,
             );
             final body = Column(
@@ -68,7 +68,7 @@ class JewelCase extends StatelessWidget {
                   Padding(
                     padding: EdgeInsets.fromLTRB(
                       Sp.small.w,
-                      0,
+                      Sp.tiny,
                       Sp.small.w,
                       Sp.tiny.h + 2,
                     ),

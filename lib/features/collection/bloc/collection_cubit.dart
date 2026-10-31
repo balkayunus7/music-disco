@@ -1,17 +1,29 @@
+import 'dart:async';
+
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:music_disco/features/collection/domain/models/collection_shelf.dart';
 import 'package:music_disco/features/collection/domain/use_cases/i_collection_store.dart';
 import 'package:music_disco/features/discover/domain/models/track.dart';
+import 'package:music_disco/features/discover/domain/use_cases/i_discovery_feedback_repository.dart';
 
 part 'collection_state.dart';
 
 class CollectionCubit extends Cubit<CollectionState> {
-  CollectionCubit({ICollectionStore? store, String Function()? idGenerator})
-    : _store = store,
-      _idGenerator = idGenerator ?? _timeId,
-      super(_restore(store));
+  CollectionCubit({
+    ICollectionStore? store,
+    String Function()? idGenerator,
+    IDiscoveryFeedbackRepository? feedbackRepository,
+    bool Function()? canRecordFeedback,
+  }) : _store = store,
+       _feedbackRepository = feedbackRepository,
+       _canRecordFeedback = canRecordFeedback,
+       _idGenerator = idGenerator ?? _timeId,
+       super(_restore(store));
 
   final ICollectionStore? _store;
+  final IDiscoveryFeedbackRepository? _feedbackRepository;
+  final bool Function()? _canRecordFeedback;
+  Future<void> _feedbackWrites = Future.value();
   final String Function() _idGenerator;
 
   static String _timeId() => 'shelf_${DateTime.now().microsecondsSinceEpoch}';
@@ -50,27 +62,48 @@ class CollectionCubit extends Cubit<CollectionState> {
     return (shelves: [...state.shelves, shelf], id: shelf.id);
   }
 
-  Future<bool> save(Track track, {String? shelfId, String? newShelfName}) {
+  Future<bool> save(
+    Track track, {
+    String? shelfId,
+    String? newShelfName,
+  }) async {
     if (state.contains(track.id)) return Future.value(true);
     final target = _resolveShelf(shelfId: shelfId, newShelfName: newShelfName);
     if (target == null) return Future.value(false);
-    return _commit(
+    final saved = await _commit(
       state.copyWith(
         tracks: [...state.tracks, track],
         shelves: target.shelves,
         assignments: {...state.assignments, track.id: ?target.id},
       ),
     );
+    if (saved) _recordSaved(track.id, true);
+    return saved;
   }
 
-  Future<bool> remove(String trackId) {
+  Future<bool> remove(String trackId) async {
     if (!state.contains(trackId)) return Future.value(true);
-    return _commit(
+    final removed = await _commit(
       state.copyWith(
         tracks: state.tracks.where((track) => track.id != trackId).toList(),
         assignments: {...state.assignments}..remove(trackId),
       ),
     );
+    if (removed) _recordSaved(trackId, false);
+    return removed;
+  }
+
+  void _recordSaved(String trackId, bool isSaved) {
+    // Keep save/undo feedback in order. Cloud failures never undo a local save.
+    _feedbackWrites = _feedbackWrites.then((_) async {
+      if (_canRecordFeedback?.call() == false) return;
+      try {
+        await _feedbackRepository?.recordSaved(trackId, isSaved: isSaved);
+      } on Object {
+        // Feedback is best effort; the collection remains available offline.
+      }
+    });
+    unawaited(_feedbackWrites);
   }
 
   Future<bool> assignShelf(

@@ -55,6 +55,23 @@ class SessionTrackInfo extends StatelessWidget {
             children: [for (final tag in tags) _TrackTag(label: tag)],
           ),
         ],
+        if (track.recommendationReason(context.locale.languageCode)
+            case final String reason) ...[
+          Sp.small.heightBox,
+          Text(
+            LocaleKeys.session_why_this_track.tr(),
+            style: labelTextStyle(context),
+          ),
+          Sp.tiny.heightBox,
+          Text(
+            reason,
+            maxLines: 6,
+            overflow: TextOverflow.ellipsis,
+            style: bodyTextStyle(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
+          ),
+        ],
       ],
     );
   }

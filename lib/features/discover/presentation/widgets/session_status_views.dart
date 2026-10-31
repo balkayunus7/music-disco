@@ -3,21 +3,40 @@ part of '../pages/session_page.dart';
 class SessionFailureView extends StatelessWidget {
   const SessionFailureView({
     super.key,
+    required this.failure,
     required this.onRetry,
     required this.onChangePreferences,
   });
-  final VoidCallback onChangePreferences;
 
+  final DiscoverFailure failure;
   final VoidCallback onRetry;
+  final VoidCallback onChangePreferences;
 
   @override
   Widget build(BuildContext context) {
+    final isUnavailable = failure == DiscoverFailure.unavailable;
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Center(child: BrokenDisc(size: 176.r)),
         Sp.xlarge.heightBox,
         Text(
-          LocaleKeys.session_error.tr(),
+          (isUnavailable
+                  ? LocaleKeys.session_error_unavailable_title
+                  : LocaleKeys.session_error_empty_title)
+              .tr(),
+          textAlign: TextAlign.center,
+          style: sheetTitleStyle(
+            context,
+          ).copyWith(color: context.colors.textPrimary),
+        ),
+        Sp.small.heightBox,
+        Text(
+          (isUnavailable
+                  ? LocaleKeys.session_error_unavailable
+                  : LocaleKeys.session_error)
+              .tr(),
           textAlign: TextAlign.center,
           style: labelTextStyle(
             context,
@@ -29,7 +48,11 @@ class SessionFailureView extends StatelessWidget {
           icon: Icons.refresh_rounded,
           onTap: onRetry,
         ),
-        TextLink(text: LocaleKeys.taste_edit.tr(), onTap: onChangePreferences),
+        if (!isUnavailable)
+          TextLink(
+            text: LocaleKeys.taste_edit.tr(),
+            onTap: onChangePreferences,
+          ),
       ],
     );
   }

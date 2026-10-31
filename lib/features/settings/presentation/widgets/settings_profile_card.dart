@@ -55,7 +55,12 @@ class SettingsProfileCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(name, maxLines: 2, overflow: TextOverflow.ellipsis, style: profileNameStyle(context)),
+                        Text(
+                          name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: profileNameStyle(context),
+                        ),
                         Pressable(
                           onTap: onEdit,
                           child: Row(
@@ -63,11 +68,17 @@ class SettingsProfileCard extends StatelessWidget {
                               Flexible(
                                 child: Text(
                                   LocaleKeys.settings_edit_profile.tr(),
-                                  style: labelTextStyle(context).copyWith(color: context.colors.textSecondary),
+                                  style: labelTextStyle(context).copyWith(
+                                    color: context.colors.textSecondary,
+                                  ),
                                 ),
                               ),
                               Sp.xsmall.widthBox,
-                              Icon(Icons.edit_outlined, size: Sp.large.r, color: context.colors.textSecondary),
+                              Icon(
+                                Icons.edit_outlined,
+                                size: Sp.large.r,
+                                color: context.colors.textSecondary,
+                              ),
                             ],
                           ),
                         ),
@@ -89,10 +100,16 @@ class SettingsProfileCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     summary,
-                    style: secondaryTextStyle(context).copyWith(color: context.colors.textSecondary),
+                    style: secondaryTextStyle(
+                      context,
+                    ).copyWith(color: context.colors.textSecondary),
                   ),
                 ),
-                Icon(Icons.north_east_rounded, size: Sp.large.r, color: context.colors.textSecondary),
+                Icon(
+                  Icons.north_east_rounded,
+                  size: Sp.large.r,
+                  color: context.colors.textSecondary,
+                ),
               ],
             ),
           ),

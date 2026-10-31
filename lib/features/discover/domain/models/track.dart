@@ -9,13 +9,14 @@ class Track extends Equatable {
     required this.title,
     required this.artist,
     required this.mood,
-    required this.noteKey,
+    this.noteKey = '',
     required this.duration,
     required this.youtubeId,
     this.genres = const [],
     this.language = MusicLanguage.any,
     this.energy = 0.5,
     this.hasVocals = true,
+    this.recommendationReasons = const {},
   });
 
   final List<Genre> genres;
@@ -29,6 +30,10 @@ class Track extends Equatable {
   final String noteKey;
   final Duration duration;
   final String youtubeId;
+  final Map<String, String> recommendationReasons;
+
+  String? recommendationReason(String languageCode) =>
+      recommendationReasons[languageCode] ?? recommendationReasons['en'];
 
   @override
   List<Object?> get props => [
@@ -43,5 +48,6 @@ class Track extends Equatable {
     language,
     energy,
     hasVocals,
+    recommendationReasons,
   ];
 }
