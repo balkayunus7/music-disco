@@ -39,13 +39,7 @@ class SettingsProfileCard extends StatelessWidget {
           child: Column(
             children: [
               Row(
-                children: [
-                  Expanded(child: EyebrowText(LocaleKeys.settings_listener_copy.tr())),
-                  Icon(Icons.album_outlined, size: Sp.medium.r, color: context.colors.textTertiary),
-                ],
-              ),
-              Sp.xsmall.heightBox,
-              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   ExcludeSemantics(
                     child: HoloDisc(
@@ -62,28 +56,19 @@ class SettingsProfileCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(name, maxLines: 2, overflow: TextOverflow.ellipsis, style: profileNameStyle(context)),
-                        Sp.xsmall.heightBox,
-                        Text(
-                          LocaleKeys.settings_listener_caption.tr(),
-                          style: secondaryTextStyle(context).copyWith(color: context.colors.textSecondary),
-                        ),
-                        Sp.xsmall.heightBox,
                         Pressable(
                           onTap: onEdit,
-                          child: Padding(
-                            padding: Sp.xsmall.padVR,
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    LocaleKeys.settings_edit_profile.tr(),
-                                    style: labelTextStyle(context).copyWith(color: context.colors.textSecondary),
-                                  ),
+                          child: Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  LocaleKeys.settings_edit_profile.tr(),
+                                  style: labelTextStyle(context).copyWith(color: context.colors.textSecondary),
                                 ),
-                                Sp.xsmall.widthBox,
-                                Icon(Icons.edit_outlined, size: Sp.large.r, color: context.colors.textSecondary),
-                              ],
-                            ),
+                              ),
+                              Sp.xsmall.widthBox,
+                              Icon(Icons.edit_outlined, size: Sp.large.r, color: context.colors.textSecondary),
+                            ],
                           ),
                         ),
                       ],

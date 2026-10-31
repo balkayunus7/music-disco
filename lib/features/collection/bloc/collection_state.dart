@@ -32,11 +32,15 @@ class CollectionState extends Equatable {
 
   CollectionShelf? shelfOf(String trackId) => shelfById(assignments[trackId]);
 
+  static String _foldName(String name) => normalizeShelfName(name)
+      .replaceAll('İ', 'i')
+      .replaceAll('I', 'i')
+      .replaceAll('ı', 'i')
+      .toLowerCase();
+
   CollectionShelf? shelfNamed(String name) {
-    final key = normalizeShelfName(name).toLowerCase();
-    return shelves
-        .where((shelf) => shelf.name.toLowerCase() == key)
-        .firstOrNull;
+    final key = _foldName(name);
+    return shelves.where((shelf) => _foldName(shelf.name) == key).firstOrNull;
   }
 
   ShelfNameError? shelfNameError(String name, {String? exceptId}) {

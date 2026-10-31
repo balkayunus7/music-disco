@@ -194,6 +194,7 @@ abstract class LocaleKeys {
   static const settings_music_taste = 'settings_music_taste';
   static const settings_song_language = 'settings_song_language';
   static const settings_application = 'settings_application';
+  static const settings_app_language = 'settings_app_language';
   static const settings_reduce_motion = 'settings_reduce_motion';
   static const settings_reduce_motion_caption =
       'settings_reduce_motion_caption';
