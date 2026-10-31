@@ -6,7 +6,9 @@ class CollectionGrid extends StatelessWidget {
     required this.tracks,
     required this.onPlay,
     required this.onManage,
+    this.shelfLabelOf,
   });
+  final String? Function(Track track)? shelfLabelOf;
   final ValueChanged<Track>? onPlay;
   final ValueChanged<Track>? onManage;
 
@@ -33,6 +35,7 @@ class CollectionGrid extends StatelessWidget {
                   child: CollectionTile(
                     key: ValueKey(track.id),
                     track: track,
+                    shelfLabel: shelfLabelOf?.call(track),
                     onPlay: onPlay == null ? null : () => onPlay!(track),
                     onManage: onManage == null ? null : () => onManage!(track),
                     order: rowIndex * _columns + columnIndex,
@@ -53,7 +56,9 @@ class CollectionTile extends StatelessWidget {
     required this.order,
     required this.onPlay,
     required this.onManage,
+    this.shelfLabel,
   });
+  final String? shelfLabel;
   final VoidCallback? onPlay;
   final VoidCallback? onManage;
 
@@ -154,6 +159,29 @@ class CollectionTile extends StatelessWidget {
               context,
             ).copyWith(color: context.colors.textSecondary),
           ),
+          if (shelfLabel != null) ...[
+            Sp.xsmall.heightBox,
+            Row(
+              spacing: Sp.tiny.w,
+              children: [
+                Icon(
+                  Icons.album_outlined,
+                  size: Sp.medium.r - 2,
+                  color: context.colors.textTertiary,
+                ),
+                Expanded(
+                  child: Text(
+                    shelfLabel!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: secondaryTextStyle(
+                      context,
+                    ).copyWith(color: context.colors.textTertiary),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -167,6 +195,7 @@ class CollectionEmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final slotSize = Sp.xxhuge.r;
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox.square(
           dimension: slotSize + Sp.xxlarge.r,

@@ -158,6 +158,16 @@ extension MusicReferenceStyle on MusicReference {
 }
 
 extension DiscoveryPreferencesStyle on DiscoveryPreferences {
+  String get detailedSummary {
+    final reference = activeReference;
+    return [
+      reference?.name ?? mood.labelKey.tr(),
+      if (reference != null) aspect.labelKey.tr(),
+      direction.shortLabelKey.tr(),
+      distance.labelKey.tr(),
+    ].join(' · ');
+  }
+
   String get summary => [
     activeReference?.name ?? mood.labelKey.tr(),
     direction.shortLabelKey.tr(),

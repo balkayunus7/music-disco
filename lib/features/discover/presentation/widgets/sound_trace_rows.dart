@@ -90,6 +90,10 @@ class _SoundTracePainter extends CustomPainter {
         (size.width - gap * (bars.length - 1)) / bars.length,
       ),
     );
+    final spacing = math.max(
+      gap,
+      (size.width - width * bars.length) / (bars.length - 1),
+    );
     final paint = Paint();
     for (final (column, bar) in bars.indexed) {
       final height = barHeight * bar.height;
@@ -97,7 +101,7 @@ class _SoundTracePainter extends CustomPainter {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromLTWH(
-            column * (width + gap),
+            column * (width + spacing),
             (size.height - height) / 2,
             width,
             height,

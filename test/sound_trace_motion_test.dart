@@ -17,10 +17,20 @@ void main() {
   });
 
   test('traces resolve in order without representing request completion', () {
-    final first = SoundTraceMotion.sampleRow(0, 3600);
-    final last = SoundTraceMotion.sampleRow(4, 3600);
+    final first = SoundTraceMotion.sampleRow(0, 2000);
+    final last = SoundTraceMotion.sampleRow(4, 2000);
     expect(first.first.opacity, closeTo(0.90, 0.000001));
     expect(last.first.opacity, 0.18);
+  });
+
+  test('all traces resolve within the five-second display', () {
+    for (var row = 0; row < SoundTraceMotion.rowCount; row++) {
+      final bars = SoundTraceMotion.sampleRow(row, 4100);
+      expect(
+        bars.every((bar) => (bar.opacity - 0.90).abs() < 0.000001),
+        isTrue,
+      );
+    }
   });
 
   test('reduced motion keeps exactly the same waveform at any time', () {

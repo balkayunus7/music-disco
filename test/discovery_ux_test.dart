@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/rendering.dart';
 import 'dart:ui' as ui;
+import 'package:music_disco/core/widgets/cta_bar.dart';
 import 'package:music_disco/core/widgets/display_headline.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,11 +20,12 @@ import 'package:mobile_boilerplate/domain/common/failure.dart';
 import 'package:mobile_boilerplate/presentation/app_colors.dart';
 import 'package:music_disco/config/app_router.dart';
 import 'package:music_disco/config/app_routes.dart';
+import 'package:music_disco/features/collection/presentation/pages/collection_page.dart';
 import 'package:music_disco/features/core/home/home_page.dart';
+import 'package:music_disco/features/settings/presentation/pages/settings_page.dart';
 import 'package:music_disco/core/util/custom_app_colors.dart';
 import 'package:music_disco/core/util/music_color_theme_cache.dart';
 import 'package:music_disco/features/collection/bloc/collection_cubit.dart';
-import 'package:music_disco/features/collection/domain/models/collection_shelf.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
 import 'package:music_disco/features/discover/bloc/reference_search_cubit.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_direction.dart';
@@ -37,6 +39,7 @@ import 'package:music_disco/features/discover/domain/use_cases/i_reference_catal
 import 'package:music_disco/features/discover/presentation/pages/discovery_loading_page.dart';
 import 'package:music_disco/features/discover/presentation/widgets/discovery_loading_view.dart';
 import 'package:music_disco/features/discover/presentation/widgets/mood_disc.dart';
+import 'package:music_disco/features/discover/presentation/widgets/preferences_summary.dart';
 import 'package:music_disco/features/discover/presentation/pages/session_page.dart';
 import 'package:music_disco/features/discover/presentation/pages/mood_page.dart';
 import 'package:music_disco/features/discover/presentation/pages/discover_home_page.dart';
@@ -231,7 +234,20 @@ void main() {
         await tester.ensureVisible(find.text('Kaydet'));
         await tester.tap(find.text('Kaydet'));
         await tester.pumpAndSettle();
+        expect(collection.state.contains(track.id), isFalse);
+        expect(find.text('Koleksiyona kaydet'), findsOneWidget);
+        await tester.tap(find.text('Yeni koleksiyon'));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), 'Gece yürüyüşü');
+        await tester.pump();
+        await tester.tap(find.text('Oluştur'));
+        await tester.pumpAndSettle();
         expect(collection.state.contains(track.id), isTrue);
+        expect(collection.state.shelfOf(track.id)?.name, 'Gece yürüyüşü');
+        expect(
+          find.text('Gece yürüyüşü koleksiyonuna eklendi'),
+          findsOneWidget,
+        );
         router.go(AppRoutes.discover);
         await tester.pumpAndSettle();
         expect(find.text('Son keşfin').hitTestable(), findsOneWidget);
@@ -266,6 +282,19 @@ void main() {
           ),
           findsOneWidget,
         );
+        expect(find.text('TUR TAMAMLANDI'), findsOneWidget);
+        expect(
+          tester.getTopLeft(find.byType(HomeNavBar)).dy -
+              tester.getBottomLeft(find.byType(SessionCompletedActions)).dy,
+          lessThan(40),
+        );
+        expect(
+          find.descendant(
+            of: find.byType(SessionCompletedView),
+            matching: find.text(track.title),
+          ),
+          findsOneWidget,
+        );
         await tester.tap(find.text('Kaydettiklerimi dinle'));
         await tester.pumpAndSettle();
         expect(
@@ -290,10 +319,21 @@ void main() {
         expect(sheetPlayer.closed, isTrue);
         await tester.tap(find.byTooltip('${track.title} seçenekleri'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Gece yürüyüşü'));
+        await tester.tap(
+          find.descendant(
+            of: find.byType(CollectionTrackSheet),
+            matching: find.text('Yeni koleksiyon'),
+          ),
+        );
         await tester.pumpAndSettle();
-        expect(collection.state.shelves[track.id], CollectionShelf.nightWalk);
-        await tester.tap(find.text('gece yürüyüşü · 1'));
+        await tester.enterText(find.byType(TextField), 'Yavaş sabahlar');
+        await tester.pump();
+        await tester.tap(find.text('Oluştur'));
+        await tester.pumpAndSettle();
+        final slowMornings = collection.state.shelfNamed('Yavaş sabahlar')!;
+        expect(collection.state.assignments[track.id], slowMornings.id);
+        expect(collection.state.shelves.length, 2);
+        await tester.tap(find.text('Yavaş sabahlar · 1'));
         await tester.pumpAndSettle();
         expect(find.text(track.title), findsOneWidget);
         await tester.tap(find.byTooltip('${track.title} seçenekleri'));
@@ -304,7 +344,7 @@ void main() {
         await tester.tap(find.text('Geri al'));
         await tester.pumpAndSettle();
         expect(collection.state.contains(track.id), isTrue);
-        expect(collection.state.shelves[track.id], CollectionShelf.nightWalk);
+        expect(collection.state.assignments[track.id], slowMornings.id);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
       },
@@ -361,14 +401,14 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Devam et'), findsNothing);
         expect(find.text('Önce bir sanatçı seç'), findsOneWidget);
-        expect(find.text('Değiştir'), findsNothing);
+        expect(find.byIcon(Icons.swap_horiz_rounded), findsNothing);
         expect(find.text('sanatçıların'), findsOneWidget);
         expect(find.text('önerilenler'), findsOneWidget);
         expect(find.text('Vazgeç'), findsNothing);
         await tester.tap(find.text('Test Artist'));
         await tester.pumpAndSettle();
         expect(find.text('Devam et').hitTestable(), findsOneWidget);
-        expect(find.text('Değiştir'), findsOneWidget);
+        expect(find.byIcon(Icons.swap_horiz_rounded), findsOneWidget);
         expect(
           find.text('Test Artist ile aynı hissi veren en fazla 5 şarkı.'),
           findsOneWidget,
@@ -392,11 +432,11 @@ void main() {
           findsNothing,
         );
         expect(find.text('Devam et').hitTestable(), findsOneWidget);
-        await tester.tap(find.text('Değiştir'));
+        await tester.tap(find.byIcon(Icons.swap_horiz_rounded));
         await tester.pumpAndSettle();
         await tester.tap(find.text('Vazgeç'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Değiştir'));
+        await tester.tap(find.byIcon(Icons.swap_horiz_rounded));
         await tester.pumpAndSettle();
         expect(find.text('Önce bir sanatçı seç'), findsOneWidget);
         expect(find.text('Test Artist'), findsOneWidget);
@@ -474,6 +514,11 @@ void main() {
           router.go(AppRoutes.moodLoading);
           await tester.pumpAndSettle();
           expect(find.byType(DiscoveryLoadingView), findsOneWidget);
+          expect(find.byType(PreferencesSummary), findsOneWidget);
+          expect(
+            tester.getSize(find.byType(DisplayHeadline).first).height,
+            greaterThan(50),
+          );
           if (width == 390 && locale.languageCode == 'tr') {
             await _captureTypography(tester, 'loading');
           }
@@ -491,20 +536,73 @@ void main() {
           expect(players, isEmpty);
           expect(tester.binding.transientCallbackCount, 0);
           expect(tester.takeException(), isNull);
-          router.pop();
+          expect(find.byIcon(Icons.arrow_back_rounded), findsNothing);
+          await tester.binding.handlePopRoute();
           await tester.pumpAndSettle();
-          expect(discover.state.status, DiscoverRoundStatus.idle);
-          expect(repository.pending!.isCompleted, isFalse);
+          expect(
+            router.routeInformationProvider.value.uri.path,
+            AppRoutes.moodLoading,
+          );
+          expect(discover.state.status, DiscoverRoundStatus.loading);
           repository.pending!.complete([]);
           await tester.pumpAndSettle();
           expect(
             router.routeInformationProvider.value.uri.path,
-            AppRoutes.moodDirection,
+            AppRoutes.moodSession,
           );
+          expect(discover.state.status, DiscoverRoundStatus.failure);
           await tester.pumpWidget(const SizedBox.shrink());
         },
       );
     }
+  }
+
+  for (final appReducedMotion in [false, true]) {
+    testWidgets(
+      'waveform pixels follow the saved motion preference ($appReducedMotion)',
+      (tester) async {
+        final preferences = await SharedPreferences.getInstance();
+        await preferences.setBool(
+          SettingsCubit.reduceMotionKey,
+          appReducedMotion,
+        );
+        await _pump(tester, router, reducedMotion: false);
+        router.go(AppRoutes.moodLoading);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pump(const Duration(milliseconds: 16));
+        final first = await _waveformPixels(tester);
+        await tester.pump(const Duration(milliseconds: 500));
+        final later = await _waveformPixels(tester);
+        expect(
+          later,
+          appReducedMotion ? orderedEquals(first) : isNot(orderedEquals(first)),
+        );
+        if (appReducedMotion) {
+          expect(find.text('Sesler bir araya geliyor.'), findsOneWidget);
+          expect(find.text('Zevkini dinliyoruz.'), findsNothing);
+        } else {
+          expect(find.text('Zevkini dinliyoruz.'), findsOneWidget);
+          await tester.pump(const Duration(milliseconds: 1000));
+          await tester.pump(const Duration(milliseconds: 400));
+          expect(find.text('Yakındaki sesleri arıyoruz.'), findsOneWidget);
+          await tester.pump(const Duration(milliseconds: 1600));
+          expect(find.text('Sesler bir araya geliyor.'), findsOneWidget);
+        }
+        if (appReducedMotion) {
+          await tester
+              .element(find.byType(DiscoveryLoadingView))
+              .read<SettingsCubit>()
+              .setReduceMotion(false);
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 16));
+          await tester.pump(const Duration(milliseconds: 500));
+          expect(await _waveformPixels(tester), isNot(orderedEquals(later)));
+        }
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
   }
 
   testWidgets('waveforms pause in the background during the minimum display', (
@@ -534,6 +632,294 @@ void main() {
     );
     expect(discover.state.tracks.length, 3);
     expect(find.byType(DiscoveryLoadingView), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('empty collection shows only the empty state and one action', (
+    tester,
+  ) async {
+    await _pump(tester, router);
+    router.go(AppRoutes.collection);
+    await tester.pumpAndSettle();
+    expect(find.text('tümü · 0'), findsNothing);
+    expect(find.text('Yeni koleksiyon'), findsNothing);
+    expect(find.text('Zevkimi düzenle'), findsNothing);
+    expect(find.text('Keşfetmeye başla').hitTestable(), findsOneWidget);
+    final subtitleBottom = tester
+        .getBottomLeft(find.text('Bir hisle başlayıp sende kalan şarkılar.'))
+        .dy;
+    final ctaTop = tester.getTopLeft(find.byType(CtaBar)).dy;
+    final emptyCenter = tester.getCenter(find.byType(CollectionEmptyView)).dy;
+    expect(emptyCenter, greaterThan(subtitleBottom));
+    expect(emptyCenter, lessThan(ctaTop));
+    expect(emptyCenter, closeTo((subtitleBottom + ctaTop) / 2, 40));
+    await tester.tap(find.text('Keşfetmeye başla'));
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, AppRoutes.discover);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('collection lists newest songs first and labels their shelf', (
+    tester,
+  ) async {
+    await _pump(tester, router);
+    final older = CuratedDiscoveryRepository.catalog[0];
+    final newer = CuratedDiscoveryRepository.catalog[1];
+    await collection.save(older);
+    await collection.save(newer, newShelfName: 'Gece');
+    router.go(AppRoutes.collection);
+    await tester.pumpAndSettle();
+    expect(find.text('tümü · 2'), findsOneWidget);
+    final newerAt = tester.getTopLeft(find.text(newer.title));
+    final olderAt = tester.getTopLeft(find.text(older.title));
+    expect(
+      newerAt.dy < olderAt.dy ||
+          (newerAt.dy == olderAt.dy && newerAt.dx < olderAt.dx),
+      isTrue,
+    );
+    expect(find.text('Gece'), findsOneWidget);
+    await tester.tap(find.text('Gece · 1'));
+    await tester.pumpAndSettle();
+    expect(find.text('Gece'), findsNothing);
+    expect(find.text(newer.title), findsOneWidget);
+    expect(find.text(older.title), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('collection page creates, renames and deletes collections', (
+    tester,
+  ) async {
+    await _pump(tester, router);
+    await collection.save(CuratedDiscoveryRepository.catalog.first);
+    router.go(AppRoutes.collection);
+    await tester.pumpAndSettle();
+    expect(find.text('tümü · 1'), findsOneWidget);
+    expect(find.text('Yeni koleksiyon'), findsOneWidget);
+    await tester.tap(find.text('Yeni koleksiyon'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Gece');
+    await tester.pump();
+    await tester.tap(find.text('Oluştur'));
+    await tester.pumpAndSettle();
+    expect(find.text('Gece · 0'), findsOneWidget);
+    expect(collection.state.shelves.single.name, 'Gece');
+    await tester.tap(find.text('Yeniden adlandır'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      'Gece',
+    );
+    await tester.enterText(find.byType(TextField), 'Gece yürüyüşü');
+    await tester.pump();
+    await tester.tap(find.text('Tamam'));
+    await tester.pumpAndSettle();
+    expect(find.text('Gece yürüyüşü · 0'), findsOneWidget);
+    await tester.tap(find.text('Yeni koleksiyon'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), ' gece  YÜRÜYÜŞÜ ');
+    await tester.pump();
+    expect(find.text('Bu adda bir koleksiyonun zaten var.'), findsOneWidget);
+    await tester.tap(find.text('Oluştur'));
+    await tester.pumpAndSettle();
+    expect(find.text('Bu adda bir koleksiyonun zaten var.'), findsOneWidget);
+    expect(collection.state.shelves.length, 1);
+    await tester.tap(find.text('Vazgeç'));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField), findsNothing);
+    await tester.tap(find.text('Sil'));
+    await tester.pumpAndSettle();
+    expect(find.text('Bu koleksiyon silinsin mi?'), findsOneWidget);
+    await tester.tap(
+      find.descendant(of: find.byType(Dialog), matching: find.text('Sil')),
+    );
+    await tester.pumpAndSettle();
+    expect(collection.state.shelves, isEmpty);
+    expect(find.text('Gece yürüyüşü · 0'), findsNothing);
+    expect(collection.state.count, 1);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('saving a song can reuse an existing collection', (tester) async {
+    await _pump(tester, router);
+    final shelf = await collection.createShelf('Gece yürüyüşü');
+    router.go(AppRoutes.moodLoading);
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    final track = discover.state.currentTrack!;
+    await tester.ensureVisible(find.text('Kaydet'));
+    await tester.tap(find.text('Kaydet'));
+    await tester.pumpAndSettle();
+    expect(find.text('Gece yürüyüşü'), findsOneWidget);
+    await tester.tap(find.text('Gece yürüyüşü'));
+    await tester.pumpAndSettle();
+    expect(collection.state.assignments[track.id], shelf!.id);
+    expect(collection.state.shelves.length, 1);
+    expect(
+      tester.getCenter(find.text('Geri al')).dy,
+      closeTo(
+        tester.getCenter(find.text('Gece yürüyüşü koleksiyonuna eklendi')).dy,
+        2,
+      ),
+    );
+    await tester.tap(find.text('Geri al'));
+    await tester.pumpAndSettle();
+    expect(collection.state.contains(track.id), isFalse);
+    await tester.ensureVisible(find.text('Kaydet'));
+    await tester.tap(find.text('Kaydet'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Yalnızca tüm şarkılarda'));
+    await tester.pumpAndSettle();
+    expect(collection.state.contains(track.id), isTrue);
+    expect(collection.state.assignments.containsKey(track.id), isFalse);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('loading blocks arrow-less back and system back', (tester) async {
+    repository.pending = Completer<List<Track>>();
+    await _pump(tester, router);
+    router.go(AppRoutes.moodLoading);
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.arrow_back_rounded), findsNothing);
+    expect(await tester.binding.handlePopRoute(), isTrue);
+    await tester.pumpAndSettle();
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      AppRoutes.moodLoading,
+    );
+    expect(discover.state.status, DiscoverRoundStatus.loading);
+    repository.pending!.complete(
+      CuratedDiscoveryRepository.catalog.take(3).toList(),
+    );
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      AppRoutes.moodSession,
+    );
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('song page back returns to the discover home', (tester) async {
+    await _pump(tester, router);
+    router.go(AppRoutes.moodLoading);
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      AppRoutes.moodSession,
+    );
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, AppRoutes.discover);
+    expect(find.text('Son keşfin').hitTestable(), findsOneWidget);
+    await tester.tap(find.text('Son keşfin'));
+    await tester.pumpAndSettle();
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      AppRoutes.moodSession,
+    );
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, AppRoutes.discover);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('song page cannot be left while a new round is loading', (
+    tester,
+  ) async {
+    await _pump(tester, router);
+    router.go(AppRoutes.moodLoading);
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    repository.pending = Completer<List<Track>>();
+    final round = discover.startRound();
+    await tester.pumpAndSettle();
+    expect(discover.state.status, DiscoverRoundStatus.loading);
+    expect(find.byIcon(Icons.arrow_back_rounded), findsNothing);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      AppRoutes.moodSession,
+    );
+    repository.pending!.complete(
+      CuratedDiscoveryRepository.catalog.take(3).toList(),
+    );
+    await round;
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.arrow_back_rounded), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  test('a hung request ends loading with a failure', () async {
+    final hung = _DiscoveryRepository()..pending = Completer<List<Track>>();
+    final cubit = DiscoverCubit(
+      hung,
+      requestTimeout: const Duration(milliseconds: 20),
+    );
+    await cubit.startRound();
+    expect(cubit.state.status, DiscoverRoundStatus.failure);
+    await cubit.close();
+  });
+
+  testWidgets('tab switches keep each branch stack and re-tap resets it', (
+    tester,
+  ) async {
+    await _pump(tester, router);
+    router.go(AppRoutes.mood);
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, AppRoutes.mood);
+    Finder tab(String label) => find.descendant(
+      of: find.byType(HomeNavBar),
+      matching: find.text(label),
+    );
+    await tester.tap(tab('koleksiyon'));
+    await tester.pumpAndSettle();
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      AppRoutes.collection,
+    );
+    await tester.tap(tab('keşfet'));
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, AppRoutes.mood);
+    await tester.tap(tab('keşfet'));
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, AppRoutes.discover);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('rapid tab taps settle on the last tab without glitches', (
+    tester,
+  ) async {
+    await _pump(tester, router, reducedMotion: false);
+    Finder tab(String label) => find.descendant(
+      of: find.byType(HomeNavBar),
+      matching: find.text(label),
+    );
+    await tester.tap(tab('koleksiyon'));
+    await tester.pump(const Duration(milliseconds: 60));
+    await tester.tap(tab('ayarlar'));
+    await tester.pump(const Duration(milliseconds: 60));
+    await tester.tap(tab('keşfet'));
+    await tester.pump(const Duration(milliseconds: 60));
+    await tester.tap(tab('ayarlar'));
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, AppRoutes.settings);
+    expect(find.byType(SettingsPage).hitTestable(), findsOneWidget);
+    expect(find.byType(CollectionPage).hitTestable(), findsNothing);
+    expect(find.byType(DiscoverHomePage).hitTestable(), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());
   });
@@ -582,12 +968,9 @@ void main() {
       AppRoutes.moodSession,
     );
     expect(players.single.playing, isTrue);
-    router.pop();
+    await tester.tap(find.byIcon(Icons.arrow_back_rounded));
     await tester.pumpAndSettle();
-    expect(
-      router.routeInformationProvider.value.uri.path,
-      AppRoutes.moodDirection,
-    );
+    expect(router.routeInformationProvider.value.uri.path, AppRoutes.discover);
     expect(find.byType(DiscoveryLoadingPage), findsNothing);
     await tester.pumpWidget(const SizedBox.shrink());
   });
@@ -603,7 +986,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('İlk şarkımı bul'));
       await tester.pumpAndSettle();
-      router.pop();
+      router.go(AppRoutes.moodDirection);
       await tester.pumpAndSettle();
       expect(discover.state.status, DiscoverRoundStatus.idle);
       expect(
@@ -930,4 +1313,20 @@ Future<void> _captureTypography(WidgetTester tester, String name) async {
     ).writeAsBytesSync(bytes!.buffer.asUint8List());
     image.dispose();
   });
+}
+
+Future<List<int>> _waveformPixels(WidgetTester tester) async {
+  final boundary = tester.renderObject<RenderRepaintBoundary>(
+    find.descendant(
+      of: find.byType(DiscoveryLoadingView),
+      matching: find.byType(RepaintBoundary),
+    ),
+  );
+  return (await tester.runAsync(() async {
+    final image = await boundary.toImage();
+    final data = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    final pixels = data!.buffer.asUint8List().toList();
+    image.dispose();
+    return pixels;
+  }))!;
 }

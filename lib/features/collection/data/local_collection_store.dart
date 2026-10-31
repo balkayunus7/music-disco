@@ -17,10 +17,13 @@ class LocalCollectionStore implements ICollectionStore {
   @override
   CollectionSnapshot read() {
     final tracks = <Track>[];
-    final shelves = <String, CollectionShelf>{};
+    var shelves = <CollectionShelf>[];
+    var assignments = <String, String>{};
     try {
       final value = preferences.getString(key);
-      if (value == null) return (tracks: tracks, shelves: shelves);
+      if (value == null) {
+        return (tracks: tracks, shelves: shelves, assignments: assignments);
+      }
       final data = jsonDecode(value) as Map<String, dynamic>;
       for (final row in data['tracks'] as List) {
         // A damaged entry must not hide the rest of a listener's collection.
@@ -50,17 +53,61 @@ class LocalCollectionStore implements ICollectionStore {
           continue;
         }
       }
-      for (final entry in (data['shelves'] as Map<String, dynamic>).entries) {
-        if (!tracks.any((track) => track.id == entry.key)) continue;
-        final shelf = CollectionShelf.values
-            .where((s) => s.name == entry.value)
-            .firstOrNull;
-        if (shelf != null) shelves[entry.key] = shelf;
+      try {
+        final restored = _readShelves(data, tracks);
+        shelves = restored.shelves;
+        assignments = restored.assignments;
+      } on Object {
+        shelves = [];
+        assignments = {};
       }
     } on Object {
       // Keep readable entries; never replace corrupt storage during startup.
     }
-    return (tracks: tracks, shelves: shelves);
+    return (tracks: tracks, shelves: shelves, assignments: assignments);
+  }
+
+  static const Map<String, String> _legacyShelfNames = {
+    'nightWalk': 'Night walk',
+    'slowMornings': 'Slow mornings',
+  };
+
+  ({List<CollectionShelf> shelves, Map<String, String> assignments})
+  _readShelves(Map<String, dynamic> data, List<Track> tracks) {
+    final shelves = <CollectionShelf>[];
+    final assignments = <String, String>{};
+    final raw = data['shelves'];
+    bool hasTrack(String id) => tracks.any((track) => track.id == id);
+    if (raw is Map<String, dynamic>) {
+      for (final entry in raw.entries) {
+        final name = _legacyShelfNames[entry.value];
+        if (name == null || !hasTrack(entry.key)) continue;
+        final id = 'legacy_${entry.value}';
+        if (!shelves.any((shelf) => shelf.id == id)) {
+          shelves.add(CollectionShelf(id: id, name: name));
+        }
+        assignments[entry.key] = id;
+      }
+      return (shelves: shelves, assignments: assignments);
+    }
+    for (final row in raw as List? ?? const []) {
+      final id = row['id'];
+      final name = row['name'];
+      if (id is! String || name is! String) continue;
+      if (shelves.any((shelf) => shelf.id == id)) continue;
+      shelves.add(CollectionShelf(id: id, name: name));
+    }
+    final stored = data['assignments'];
+    if (stored is Map<String, dynamic>) {
+      for (final entry in stored.entries) {
+        final shelfId = entry.value;
+        if (shelfId is! String || !hasTrack(entry.key)) continue;
+        if (shelves.any((shelf) => shelf.id == shelfId)) {
+          assignments[entry.key] = shelfId;
+        }
+      }
+    }
+    return (shelves: shelves, assignments: assignments);
   }
 
   @override
@@ -84,9 +131,11 @@ class LocalCollectionStore implements ICollectionStore {
               'youtubeId': t.youtubeId,
             },
         ],
-        'shelves': snapshot.shelves.map(
-          (id, shelf) => MapEntry(id, shelf.name),
-        ),
+        'shelves': [
+          for (final shelf in snapshot.shelves)
+            {'id': shelf.id, 'name': shelf.name},
+        ],
+        'assignments': snapshot.assignments,
       }),
     );
     if (!saved) throw StateError('Collection could not be saved');

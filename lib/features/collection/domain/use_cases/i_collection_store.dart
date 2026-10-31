@@ -1,9 +1,10 @@
-import 'package:music_disco/features/discover/domain/models/track.dart';
 import 'package:music_disco/features/collection/domain/models/collection_shelf.dart';
+import 'package:music_disco/features/discover/domain/models/track.dart';
 
 typedef CollectionSnapshot = ({
   List<Track> tracks,
-  Map<String, CollectionShelf> shelves,
+  List<CollectionShelf> shelves,
+  Map<String, String> assignments,
 });
 
 abstract interface class ICollectionStore {

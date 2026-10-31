@@ -9,11 +9,13 @@ class DisplayHeadline extends StatelessWidget {
     required this.first,
     this.second = '',
     this.role = HeadlineRole.general,
+    this.stacked = false,
   });
 
   final String first;
   final String second;
   final HeadlineRole role;
+  final bool stacked;
 
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -34,7 +36,7 @@ class DisplayHeadline extends StatelessWidget {
                 TextSpan(text: first),
                 if (second.isNotEmpty)
                   TextSpan(
-                    text: ' $second',
+                    text: stacked ? '\n$second' : ' $second',
                     style: style.copyWith(
                       color: loading
                           ? context.loadingMutedText
@@ -43,7 +45,7 @@ class DisplayHeadline extends StatelessWidget {
                   ),
               ],
             ),
-            maxLines: 1,
+            maxLines: stacked && second.isNotEmpty ? 2 : 1,
             softWrap: false,
             overflow: TextOverflow.ellipsis,
           ),

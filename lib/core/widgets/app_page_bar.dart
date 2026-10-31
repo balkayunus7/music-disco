@@ -12,6 +12,7 @@ class AppPageBar extends StatelessWidget {
     super.key,
     required this.title,
     this.showBackButton = false,
+    this.onBack,
     this.actionIcon,
     this.actionLabel,
     this.onAction,
@@ -22,6 +23,7 @@ class AppPageBar extends StatelessWidget {
 
   final String title;
   final bool showBackButton;
+  final VoidCallback? onBack;
   final IconData? actionIcon;
   final String? actionLabel;
   final VoidCallback? onAction;
@@ -31,7 +33,7 @@ class AppPageBar extends StatelessWidget {
     height: Sp.cont.r,
     child: Row(
       children: [
-        if (showBackButton) ...[const PageBackButton(), Sp.xsmall.widthBox],
+        if (showBackButton) PageBackButton(onBack: onBack),
         Expanded(
           child: Semantics(
             header: true,

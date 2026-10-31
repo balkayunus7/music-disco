@@ -24,6 +24,7 @@ import 'package:music_disco/features/discover/domain/models/reference_aspect.dar
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
 import 'package:music_disco/features/discover/presentation/widgets/distance_slider.dart';
 import 'package:music_disco/features/discover/presentation/widgets/mood_disc.dart';
+import 'package:music_disco/features/discover/presentation/widgets/preferences_summary.dart';
 import 'package:music_disco/features/discover/presentation/widgets/reference_avatar.dart';
 
 part '../widgets/direction_card.dart';
@@ -108,7 +109,7 @@ class _DirectionPageState extends State<DirectionPage>
         ),
         DistanceSliderLabels(value: preferences.distance),
         Sp.large.heightBox,
-        DirectionSummary(preferences: preferences),
+        PreferencesSummary(preferences: preferences),
       ],
     );
   }

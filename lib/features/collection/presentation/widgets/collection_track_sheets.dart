@@ -56,8 +56,8 @@ class _CollectionPlayerSheetState extends State<CollectionPlayerSheet> {
 }
 
 class CollectionTrackAction {
-  const CollectionTrackAction({this.shelf, this.remove = false});
-  final CollectionShelf? shelf;
+  const CollectionTrackAction({this.pick, this.remove = false});
+  final ShelfPick? pick;
   final bool remove;
 }
 
@@ -65,10 +65,10 @@ class CollectionTrackSheet extends StatelessWidget {
   const CollectionTrackSheet({
     super.key,
     required this.track,
-    required this.shelf,
+    required this.collection,
   });
   final Track track;
-  final CollectionShelf? shelf;
+  final CollectionState collection;
 
   @override
   Widget build(BuildContext context) => SafeArea(
@@ -87,22 +87,12 @@ class CollectionTrackSheet extends StatelessWidget {
             ).copyWith(color: context.colors.textSecondary),
           ),
           Sp.small.heightBox,
-          for (final choice in <CollectionShelf?>[
-            null,
-            ...CollectionShelf.values,
-          ])
-            SheetOptionTile(
-              label: (switch (choice) {
-                null => LocaleKeys.collection_no_shelf,
-                CollectionShelf.nightWalk => LocaleKeys.collection_night_walk,
-                CollectionShelf.slowMornings =>
-                  LocaleKeys.collection_slow_mornings,
-              }).tr(),
-              isSelected: choice == shelf,
-              onTap: () => Navigator.of(
-                context,
-              ).pop(CollectionTrackAction(shelf: choice)),
-            ),
+          ShelfOptions(
+            collection: collection,
+            selectedId: collection.assignments[track.id],
+            onPicked: (pick) =>
+                Navigator.of(context).pop(CollectionTrackAction(pick: pick)),
+          ),
           Divider(color: context.colors.border),
           SheetOptionTile(
             label: LocaleKeys.collection_remove.tr(),

@@ -10,6 +10,7 @@ class BrandPageBody extends StatelessWidget {
     required this.appBar,
     required this.children,
     this.footer,
+    this.fillRemaining,
     this.loading = false,
     this.contentTopSpacing = Sp.medium,
   });
@@ -21,6 +22,7 @@ class BrandPageBody extends StatelessWidget {
   final List<Widget> children;
 
   final Widget? footer;
+  final Widget? fillRemaining;
 
   @override
   Widget build(BuildContext context) {
@@ -29,18 +31,50 @@ class BrandPageBody extends StatelessWidget {
     final horizontal = loading
         ? (narrow ? Sp.narrowLoadingScreen : Sp.loadingScreen)
         : (narrow ? Sp.narrowScreen : Sp.screen);
-    final scroll = SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(
-        horizontal,
-        contentTopSpacing.h,
-        horizontal,
-        Sp.xxlarge.h,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: children,
-      ),
-    );
+    final fill = fillRemaining;
+    final scroll = fill == null
+        ? SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              horizontal,
+              contentTopSpacing.h,
+              horizontal,
+              Sp.xxlarge.h,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: children,
+            ),
+          )
+        : CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: EdgeInsets.fromLTRB(
+                  horizontal,
+                  contentTopSpacing.h,
+                  horizontal,
+                  0,
+                ),
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: children,
+                  ),
+                ),
+              ),
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontal,
+                    Sp.xlarge.h,
+                    horizontal,
+                    Sp.xxlarge.h,
+                  ),
+                  child: fill,
+                ),
+              ),
+            ],
+          );
     return ColoredBox(
       color: context.colors.background,
       child: SafeArea(

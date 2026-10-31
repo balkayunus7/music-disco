@@ -9,6 +9,7 @@ import 'package:music_disco/core/widgets/app_page_bar.dart';
 import 'package:music_disco/core/widgets/brand_page_body.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
 import 'package:music_disco/features/discover/presentation/widgets/discovery_loading_view.dart';
+import 'package:music_disco/features/discover/presentation/widgets/preferences_summary.dart';
 import 'package:music_disco/features/taste/bloc/taste_cubit.dart';
 
 class DiscoveryLoadingPage extends StatefulWidget {
@@ -61,18 +62,14 @@ class _DiscoveryLoadingPageState extends State<DiscoveryLoadingPage>
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      onPopInvokedWithResult: (didPop, result) {
-        if (didPop) _discover.cancelLoadingRound();
-      },
+      canPop: false,
       child: BlocConsumer<DiscoverCubit, DiscoverState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) => _openResults(),
         builder: (context, state) => BrandPageBody(
           loading: true,
-          appBar: AppPageBar(
-            title: LocaleKeys.discovery_loading_step.tr(),
-            showBackButton: true,
-          ),
+          footer: PreferencesSummary(preferences: state.preferences),
+          appBar: AppPageBar(title: LocaleKeys.discovery_loading_step.tr()),
           children: [
             DiscoveryLoadingView(
               isSearching:

@@ -4,19 +4,15 @@ class CollectionShelfChips extends StatelessWidget {
   const CollectionShelfChips({
     super.key,
     required this.collection,
-    required this.selected,
+    required this.selectedId,
     required this.onSelected,
+    required this.onCreate,
   });
 
   final CollectionState collection;
-  final CollectionShelf? selected;
-  final ValueChanged<CollectionShelf?> onSelected;
-
-  static String _labelKey(CollectionShelf? shelf) => switch (shelf) {
-    null => LocaleKeys.collection_all,
-    CollectionShelf.nightWalk => LocaleKeys.shelf_night_walk,
-    CollectionShelf.slowMornings => LocaleKeys.shelf_slow_mornings,
-  };
+  final String? selectedId;
+  final ValueChanged<String?> onSelected;
+  final VoidCallback onCreate;
 
   @override
   Widget build(BuildContext context) {
@@ -24,15 +20,57 @@ class CollectionShelfChips extends StatelessWidget {
       spacing: Sp.xsmall.w,
       runSpacing: Sp.xsmall.h,
       children: [
-        for (final shelf in <CollectionShelf?>[null, ...CollectionShelf.values])
+        ChoiceTile(
+          label: LocaleKeys.collection_all.tr(args: ['${collection.count}']),
+          isExpanded: false,
+          isSelected: selectedId == null,
+          onTap: () => onSelected(null),
+        ),
+        for (final shelf in collection.shelves)
           ChoiceTile(
-            label: _labelKey(
-              shelf,
-            ).tr(args: ['${collection.tracksIn(shelf).length}']),
+            key: ValueKey(shelf.id),
+            label: '${shelf.name} · ${collection.countIn(shelf.id)}',
             isExpanded: false,
-            isSelected: shelf == selected,
-            onTap: () => onSelected(shelf),
+            isSelected: shelf.id == selectedId,
+            onTap: () => onSelected(shelf.id),
           ),
+        ChoiceTile(
+          label: LocaleKeys.collection_new.tr(),
+          icon: Icons.add_rounded,
+          isExpanded: false,
+          isSelected: false,
+          onTap: onCreate,
+        ),
+      ],
+    );
+  }
+}
+
+class CollectionShelfActions extends StatelessWidget {
+  const CollectionShelfActions({
+    super.key,
+    required this.onRename,
+    required this.onDelete,
+  });
+
+  final VoidCallback onRename;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      spacing: Sp.medium.w,
+      children: [
+        TextLink(
+          text: LocaleKeys.collection_rename.tr(),
+          trailingIcon: Icons.edit_outlined,
+          onTap: onRename,
+        ),
+        TextLink(
+          text: LocaleKeys.collection_delete.tr(),
+          trailingIcon: Icons.delete_outline_rounded,
+          onTap: onDelete,
+        ),
       ],
     );
   }

@@ -2,7 +2,7 @@
 
 // ignore_for_file: constant_identifier_names
 
-abstract class  LocaleKeys {
+abstract class LocaleKeys {
   static const app_name = 'app_name';
   static const starting = 'starting';
   static const welcome = 'welcome';
@@ -174,15 +174,15 @@ abstract class  LocaleKeys {
   static const reference_summary_atmosphere = 'reference_summary_atmosphere';
   static const reference_summary_vocals = 'reference_summary_vocals';
   static const reference_summary_rhythm = 'reference_summary_rhythm';
-  static const reference_summary_overall_style = 'reference_summary_overall_style';
+  static const reference_summary_overall_style =
+      'reference_summary_overall_style';
   static const reference_continue = 'reference_continue';
   static const reference_pick_first = 'reference_pick_first';
   static const direction_reference_sound = 'direction_reference_sound';
   static const collection_all = 'collection_all';
-  static const shelf_night_walk = 'shelf_night_walk';
-  static const shelf_slow_mornings = 'shelf_slow_mornings';
   static const collection_shelf_empty = 'collection_shelf_empty';
   static const collection_back_to_discover = 'collection_back_to_discover';
+  static const collection_start_discovering = 'collection_start_discovering';
   static const nav_settings = 'nav_settings';
   static const settings_eyebrow = 'settings_eyebrow';
   static const settings_listener = 'settings_listener';
@@ -195,7 +195,8 @@ abstract class  LocaleKeys {
   static const settings_song_language = 'settings_song_language';
   static const settings_application = 'settings_application';
   static const settings_reduce_motion = 'settings_reduce_motion';
-  static const settings_reduce_motion_caption = 'settings_reduce_motion_caption';
+  static const settings_reduce_motion_caption =
+      'settings_reduce_motion_caption';
   static const settings_about = 'settings_about';
   static const settings_about_body = 'settings_about_body';
   static const settings_name = 'settings_name';
@@ -212,18 +213,22 @@ abstract class  LocaleKeys {
   static const settings_restore_unavailable = 'settings_restore_unavailable';
   static const discovery_continue = 'discovery_continue';
   static const discovery_loading_step = 'discovery_loading_step';
-  static const discovery_loading_eyebrow = 'discovery_loading_eyebrow';
   static const discovery_loading_title_first = 'discovery_loading_title_first';
-  static const discovery_loading_title_second = 'discovery_loading_title_second';
+  static const discovery_loading_title_second =
+      'discovery_loading_title_second';
   static const discovery_loading_subtitle = 'discovery_loading_subtitle';
+  static const discovery_loading_status_listen =
+      'discovery_loading_status_listen';
+  static const discovery_loading_status_search =
+      'discovery_loading_status_search';
   static const discovery_loading_status = 'discovery_loading_status';
-  static const discovery_loading_footnote = 'discovery_loading_footnote';
   static const discovery_listen_now = 'discovery_listen_now';
   static const discovery_customize = 'discovery_customize';
   static const session_no_alternative = 'session_no_alternative';
   static const session_request_failed = 'session_request_failed';
   static const session_short_round = 'session_short_round';
   static const session_completed = 'session_completed';
+  static const session_completed_step = 'session_completed_step';
   static const session_summary = 'session_summary';
   static const session_new_round = 'session_new_round';
   static const session_listen_saved = 'session_listen_saved';
@@ -236,9 +241,24 @@ abstract class  LocaleKeys {
   static const collection_remove = 'collection_remove';
   static const collection_removed = 'collection_removed';
   static const collection_no_shelf = 'collection_no_shelf';
-  static const collection_night_walk = 'collection_night_walk';
-  static const collection_slow_mornings = 'collection_slow_mornings';
   static const collection_show_all = 'collection_show_all';
+  static const collection_new = 'collection_new';
+  static const collection_save_to = 'collection_save_to';
+  static const collection_save_hint = 'collection_save_hint';
+  static const collection_saved_to = 'collection_saved_to';
+  static const collection_dialog_new_title = 'collection_dialog_new_title';
+  static const collection_dialog_rename_title =
+      'collection_dialog_rename_title';
+  static const collection_name_hint = 'collection_name_hint';
+  static const collection_create = 'collection_create';
+  static const collection_rename = 'collection_rename';
+  static const collection_rename_confirm = 'collection_rename_confirm';
+  static const collection_delete = 'collection_delete';
+  static const collection_delete_title = 'collection_delete_title';
+  static const collection_delete_message = 'collection_delete_message';
+  static const collection_name_taken = 'collection_name_taken';
+  static const collection_name_too_long = 'collection_name_too_long';
+  static const cancel = 'cancel';
   static const track_note_turkish_pop = 'track_note_turkish_pop';
   static const track_note_turkish_calm = 'track_note_turkish_calm';
   static const track_note_turkish_rock = 'track_note_turkish_rock';
@@ -246,5 +266,4 @@ abstract class  LocaleKeys {
   static const studio_taste_title = 'studio_taste_title';
   static const studio_taste_edit = 'studio_taste_edit';
   static const mood_flow_hint = 'mood_flow_hint';
-
 }

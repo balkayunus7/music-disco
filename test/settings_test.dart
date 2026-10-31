@@ -19,6 +19,7 @@ import 'package:mobile_boilerplate/domain/color_theme/color_theme_option.dart';
 import 'package:mobile_boilerplate/presentation/app_colors.dart';
 import 'package:music_disco/core/util/custom_app_colors.dart';
 import 'package:music_disco/core/widgets/app_page_bar.dart';
+import 'package:music_disco/core/widgets/round_icon_button.dart';
 import 'package:music_disco/core/widgets/brand_page_body.dart';
 import 'package:music_disco/config/app_router.dart';
 import 'package:music_disco/config/app_routes.dart';
@@ -205,6 +206,30 @@ void main() {
             tester.widget<Text>(find.text('Root')).style,
           );
         }
+        for (final i in [1, 2]) {
+          expect(
+            tester
+                .getTopLeft(
+                  find.descendant(
+                    of: bars.at(i),
+                    matching: find.byIcon(Icons.arrow_back_rounded),
+                  ),
+                )
+                .dx,
+            tester.getTopLeft(bars.at(i)).dx,
+          );
+        }
+        expect(
+          tester
+              .getBottomRight(
+                find.descendant(
+                  of: find.byType(RoundIconButton),
+                  matching: find.byType(Container),
+                ),
+              )
+              .dx,
+          tester.getBottomRight(bars.at(2)).dx,
+        );
         await tester.tap(find.bySemanticsLabel('Tune'));
         expect(actions, 1);
         expect(tester.takeException(), isNull);

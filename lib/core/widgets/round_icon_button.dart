@@ -25,7 +25,8 @@ class RoundIconButton extends StatelessWidget {
       haptic: TapHaptic.selection,
       child: SizedBox.square(
         dimension: Sp.xxxlarge.r,
-        child: Center(
+        child: Align(
+          alignment: Alignment.centerRight,
           child: Container(
             width: size,
             height: size,

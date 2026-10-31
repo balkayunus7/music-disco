@@ -4,17 +4,20 @@ import 'dart:math' as math;
 abstract final class SoundTraceMotion {
   static const rowCount = 5;
   static const barsPerRow = 49;
-  static const cycle = Duration(seconds: 8);
+  static const cycle = Duration(seconds: 5);
 
   static List<SoundTraceBar> sampleRow(
     int row,
     double elapsedMilliseconds, {
     bool reducedMotion = false,
   }) {
-    final seconds = elapsedMilliseconds / 1000;
+    // Fit the reference's eight-second choreography into the visible hold.
+    final referenceMilliseconds =
+        elapsedMilliseconds * 8000 / cycle.inMilliseconds;
+    final seconds = referenceMilliseconds / 1000;
     final blend = reducedMotion
         ? 1.0
-        : ((elapsedMilliseconds - 1500 - row * 850) / 1500).clamp(0.0, 1.0);
+        : ((referenceMilliseconds - 1500 - row * 850) / 1500).clamp(0.0, 1.0);
     return List.generate(barsPerRow, (column) {
       final x = column / (barsPerRow - 1);
       final shape =

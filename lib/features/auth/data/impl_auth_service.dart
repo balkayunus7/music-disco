@@ -13,8 +13,12 @@ import 'package:supabase/supabase.dart' as supabase show Session;
 import 'package:supabase/supabase.dart' hide Session;
 
 class ImplAuthService extends IAuthService {
-  ImplAuthService(this._supabaseClient, this._secureStorage, this._rateLimiter, {required String projectUrl})
-    : _sessionKey = 'music_disco.${Uri.parse(projectUrl).host}.session';
+  ImplAuthService(
+    this._supabaseClient,
+    this._secureStorage,
+    this._rateLimiter, {
+    required String projectUrl,
+  }) : _sessionKey = 'music_disco.${Uri.parse(projectUrl).host}.session';
 
   final String _sessionKey;
   final _sessionInvalidated = StreamController<void>.broadcast();
@@ -26,7 +30,9 @@ class ImplAuthService extends IAuthService {
   Stream<void> get sessionInvalidated => _sessionInvalidated.stream;
 
   @override
-  Future<void> listenAuthChanges({SessionRefreshCallback? onSessionRefreshed}) async {
+  Future<void> listenAuthChanges({
+    SessionRefreshCallback? onSessionRefreshed,
+  }) async {
     await _authSubscription?.cancel();
     _authSubscription = supabaseClient.auth.onAuthStateChange.listen((data) {
       final session = data.session;
@@ -61,7 +67,9 @@ class ImplAuthService extends IAuthService {
         return left(const NotFoundFailure());
       }
 
-      final recoveredSession = (await supabaseClient.auth.recoverSession(sessionJson)).session;
+      final recoveredSession = (await supabaseClient.auth.recoverSession(
+        sessionJson,
+      )).session;
       if (recoveredSession == null) return left(const UnauthorizedFailure());
       await _saveSession(recoveredSession);
       return right(_toAuthSession(recoveredSession));
@@ -92,8 +100,8 @@ class ImplAuthService extends IAuthService {
   }
 
   @override
-  Future<FailureOr<AuthSession>> signInAnonymously() =>
-      _pendingSignIn ??= _signInAnonymously().whenComplete(() => _pendingSignIn = null);
+  Future<FailureOr<AuthSession>> signInAnonymously() => _pendingSignIn ??=
+      _signInAnonymously().whenComplete(() => _pendingSignIn = null);
 
   Future<FailureOr<AuthSession>> _signInAnonymously() async {
     if (supabaseClient.auth.currentSession != null) return getCurrentSession();
@@ -116,10 +124,12 @@ class ImplAuthService extends IAuthService {
   Future<FailureOr<Unit>> signOutAnonymously() => clearSession();
 
   @override
-  Future<FailureOr<AuthSession>> signInWithApple() async => left(const ForbiddenFailure());
+  Future<FailureOr<AuthSession>> signInWithApple() async =>
+      left(const ForbiddenFailure());
 
   @override
-  Future<FailureOr<AuthSession>> signInWithGoogle() async => left(const ForbiddenFailure());
+  Future<FailureOr<AuthSession>> signInWithGoogle() async =>
+      left(const ForbiddenFailure());
 
   @override
   Future<FailureOr<Unit>> signOutApple() => clearSession();
@@ -138,12 +148,20 @@ class ImplAuthService extends IAuthService {
   }
 
   AuthSession _toAuthSession(supabase.Session session) {
-    return AuthSession(userId: session.user.id, idToken: session.accessToken, provider: domain.AuthProvider.anonymous);
+    return AuthSession(
+      userId: session.user.id,
+      idToken: session.accessToken,
+      provider: domain.AuthProvider.anonymous,
+    );
   }
 
   bool _isInvalidSession(AuthException error) =>
       error.statusCode == '401' ||
-      {'refresh_token_not_found', 'refresh_token_already_used', 'session_not_found'}.contains(error.code);
+      {
+        'refresh_token_not_found',
+        'refresh_token_already_used',
+        'session_not_found',
+      }.contains(error.code);
 
   bool _isValidStoredSession(String sessionJson) {
     try {
@@ -157,10 +175,15 @@ class ImplAuthService extends IAuthService {
     }
   }
 
-  Future<void> _saveSession(supabase.Session session) =>
-      _enqueueWrite(() => secureStorage.write(key: _sessionKey, value: jsonEncode(session.toJson())));
+  Future<void> _saveSession(supabase.Session session) => _enqueueWrite(
+    () => secureStorage.write(
+      key: _sessionKey,
+      value: jsonEncode(session.toJson()),
+    ),
+  );
 
-  Future<void> _clearSession() => _enqueueWrite(() => secureStorage.delete(key: _sessionKey));
+  Future<void> _clearSession() =>
+      _enqueueWrite(() => secureStorage.delete(key: _sessionKey));
 
   Future<void> _enqueueWrite(Future<void> Function() operation) {
     final write = _pendingWrite.then((_) => operation());

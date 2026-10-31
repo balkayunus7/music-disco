@@ -36,12 +36,17 @@ void showAppSnackBar(
                   messenger.hideCurrentSnackBar();
                   onAction();
                 },
-                child: Text(
-                  actionLabel,
-                  style: bodyTextStyle(context).copyWith(
-                    fontWeight: FontWeight.w700,
-                    decoration: TextDecoration.underline,
-                    decorationColor: context.colors.textPrimary,
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: Sp.small.w),
+                    child: Text(
+                      actionLabel,
+                      style: bodyTextStyle(context).copyWith(
+                        fontWeight: FontWeight.w700,
+                        decoration: TextDecoration.underline,
+                        decorationColor: context.colors.textPrimary,
+                      ),
+                    ),
                   ),
                 ),
               ),

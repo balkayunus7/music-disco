@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -9,7 +10,6 @@ import 'package:music_disco/core/util/custom_app_colors.dart';
 import 'package:music_disco/core/widgets/display_headline.dart';
 import 'package:music_disco/core/util/locale_keys.dart';
 import 'package:music_disco/core/util/text_style_helper.dart';
-import 'package:music_disco/core/widgets/eyebrow_text.dart';
 import 'package:music_disco/features/discover/presentation/sound_trace_motion.dart';
 
 part 'sound_trace_rows.dart';
@@ -24,11 +24,25 @@ class DiscoveryLoadingView extends StatefulWidget {
 }
 
 class _DiscoveryLoadingViewState extends State<DiscoveryLoadingView>
-    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late final AnimationController _trace = AnimationController(
     vsync: this,
     duration: SoundTraceMotion.cycle,
   );
+  late final AnimationController _pulse = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+    value: 1,
+  );
+  static const _statusKeys = [
+    LocaleKeys.discovery_loading_status_listen,
+    LocaleKeys.discovery_loading_status_search,
+    LocaleKeys.discovery_loading_status,
+  ];
+  static const _statusInterval = Duration(milliseconds: 1500);
+
+  Timer? _statusTimer;
+  int _status = 0;
   bool _reducedMotion = false;
   bool _tickerEnabled = true;
   bool _foreground = true;
@@ -45,6 +59,7 @@ class _DiscoveryLoadingViewState extends State<DiscoveryLoadingView>
   void didChangeDependencies() {
     super.didChangeDependencies();
     _reducedMotion = MediaQuery.disableAnimationsOf(context);
+    if (_reducedMotion) _status = _statusKeys.length - 1;
     _tickerEnabled = TickerMode.of(context);
     _syncAnimation();
   }
@@ -67,15 +82,34 @@ class _DiscoveryLoadingViewState extends State<DiscoveryLoadingView>
         _tickerEnabled &&
         _foreground) {
       if (!_trace.isAnimating) _trace.repeat(reverse: true);
+      if (!_pulse.isAnimating) _pulse.repeat(reverse: true);
+      if (_statusTimer == null && _status < _statusKeys.length - 1) {
+        _statusTimer = Timer.periodic(_statusInterval, _onStatusTick);
+      }
     } else {
+      _statusTimer?.cancel();
+      _statusTimer = null;
       _trace.stop();
+      _pulse.stop();
+      _pulse.value = 1;
+    }
+  }
+
+  void _onStatusTick(Timer timer) {
+    if (!mounted) return;
+    setState(() => _status++);
+    if (_status >= _statusKeys.length - 1) {
+      timer.cancel();
+      _statusTimer = null;
     }
   }
 
   @override
   void dispose() {
+    _statusTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _trace.dispose();
+    _pulse.dispose();
     super.dispose();
   }
 
@@ -87,21 +121,16 @@ class _DiscoveryLoadingViewState extends State<DiscoveryLoadingView>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Sp.xxlarge.heightBox,
-        EyebrowText(
-          LocaleKeys.discovery_loading_eyebrow.tr(),
-          color: context.colors.textDisabled,
-          loading: true,
-        ),
-        Sp.medium.heightBox,
+        SizedBox(height: MediaQuery.sizeOf(context).height * 0.05),
         DisplayHeadline(
           first: LocaleKeys.discovery_loading_title_first.tr(),
           second: LocaleKeys.discovery_loading_title_second.tr(),
           role: HeadlineRole.loading,
+          stacked: true,
         ),
         Sp.large.heightBox,
         Text(LocaleKeys.discovery_loading_subtitle.tr(), style: bodyStyle),
-        Sp.xxlarge.heightBox,
+        Sp.xlarge.heightBox,
         ExcludeSemantics(
           child: RepaintBoundary(
             child: _SoundTraceRows(
@@ -110,39 +139,53 @@ class _DiscoveryLoadingViewState extends State<DiscoveryLoadingView>
             ),
           ),
         ),
-        Sp.xxlarge.heightBox,
+        Sp.xlarge.heightBox,
         Semantics(
           liveRegion: true,
           child: Row(
             spacing: Sp.xsmall.w,
             children: [
               ExcludeSemantics(
-                child: Container(
-                  width: 5.r,
-                  height: 5.r,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: context.colors.textSecondary,
+                child: FadeTransition(
+                  opacity: Tween<double>(begin: 0.25, end: 1).animate(_pulse),
+                  child: Container(
+                    width: 5.r,
+                    height: 5.r,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: context.colors.textSecondary,
+                    ),
                   ),
                 ),
               ),
               Expanded(
-                child: Text(
-                  LocaleKeys.discovery_loading_status.tr(),
-                  style: loadingStatusStyle(
-                    context,
-                  ).copyWith(color: context.loadingStatusText),
+                child: AnimatedSwitcher(
+                  duration: _reducedMotion ? Duration.zero : 320.ms,
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.4),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  ),
+                  layoutBuilder: (current, previous) => Stack(
+                    alignment: Alignment.centerLeft,
+                    children: [...previous, ?current],
+                  ),
+                  child: Text(
+                    _statusKeys[_status].tr(),
+                    key: ValueKey(_status),
+                    style: loadingStatusStyle(
+                      context,
+                    ).copyWith(color: context.loadingStatusText),
+                  ),
                 ),
               ),
             ],
           ),
-        ),
-        Sp.xlarge.heightBox,
-        Text(
-          LocaleKeys.discovery_loading_footnote.tr(),
-          style: loadingFootnoteStyle(
-            context,
-          ).copyWith(color: context.colors.textDisabled),
         ),
       ],
     );

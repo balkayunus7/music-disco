@@ -28,15 +28,17 @@ class DirectionContext extends StatelessWidget {
     return Container(
       padding: Sp.medium.padAllR,
       decoration: BoxDecoration(
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: context.colors.borderSecondary),
-        gradient: RadialGradient(
-          center: const Alignment(-0.9, 0),
-          radius: 1.6,
+        gradient: LinearGradient(
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
           colors: [
-            mood.palette.base.withValues(alpha: 0.22),
-            context.colors.surface,
+            for (final alpha in const [0.26, 0.14, 0.05, 0.0])
+              mood.palette.base.withValues(alpha: alpha),
           ],
+          stops: const [0, 0.35, 0.7, 1],
         ),
       ),
       child: Row(
@@ -69,54 +71,6 @@ class DirectionContext extends StatelessWidget {
           ),
           TextLink(text: LocaleKeys.reference_change.tr(), onTap: onChange),
         ],
-      ),
-    );
-  }
-}
-
-class DirectionSummary extends StatelessWidget {
-  const DirectionSummary({super.key, required this.preferences});
-
-  final DiscoveryPreferences preferences;
-
-  @override
-  Widget build(BuildContext context) {
-    final reference = preferences.activeReference;
-    final text = [
-      reference?.name ?? preferences.mood.labelKey.tr(),
-      if (reference != null) preferences.aspect.labelKey.tr(),
-      preferences.direction.shortLabelKey.tr(),
-      preferences.distance.labelKey.tr(),
-    ].join(' · ');
-    return Semantics(
-      liveRegion: true,
-      label: text,
-      child: ExcludeSemantics(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: Sp.small.w,
-          children: [
-            Icon(
-              Icons.tune_rounded,
-              size: Sp.large.r,
-              color: context.colors.textSecondary,
-            ),
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : 240.ms,
-                child: Text(
-                  text,
-                  key: ValueKey(text),
-                  style: bodyTextStyle(
-                    context,
-                  ).copyWith(color: context.colors.textSecondary),
-                ),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:music_disco/config/app_routes.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:music_disco/core/widgets/disc_flight.dart';
 import 'package:music_disco/features/core/home/home_page.dart';
@@ -21,11 +23,7 @@ mixin HomePageMixin on State<HomePage> {
   @override
   void didUpdateWidget(HomePage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final index = widget.navigationShell.currentIndex;
-    activeBranch.value = index;
-    if (index != oldWidget.navigationShell.currentIndex) {
-      branchEntries[index].value++;
-    }
+    activeBranch.value = widget.navigationShell.currentIndex;
   }
 
   @override
@@ -38,8 +36,18 @@ mixin HomePageMixin on State<HomePage> {
     super.dispose();
   }
 
+  static const List<String> _branchRoots = [
+    AppRoutes.discover,
+    AppRoutes.collection,
+    AppRoutes.settings,
+  ];
+
   void onNavTap(int index) {
-    widget.navigationShell.goBranch(index, initialLocation: true);
+    final shell = widget.navigationShell;
+    final isCurrent = index == shell.currentIndex;
+    final isAtRoot = GoRouterState.of(context).uri.path == _branchRoots[index];
+    shell.goBranch(index, initialLocation: isCurrent);
+    if (isCurrent && !isAtRoot) branchEntries[index].value++;
   }
 
   Future<void> flyToCollection({

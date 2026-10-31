@@ -16,6 +16,7 @@ import 'package:music_disco/core/widgets/app_page_bar.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 import 'package:music_disco/core/widgets/pill_label.dart';
 import 'package:music_disco/features/collection/bloc/collection_cubit.dart';
+import 'package:music_disco/features/collection/presentation/widgets/shelf_picker.dart';
 import 'package:music_disco/features/core/home/helpers/home_page_scope.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
@@ -124,6 +125,8 @@ class _SessionViewState extends State<_SessionView>
     await _discover.applyPreferences(next);
   }
 
+  void _leave() => context.go(AppRoutes.home);
+
   void _toggleFeedback() {
     setState(() => _isFeedbackOpen = !_isFeedbackOpen);
   }
@@ -142,7 +145,13 @@ class _SessionViewState extends State<_SessionView>
       return;
     }
 
-    final saved = await collection.save(track);
+    final pick = await showShelfPicker(context, collection: collection.state);
+    if (!mounted || pick == null) return;
+    final saved = await collection.save(
+      track,
+      shelfId: pick.existingId,
+      newShelfName: pick.newName,
+    );
     if (!mounted) return;
     if (!saved) {
       showAppSnackBar(context, message: LocaleKeys.settings_save_error.tr());
@@ -163,9 +172,12 @@ class _SessionViewState extends State<_SessionView>
       );
     }
 
+    final shelf = collection.state.shelfOf(track.id);
     showAppSnackBar(
       context,
-      message: LocaleKeys.session_saved_snackbar.tr(),
+      message: shelf == null
+          ? LocaleKeys.session_saved_snackbar.tr()
+          : LocaleKeys.collection_saved_to.tr(args: [shelf.name]),
       actionLabel: LocaleKeys.session_undo.tr(),
       onAction: () async {
         final removed = await collection.remove(track.id);
@@ -177,6 +189,7 @@ class _SessionViewState extends State<_SessionView>
 
   void _onNextTap(DiscoverState state) {
     if (state.isLastTrack) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       _player.stop();
       _discover.finishRound();
     } else {
@@ -211,49 +224,64 @@ class _SessionViewState extends State<_SessionView>
         final isRoundActive =
             state.status != DiscoverRoundStatus.finished &&
             state.status != DiscoverRoundStatus.failure;
-        return BrandPageBody(
-          key: ValueKey(state.status == DiscoverRoundStatus.finished),
-          footer: isRoundActive && track != null
-              ? _buildTrackFooter(state, track, isSaving: collection.isSaving)
-              : null,
-          appBar: AppPageBar(
-            title: state.status == DiscoverRoundStatus.finished
-                ? LocaleKeys.session_completed.tr()
-                : LocaleKeys.session_step.tr(
-                    args: [track == null ? '—' : state.progressLabel],
-                  ),
-            showBackButton: true,
-            actionIcon: canTune ? Icons.tune_rounded : null,
-            actionLabel: canTune
-                ? '${LocaleKeys.frequency_sheet_eyebrow.tr()}: ${state.preferences.summary}'
+        final isLoading = state.status == DiscoverRoundStatus.loading;
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop && !isLoading) _leave();
+          },
+          child: BrandPageBody(
+            key: ValueKey(state.status == DiscoverRoundStatus.finished),
+            footer: isRoundActive && track != null
+                ? _buildTrackFooter(state, track, isSaving: collection.isSaving)
+                : state.status == DiscoverRoundStatus.finished
+                ? SessionCompletedActions(
+                    hasSaved: collection.countOf(state.tracks) > 0,
+                    onNewRound: () => _discover.startRound(
+                      taste: context.read<TasteCubit>().state.saved,
+                    ),
+                    onCollection: () => context.go(AppRoutes.collection),
+                  )
                 : null,
-            onAction: canTune ? _openFrequencySheet : null,
-          ),
-          children: [
-            if (state.status == DiscoverRoundStatus.finished)
-              SessionCompletedView(
-                total: state.tracks.length,
-                saved: collection.countOf(state.tracks),
-                onNewRound: () => _discover.startRound(
-                  taste: context.read<TasteCubit>().state.saved,
-                ),
-                onCollection: () => context.go(AppRoutes.collection),
-              )
-            else if (state.status == DiscoverRoundStatus.failure)
-              SessionFailureView(
-                onRetry: () => _discover.startRound(
-                  taste: context.read<TasteCubit>().state.saved,
-                ),
-                onChangePreferences: () => context.go(AppRoutes.taste),
-              )
-            else if (track == null)
-              DiscoveryLoadingView(
-                isSearching: state.status == DiscoverRoundStatus.loading,
-              )
-            else ...[
-              _buildTrackContent(state, track, isSaving: collection.isSaving),
+            appBar: AppPageBar(
+              title: state.status == DiscoverRoundStatus.finished
+                  ? LocaleKeys.session_completed_step.tr()
+                  : LocaleKeys.session_step.tr(
+                      args: [track == null ? '—' : state.progressLabel],
+                    ),
+              showBackButton: !isLoading,
+              onBack: _leave,
+              actionIcon: canTune ? Icons.tune_rounded : null,
+              actionLabel: canTune
+                  ? '${LocaleKeys.frequency_sheet_eyebrow.tr()}: ${state.preferences.summary}'
+                  : null,
+              onAction: canTune ? _openFrequencySheet : null,
+            ),
+            children: [
+              if (state.status == DiscoverRoundStatus.finished)
+                SessionCompletedView(
+                  tracks: state.tracks,
+                  savedIds: {
+                    for (final track in state.tracks)
+                      if (collection.contains(track.id)) track.id,
+                  },
+                )
+              else if (state.status == DiscoverRoundStatus.failure)
+                SessionFailureView(
+                  onRetry: () => _discover.startRound(
+                    taste: context.read<TasteCubit>().state.saved,
+                  ),
+                  onChangePreferences: () => context.go(AppRoutes.taste),
+                )
+              else if (track == null)
+                DiscoveryLoadingView(
+                  isSearching: state.status == DiscoverRoundStatus.loading,
+                )
+              else ...[
+                _buildTrackContent(state, track, isSaving: collection.isSaving),
+              ],
             ],
-          ],
+          ),
         );
       },
     );

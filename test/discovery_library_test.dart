@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
@@ -38,8 +39,10 @@ void main() {
       final store = LocalCollectionStore(preferences, userId: 'listener-a');
       final collection = CollectionCubit(store: store);
       expect(await collection.save(first.first), isTrue);
+      final shelf = await collection.createShelf('Night walk');
+      expect(shelf, isNotNull);
       expect(
-        await collection.assignShelf(first.first.id, CollectionShelf.nightWalk),
+        await collection.assignShelf(first.first.id, shelfId: shelf!.id),
         isTrue,
       );
       await collection.close();
@@ -47,19 +50,128 @@ void main() {
         store: LocalCollectionStore(preferences, userId: 'listener-a'),
       );
       expect(restored.state.tracks, [first.first]);
-      expect(restored.state.tracksIn(CollectionShelf.nightWalk), [first.first]);
+      expect(restored.state.shelves, [shelf]);
+      expect(restored.state.tracksIn(shelf.id), [first.first]);
       final other = CollectionCubit(
         store: LocalCollectionStore(preferences, userId: 'listener-b'),
       );
       expect(other.state.isEmpty, isTrue);
-      expect(await restored.assignShelf(first.first.id, null), isTrue);
-      expect(CollectionCubit(store: store).state.shelfCount, 0);
+      expect(await restored.assignShelf(first.first.id), isTrue);
+      expect(CollectionCubit(store: store).state.tracksIn(shelf.id), isEmpty);
+      expect(CollectionCubit(store: store).state.shelfCount, 1);
       expect(await restored.remove(first.first.id), isTrue);
       expect(CollectionCubit(store: store).state.isEmpty, isTrue);
       await restored.close();
       await other.close();
     },
   );
+
+  test(
+    'collections are created, reused, validated, renamed and deleted',
+    () async {
+      var next = 0;
+      final collection = CollectionCubit(
+        store: LocalCollectionStore(preferences, userId: 'listener-c'),
+        idGenerator: () => 'id-${next++}',
+      );
+      expect(
+        await collection.save(first.first, newShelfName: '  Night   walk '),
+        isTrue,
+      );
+      final night = collection.state.shelves.single;
+      expect(night, const CollectionShelf(id: 'id-0', name: 'Night walk'));
+      expect(collection.state.assignments[first.first.id], 'id-0');
+      expect(
+        await collection.save(first[1], newShelfName: 'night walk'),
+        isTrue,
+      );
+      expect(collection.state.shelves.length, 1);
+      expect(collection.state.tracksIn('id-0').length, 2);
+      expect(await collection.save(first[2], shelfId: 'missing'), isTrue);
+      expect(collection.state.assignments.containsKey(first[2].id), isFalse);
+      expect(await collection.createShelf('   '), isNull);
+      expect(await collection.createShelf('x' * 25), isNull);
+      final slow = await collection.createShelf('Slow mornings');
+      expect(slow?.id, 'id-1');
+      expect(
+        collection.state.shelfNameError('night walk', exceptId: slow!.id),
+        ShelfNameError.taken,
+      );
+      expect(await collection.renameShelf(slow.id, 'Night walk'), isFalse);
+      expect(await collection.renameShelf(slow.id, 'Slow  Sundays'), isTrue);
+      expect(collection.state.shelfById(slow.id)?.name, 'Slow Sundays');
+      expect(await collection.deleteShelf('id-0'), isTrue);
+      expect(collection.state.tracks.length, 3);
+      expect(collection.state.assignments, isEmpty);
+      final restored = CollectionCubit(
+        store: LocalCollectionStore(preferences, userId: 'listener-c'),
+      );
+      expect(restored.state.shelves, [
+        const CollectionShelf(id: 'id-1', name: 'Slow Sundays'),
+      ]);
+      expect(restored.state.tracks.length, 3);
+      await collection.close();
+      await restored.close();
+    },
+  );
+
+  test(
+    'stored collections written before custom collections still load',
+    () async {
+      final track = first.first;
+      preferences.setString(
+        'music_collection_v1_legacy',
+        jsonEncode({
+          'tracks': [
+            {
+              'id': track.id,
+              'title': track.title,
+              'artist': track.artist,
+              'mood': track.mood.name,
+              'noteKey': track.noteKey,
+              'duration': track.duration.inMilliseconds,
+              'youtubeId': track.youtubeId,
+            },
+          ],
+          'shelves': {track.id: 'nightWalk', 'gone': 'slowMornings'},
+        }),
+      );
+      final restored = CollectionCubit(
+        store: LocalCollectionStore(preferences, userId: 'legacy'),
+      );
+      expect(restored.state.tracks.map((t) => t.id), [track.id]);
+      expect(restored.state.shelves.map((s) => s.name), ['Night walk']);
+      expect(restored.state.shelfOf(track.id)?.name, 'Night walk');
+      await restored.close();
+    },
+  );
+
+  test('a damaged collections block never hides saved songs', () async {
+    final track = first.first;
+    preferences.setString(
+      'music_collection_v1_damaged',
+      jsonEncode({
+        'tracks': [
+          {
+            'id': track.id,
+            'title': track.title,
+            'artist': track.artist,
+            'mood': track.mood.name,
+            'noteKey': track.noteKey,
+            'duration': track.duration.inMilliseconds,
+            'youtubeId': track.youtubeId,
+          },
+        ],
+        'shelves': 'broken',
+      }),
+    );
+    final restored = CollectionCubit(
+      store: LocalCollectionStore(preferences, userId: 'damaged'),
+    );
+    expect(restored.state.tracks.length, 1);
+    expect(restored.state.shelves, isEmpty);
+    await restored.close();
+  });
 
   test('a failed collection write never reports a saved song', () async {
     final collection = CollectionCubit(store: _FailingCollectionStore());
@@ -305,7 +417,7 @@ void main() {
 
 class _FailingCollectionStore implements ICollectionStore {
   @override
-  CollectionSnapshot read() => (tracks: [], shelves: {});
+  CollectionSnapshot read() => (tracks: [], shelves: [], assignments: {});
   @override
   Future<void> write(CollectionSnapshot snapshot) async =>
       throw StateError('disk unavailable');

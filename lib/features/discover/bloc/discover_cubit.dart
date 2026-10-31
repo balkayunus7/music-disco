@@ -15,9 +15,13 @@ import 'package:music_disco/features/taste/domain/models/taste_profile.dart';
 part 'discover_state.dart';
 
 class DiscoverCubit extends Cubit<DiscoverState> {
-  DiscoverCubit(this._repository) : super(const DiscoverState());
+  DiscoverCubit(
+    this._repository, {
+    this.requestTimeout = const Duration(seconds: 20),
+  }) : super(const DiscoverState());
 
   final IDiscoveryRepository _repository;
+  final Duration requestTimeout;
 
   final Set<String> _rejectedIds = {};
   int _request = 0;
@@ -81,11 +85,13 @@ class DiscoverCubit extends Cubit<DiscoverState> {
       ),
     );
     try {
-      final tracks = await _repository.fetchRound(
-        preferences,
-        count: DiscoverState.roundSize,
-        excludeIds: _rejectedIds,
-      );
+      final tracks = await _repository
+          .fetchRound(
+            preferences,
+            count: DiscoverState.roundSize,
+            excludeIds: _rejectedIds,
+          )
+          .timeout(requestTimeout);
       if (isClosed || request != _request) return;
       emit(
         state.copyWith(
@@ -141,11 +147,13 @@ class DiscoverCubit extends Cubit<DiscoverState> {
     _rejectedIds.add(current.id);
     emit(state.copyWith(isReplacing: true, notice: DiscoverNotice.none));
     try {
-      final replacement = await _repository.fetchReplacement(
-        state.preferences,
-        feedback: feedback,
-        excludeIds: {..._rejectedIds, ...state.tracks.map((t) => t.id)},
-      );
+      final replacement = await _repository
+          .fetchReplacement(
+            state.preferences,
+            feedback: feedback,
+            excludeIds: {..._rejectedIds, ...state.tracks.map((t) => t.id)},
+          )
+          .timeout(requestTimeout);
       if (isClosed || request != _request) return;
       if (replacement == null) {
         emit(
@@ -188,11 +196,13 @@ class DiscoverCubit extends Cubit<DiscoverState> {
     final kept = state.tracks.sublist(0, state.currentIndex + 1);
     emit(state.copyWith(isReplacing: true, notice: DiscoverNotice.none));
     try {
-      final upcoming = await _repository.fetchRound(
-        preferences,
-        count: DiscoverState.roundSize - kept.length,
-        excludeIds: {..._rejectedIds, ...kept.map((t) => t.id)},
-      );
+      final upcoming = await _repository
+          .fetchRound(
+            preferences,
+            count: DiscoverState.roundSize - kept.length,
+            excludeIds: {..._rejectedIds, ...kept.map((t) => t.id)},
+          )
+          .timeout(requestTimeout);
       if (isClosed || request != _request) return;
       if (upcoming.isEmpty) {
         emit(
