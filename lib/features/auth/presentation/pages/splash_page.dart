@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,10 +9,10 @@ import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
 import 'package:mobile_boilerplate/presentation/routing/route_aware_analytics_mixin.dart';
 import 'package:music_disco/config/app_routes.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
-import 'package:music_disco/core/widgets/fancy_button.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
+import 'package:music_disco/core/widgets/app_cta_button.dart';
 import 'package:music_disco/features/auth/bloc/auth_state_ext.dart';
 
 part '../widgets/splash_view.dart';
@@ -27,14 +29,12 @@ class _SplashPageState extends State<SplashPage>
   @override
   void initState() {
     super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (!mounted) return;
-      await context.read<AuthCubit>().initialize();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(_initialize());
     });
   }
 
-  Future<void> onRetry() => context.read<AuthCubit>().initialize();
+  Future<void> _initialize() => context.read<AuthCubit>().initialize();
 
   @override
   Widget build(BuildContext context) {
@@ -45,30 +45,24 @@ class _SplashPageState extends State<SplashPage>
       child: MultiBlocListener(
         listeners: [
           BlocListener<AuthCubit, AuthState>(
-            listenWhen: (previous, current) {
-              return !previous.isAuthenticated && current.isAuthenticated;
-            },
+            listenWhen: (previous, current) =>
+                !previous.isAuthenticated && current.isAuthenticated,
             listener: (context, state) => context.go(AppRoutes.home),
           ),
           BlocListener<AuthCubit, AuthState>(
-            listenWhen: (previous, current) {
-              return !previous.canCreateGuest && current.canCreateGuest;
-            },
-            listener: (context, state) async {
-              await context.read<AuthCubit>().signInAnonymously();
-            },
+            listenWhen: (previous, current) =>
+                !previous.canCreateGuest && current.canCreateGuest,
+            listener: (context, state) =>
+                context.read<AuthCubit>().signInAnonymously(),
           ),
         ],
         child: BlocBuilder<AuthCubit, AuthState>(
-          buildWhen: (previous, current) {
-            return previous.hasStartupFailed != current.hasStartupFailed;
-          },
-          builder: (context, state) {
-            return SplashView(
-              hasFailed: state.hasStartupFailed,
-              onRetry: onRetry,
-            );
-          },
+          buildWhen: (previous, current) =>
+              previous.hasStartupFailed != current.hasStartupFailed,
+          builder: (context, state) => SplashView(
+            hasFailed: state.hasStartupFailed,
+            onRetry: _initialize,
+          ),
         ),
       ),
     );

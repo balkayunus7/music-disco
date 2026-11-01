@@ -5,18 +5,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/custom_app_colors.dart';
-import 'package:music_disco/core/widgets/display_headline.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
+import 'package:music_disco/core/design_system/colors.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/opacities.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
+import 'package:music_disco/core/widgets/app_page_headline.dart';
 import 'package:music_disco/features/discover/presentation/sound_trace_motion.dart';
 
 part 'sound_trace_rows.dart';
 
 class DiscoveryLoadingView extends StatefulWidget {
   const DiscoveryLoadingView({super.key, required this.isSearching});
-
   final bool isSearching;
 
   @override
@@ -31,7 +32,7 @@ class _DiscoveryLoadingViewState extends State<DiscoveryLoadingView>
   );
   late final AnimationController _pulse = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1100),
+    duration: MotionDuration.pulse,
     value: 1,
   );
   static const _statusKeys = [
@@ -58,7 +59,7 @@ class _DiscoveryLoadingViewState extends State<DiscoveryLoadingView>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _reducedMotion = MediaQuery.disableAnimationsOf(context);
+    _reducedMotion = context.reducedMotion;
     if (_reducedMotion) _status = _statusKeys.length - 1;
     _tickerEnabled = TickerMode.of(context);
     _syncAnimation();
@@ -122,15 +123,14 @@ class _DiscoveryLoadingViewState extends State<DiscoveryLoadingView>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(height: MediaQuery.sizeOf(context).height * 0.05),
-        DisplayHeadline(
+        AppPageHeadline(
           first: LocaleKeys.discovery_loading_title_first.tr(),
           second: LocaleKeys.discovery_loading_title_second.tr(),
           role: HeadlineRole.loading,
-          stacked: true,
         ),
-        Sp.large.heightBox,
+        Sp.s20.heightBox,
         Text(LocaleKeys.discovery_loading_subtitle.tr(), style: bodyStyle),
-        Sp.xlarge.heightBox,
+        Sp.s24.heightBox,
         ExcludeSemantics(
           child: RepaintBoundary(
             child: _SoundTraceRows(
@@ -139,15 +139,18 @@ class _DiscoveryLoadingViewState extends State<DiscoveryLoadingView>
             ),
           ),
         ),
-        Sp.xlarge.heightBox,
+        Sp.s24.heightBox,
         Semantics(
           liveRegion: true,
           child: Row(
-            spacing: Sp.xsmall.w,
+            spacing: Sp.s8.w,
             children: [
               ExcludeSemantics(
                 child: FadeTransition(
-                  opacity: Tween<double>(begin: 0.25, end: 1).animate(_pulse),
+                  opacity: Tween<double>(
+                    begin: Opacities.subtle,
+                    end: Opacities.full,
+                  ).animate(_pulse),
                   child: Container(
                     width: 5.r,
                     height: 5.r,
@@ -160,12 +163,12 @@ class _DiscoveryLoadingViewState extends State<DiscoveryLoadingView>
               ),
               Expanded(
                 child: AnimatedSwitcher(
-                  duration: _reducedMotion ? Duration.zero : 320.ms,
+                  duration: context.motion(MotionDuration.base),
                   transitionBuilder: (child, animation) => FadeTransition(
                     opacity: animation,
                     child: SlideTransition(
                       position: Tween<Offset>(
-                        begin: const Offset(0, 0.4),
+                        begin: MotionOffset.riseLarge,
                         end: Offset.zero,
                       ).animate(animation),
                       child: child,
@@ -178,7 +181,7 @@ class _DiscoveryLoadingViewState extends State<DiscoveryLoadingView>
                   child: Text(
                     _statusKeys[_status].tr(),
                     key: ValueKey(_status),
-                    style: loadingStatusStyle(
+                    style: secondaryTextStyle(
                       context,
                     ).copyWith(color: context.loadingStatusText),
                   ),

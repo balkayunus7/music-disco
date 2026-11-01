@@ -1,5 +1,5 @@
 import 'package:mobile_boilerplate/common_dependencies.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
 import 'package:music_disco/features/taste/domain/models/music_language.dart';
 import 'package:music_disco/features/taste/domain/models/taste_profile.dart';

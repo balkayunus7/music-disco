@@ -8,7 +8,6 @@ class MoodDiscGrid extends StatelessWidget {
     required this.slotKeys,
     required this.onSelected,
   });
-
   final Mood selected;
   final Set<Mood> airborne;
   final Map<Mood, GlobalKey> slotKeys;
@@ -22,7 +21,7 @@ class MoodDiscGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      spacing: Sp.xsmall.h,
+      spacing: Sp.s8.h,
       children: [
         for (final row in _rows)
           IntrinsicHeight(
@@ -57,7 +56,6 @@ class _MoodSlot extends StatelessWidget {
     required this.isBusy,
     required this.onTap,
   });
-
   final Mood mood;
   final GlobalKey slotKey;
   final bool isSelected;
@@ -67,7 +65,7 @@ class _MoodSlot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final discSize = Sp.huge.r;
+    final discSize = Sp.s64.r;
     return Pressable(
       onTap: isBusy ? null : onTap,
       selected: isSelected,
@@ -78,10 +76,8 @@ class _MoodSlot extends StatelessWidget {
             Stack(
               children: [
                 AnimatedContainer(
-                  duration: MediaQuery.disableAnimationsOf(context)
-                      ? Duration.zero
-                      : 220.ms,
-                  padding: Sp.tiny.padAllR,
+                  duration: context.motion(MotionDuration.base),
+                  padding: Sp.s4.padAllR,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
@@ -107,7 +103,7 @@ class _MoodSlot extends StatelessWidget {
                     right: 0,
                     bottom: 0,
                     child: Container(
-                      padding: Sp.tiny.padAllR,
+                      padding: Sp.s4.padAllR,
                       decoration: BoxDecoration(
                         color: context.colors.textPrimary,
                         shape: BoxShape.circle,
@@ -119,17 +115,17 @@ class _MoodSlot extends StatelessWidget {
                       child: Icon(
                         Icons.check_rounded,
                         color: context.colors.textOnPrimary,
-                        size: Sp.small.r,
+                        size: Sp.s12.r,
                       ),
                     ),
                   ),
               ],
             ),
-            Sp.tiny.heightBox,
+            Sp.s4.heightBox,
             ConstrainedBox(
               constraints: const BoxConstraints(minHeight: Sp.minTouchTarget),
               child: Padding(
-                padding: Sp.tiny.padAllR,
+                padding: Sp.s4.padAllR,
                 child: Text(
                   mood.labelKey.tr(),
                   maxLines: 2,

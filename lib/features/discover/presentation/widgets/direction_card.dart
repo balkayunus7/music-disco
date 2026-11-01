@@ -7,7 +7,6 @@ class DirectionCard extends StatelessWidget {
     required this.direction,
     required this.onSelected,
   });
-
   final Mood mood;
   final DiscoveryDirection direction;
   final ValueChanged<DiscoveryDirection> onSelected;
@@ -22,7 +21,7 @@ class DirectionCard extends StatelessWidget {
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: Sp.xsmall.w,
+        spacing: Sp.s8.w,
         children: [
           for (final option in DiscoveryDirection.values)
             Expanded(
@@ -44,7 +43,6 @@ class DirectionCard extends StatelessWidget {
 
 class _Waveform extends StatelessWidget {
   const _Waveform({required this.energy, required this.isActive});
-
   final double energy;
   final bool isActive;
 
@@ -64,7 +62,7 @@ class _Waveform extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final maxHeight = Sp.large.h + Sp.tiny.h;
+    final maxHeight = Sp.s24.h;
     return ExcludeSemantics(
       child: SizedBox(
         height: maxHeight,
@@ -73,17 +71,17 @@ class _Waveform extends StatelessWidget {
           children: [
             for (final (index, height) in _pattern.indexed)
               AnimatedContainer(
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : (280 + (index - 5).abs() * 40).ms,
-                curve: Curves.easeOutBack,
+                duration: context.motion(
+                  MotionDuration.base + MotionDuration.tick * (index - 5).abs(),
+                ),
+                curve: MotionCurve.overshoot,
                 width: 2.w,
                 height: maxHeight * height * energy,
                 decoration: BoxDecoration(
                   color: isActive
                       ? context.colors.textPrimary
                       : context.colors.textDisabled,
-                  borderRadius: Sp.xsmall.radiusR,
+                  borderRadius: Sp.s8.radiusR,
                 ),
               ),
           ],

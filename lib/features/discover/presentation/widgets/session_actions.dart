@@ -6,9 +6,7 @@ class SessionSaveButton extends StatelessWidget {
     required this.isSaved,
     required this.onTap,
   });
-
   final bool isSaved;
-
   final VoidCallback? onTap;
 
   @override
@@ -23,39 +21,37 @@ class SessionSaveButton extends StatelessWidget {
       haptic: TapHaptic.medium,
       child: ExcludeSemantics(
         child: AnimatedContainer(
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : 260.ms,
-          curve: Curves.easeOutCubic,
-          height: Sp.xxxlarge.h - Sp.tiny.h,
-          padding: Sp.large.padHR,
+          duration: context.motion(MotionDuration.base),
+          height: Sp.s48.h - Sp.s4.h,
+          padding: Sp.s20.padHR,
           decoration: BoxDecoration(
             color: isSaved
                 ? context.colors.buttonSecondary
                 : context.colors.buttonSecondary.withValues(alpha: 0),
-            borderRadius: Sp.huge.radiusR,
+            borderRadius: Sp.s64.radiusR,
             border: Border.all(color: context.colors.border),
           ),
           child: AnimatedSwitcher(
-            duration: MediaQuery.disableAnimationsOf(context)
-                ? Duration.zero
-                : 220.ms,
+            duration: context.motion(MotionDuration.base),
             transitionBuilder: (child, animation) => FadeTransition(
               opacity: animation,
               child: ScaleTransition(
-                scale: Tween<double>(begin: 0.85, end: 1).animate(animation),
+                scale: Tween<double>(
+                  begin: MotionScale.enter,
+                  end: 1,
+                ).animate(animation),
                 child: child,
               ),
             ),
             child: Row(
               key: ValueKey(isSaved),
               mainAxisSize: MainAxisSize.min,
-              spacing: Sp.xsmall.w,
+              spacing: Sp.s8.w,
               children: [
                 Icon(
                   isSaved ? Icons.check_rounded : Icons.add_rounded,
                   color: context.colors.textPrimary,
-                  size: Sp.large.r,
+                  size: Sp.s20.r,
                 ),
                 Flexible(
                   child: Text(
@@ -82,10 +78,8 @@ class SessionGhostAction extends StatelessWidget {
     required this.onTap,
     this.isActive = false,
   });
-
   final IconData icon;
   final String label;
-
   final VoidCallback? onTap;
   final bool isActive;
 
@@ -100,13 +94,11 @@ class SessionGhostAction extends StatelessWidget {
       semanticLabel: label,
       child: ExcludeSemantics(
         child: AnimatedContainer(
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : 240.ms,
-          height: Sp.xxlarge.h + Sp.tiny.h,
-          padding: Sp.small.padHR,
+          duration: context.motion(MotionDuration.base),
+          height: Sp.s36.h,
+          padding: Sp.s12.padHR,
           decoration: BoxDecoration(
-            borderRadius: Sp.huge.radiusR,
+            borderRadius: Sp.s64.radiusR,
             border: Border.all(
               color: isActive
                   ? context.colors.border
@@ -115,9 +107,9 @@ class SessionGhostAction extends StatelessWidget {
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            spacing: Sp.tiny.w + 2,
+            spacing: Sp.s4.w + 2,
             children: [
-              Icon(icon, color: color, size: Sp.small.r + 2),
+              Icon(icon, color: color, size: Sp.s12.r + 2),
               Text(
                 label,
                 maxLines: 1,
@@ -137,7 +129,6 @@ class SessionFeedbackPanel extends StatelessWidget {
     required this.isOpen,
     required this.onSelected,
   });
-
   final bool isOpen;
   final ValueChanged<TrackFeedback> onSelected;
 
@@ -149,16 +140,12 @@ class SessionFeedbackPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MotionSize(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : 300.ms,
-      curve: Curves.easeOutCubic,
+    return AdaptiveAnimatedSize(
       alignment: Alignment.topCenter,
       child: !isOpen
           ? const SizedBox(width: double.infinity)
           : Padding(
-              padding: Sp.small.padTopR,
+              padding: Sp.s12.padTopR,
               child: Column(
                 children: [
                   Text(
@@ -167,11 +154,11 @@ class SessionFeedbackPanel extends StatelessWidget {
                       context,
                     ).copyWith(color: context.colors.textSecondary),
                   ),
-                  Sp.xsmall.heightBox,
+                  Sp.s8.heightBox,
                   Wrap(
                     alignment: WrapAlignment.center,
-                    spacing: Sp.xsmall.w,
-                    runSpacing: Sp.xsmall.h,
+                    spacing: Sp.s8.w,
+                    runSpacing: Sp.s8.h,
                     children: [
                       for (final (index, feedback) in _options.indexed)
                         _FeedbackChip(
@@ -194,9 +181,7 @@ class _FeedbackChip extends StatelessWidget {
     required this.delayIndex,
     required this.onTap,
   });
-
   final String label;
-
   final int delayIndex;
   final VoidCallback onTap;
 
@@ -204,14 +189,13 @@ class _FeedbackChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : (240 + delayIndex * 70).ms,
-      curve: Curves.easeOutCubic,
+      duration: context.motion(
+        MotionDuration.base + MotionDuration.tick * delayIndex,
+      ),
       builder: (context, value, child) => Opacity(
         opacity: value,
         child: Transform.translate(
-          offset: Offset(0, (1 - value) * Sp.small.h),
+          offset: Offset(0, (1 - value) * Sp.s12.h),
           child: child,
         ),
       ),
@@ -219,12 +203,12 @@ class _FeedbackChip extends StatelessWidget {
         onTap: onTap,
         semanticLabel: label,
         child: Container(
-          height: Sp.xxlarge.h + Sp.tiny.h,
+          height: Sp.s36.h,
           alignment: Alignment.center,
-          padding: Sp.medium.padHR,
+          padding: Sp.s16.padHR,
           decoration: BoxDecoration(
             color: context.colors.surface,
-            borderRadius: Sp.huge.radiusR,
+            borderRadius: Sp.s64.radiusR,
           ),
           child: ExcludeSemantics(
             child: Text(
@@ -242,7 +226,6 @@ class _FeedbackChip extends StatelessWidget {
 
 class SessionNoticeText extends StatelessWidget {
   const SessionNoticeText({super.key, required this.notice});
-
   final DiscoverNotice notice;
 
   @override
@@ -255,9 +238,7 @@ class SessionNoticeText extends StatelessWidget {
       DiscoverNotice.requestFailed => LocaleKeys.session_request_failed.tr(),
     };
     return AnimatedSwitcher(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : 260.ms,
+      duration: context.motion(MotionDuration.base),
       child: text == null
           ? const SizedBox.shrink()
           : Semantics(

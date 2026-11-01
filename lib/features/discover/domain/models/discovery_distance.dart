@@ -4,7 +4,6 @@ enum DiscoveryDistance {
   faraway(fraction: 1);
 
   const DiscoveryDistance({required this.fraction});
-
   final double fraction;
 
   static DiscoveryDistance nearest(double fraction) {

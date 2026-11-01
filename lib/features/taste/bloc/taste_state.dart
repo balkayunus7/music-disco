@@ -9,25 +9,24 @@ class TasteState extends Equatable {
     this.notice = TasteNotice.none,
     this.isSaving = false,
   });
-
-  final bool isSaving;
   final TasteProfile saved;
   final TasteProfile draft;
   final TasteNotice notice;
+  final bool isSaving;
 
   bool get hasChanges => saved != draft;
 
   TasteState copyWith({
-    bool? isSaving,
     TasteProfile? saved,
     TasteProfile? draft,
     TasteNotice? notice,
+    bool? isSaving,
   }) {
     return TasteState(
-      isSaving: isSaving ?? this.isSaving,
       saved: saved ?? this.saved,
       draft: draft ?? this.draft,
       notice: notice ?? this.notice,
+      isSaving: isSaving ?? this.isSaving,
     );
   }
 

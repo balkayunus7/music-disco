@@ -9,7 +9,6 @@ class StudioOptionCard extends StatelessWidget {
     required this.onTap,
     this.isPrimary = false,
   });
-
   final IconData icon;
   final String title;
   final String subtitle;
@@ -21,19 +20,19 @@ class StudioOptionCard extends StatelessWidget {
     return Pressable(
       onTap: onTap,
       semanticLabel: '$title. $subtitle',
-      pressedScale: 0.98,
+      pressedScale: MotionScale.pressedSubtle,
       haptic: TapHaptic.medium,
       child: ExcludeSemantics(
         child: Container(
           padding: EdgeInsets.symmetric(
-            horizontal: Sp.medium.w,
-            vertical: Sp.small.h + 2,
+            horizontal: Sp.s16.w,
+            vertical: Sp.s12.h + 2,
           ),
           decoration: BoxDecoration(
             color: isPrimary
                 ? context.colors.surfaceSecondary
                 : context.colors.surface,
-            borderRadius: Sp.large.radiusR,
+            borderRadius: Sp.s20.radiusR,
             border: Border.all(
               color: isPrimary
                   ? context.colors.border
@@ -41,11 +40,11 @@ class StudioOptionCard extends StatelessWidget {
             ),
           ),
           child: Row(
-            spacing: Sp.small.w,
+            spacing: Sp.s12.w,
             children: [
               Container(
-                width: Sp.xxlarge.r + Sp.tiny.r,
-                height: Sp.xxlarge.r + Sp.tiny.r,
+                width: Sp.s32.r + Sp.s4.r,
+                height: Sp.s32.r + Sp.s4.r,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: context.colors.border),
@@ -53,7 +52,7 @@ class StudioOptionCard extends StatelessWidget {
                 child: Icon(
                   icon,
                   color: context.colors.textPrimary,
-                  size: Sp.medium.r,
+                  size: Sp.s16.r,
                 ),
               ),
               Expanded(
@@ -74,7 +73,7 @@ class StudioOptionCard extends StatelessWidget {
               Icon(
                 Icons.chevron_right_rounded,
                 color: context.colors.textSecondary,
-                size: Sp.medium.r,
+                size: Sp.s16.r,
               ),
             ],
           ),

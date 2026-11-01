@@ -13,12 +13,12 @@ class SessionCompletedView extends StatelessWidget {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Sp.large.heightBox,
-      DisplayHeadline(
+      Sp.s20.heightBox,
+      AppPageHeadline(
         first: LocaleKeys.session_completed.tr(),
         role: HeadlineRole.loadingResults,
       ),
-      Sp.small.heightBox,
+      Sp.s12.heightBox,
       Text(
         LocaleKeys.session_summary.tr(
           args: ['${tracks.length}', '${savedIds.length}'],
@@ -27,7 +27,7 @@ class SessionCompletedView extends StatelessWidget {
           context,
         ).copyWith(color: context.colors.textSecondary),
       ),
-      Sp.large.heightBox,
+      Sp.s20.heightBox,
       for (final track in tracks)
         _RoundRecapRow(track: track, isSaved: savedIds.contains(track.id)),
     ],
@@ -50,10 +50,10 @@ class SessionCompletedActions extends StatelessWidget {
     mainAxisSize: MainAxisSize.min,
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      CtaBar(text: LocaleKeys.session_new_round.tr(), onTap: onNewRound),
+      AppCtaButton(text: LocaleKeys.session_new_round.tr(), onTap: onNewRound),
       if (hasSaved) ...[
-        Sp.small.heightBox,
-        CtaBar(
+        Sp.s12.heightBox,
+        AppCtaButton(
           text: LocaleKeys.session_listen_saved.tr(),
           icon: Icons.play_arrow_rounded,
           onTap: onCollection,
@@ -71,13 +71,12 @@ class SessionCompletedActions extends StatelessWidget {
 
 class _RoundRecapRow extends StatelessWidget {
   const _RoundRecapRow({required this.track, required this.isSaved});
-
   final Track track;
   final bool isSaved;
 
   @override
   Widget build(BuildContext context) {
-    final markSize = Sp.xlarge.r;
+    final markSize = Sp.s24.r;
     final label = isSaved
         ? '${track.title}, ${track.artist}, ${LocaleKeys.session_saved.tr()}'
         : '${track.title}, ${track.artist}';
@@ -85,16 +84,16 @@ class _RoundRecapRow extends StatelessWidget {
       label: label,
       child: ExcludeSemantics(
         child: Container(
-          padding: Sp.small.padVR,
+          padding: Sp.s12.padVR,
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(color: context.colors.borderSecondary),
             ),
           ),
           child: Row(
-            spacing: Sp.medium.w,
+            spacing: Sp.s16.w,
             children: [
-              MoodDisc(mood: track.mood, size: Sp.xxxlarge.r - Sp.xsmall.r),
+              MoodDisc(mood: track.mood, size: Sp.s48.r - Sp.s8.r),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,7 +132,7 @@ class _RoundRecapRow extends StatelessWidget {
                 child: isSaved
                     ? Icon(
                         Icons.check_rounded,
-                        size: Sp.medium.r - 2,
+                        size: Sp.s16.r - 2,
                         color: context.colors.textOnPrimary,
                       )
                     : null,

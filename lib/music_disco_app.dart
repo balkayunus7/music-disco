@@ -7,8 +7,8 @@ import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/core_app.dart';
 import 'package:music_disco/features/settings/bloc/settings_cubit.dart';
 import 'package:music_disco/config/app_router.dart';
-import 'package:music_disco/core/util/custom_app_colors.dart';
-import 'package:music_disco/core/util/locale_extensions.dart';
+import 'package:music_disco/core/design_system/colors.dart';
+import 'package:music_disco/core/localization/locale_language.dart';
 import 'package:music_disco/features/auth/presentation/widgets/auth_session_listener.dart';
 
 class MusicDiscoApp extends StatelessWidget {
@@ -32,7 +32,7 @@ class MusicDiscoApp extends StatelessWidget {
           lightColors: const CustomAppColorsLight(),
           routerConfig: appRouter,
           fontFamily: 'Manrope',
-          supportedLocales: LocaleLanguage.values.map((e) => e.locale).toList(),
+          supportedLocales: LocaleLanguage.supportedLocales,
         ),
       ),
     );

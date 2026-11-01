@@ -1,6 +1,6 @@
 import 'package:mobile_boilerplate/common_dependencies.dart';
-import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/domain/models/genre.dart';
+import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/taste/domain/models/music_language.dart';
 
 class Track extends Equatable {
@@ -18,7 +18,6 @@ class Track extends Equatable {
     this.hasVocals = true,
     this.recommendationReasons = const {},
   });
-
   final List<Genre> genres;
   final MusicLanguage language;
   final double energy;

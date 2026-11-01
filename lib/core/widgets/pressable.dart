@@ -1,26 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
 
 enum TapHaptic {
-  none,
   selection,
   light,
-  medium,
-  heavy;
+  medium;
 
   void play() {
     switch (this) {
-      case TapHaptic.none:
-        return;
       case TapHaptic.selection:
         HapticFeedback.selectionClick();
       case TapHaptic.light:
         HapticFeedback.lightImpact();
       case TapHaptic.medium:
         HapticFeedback.mediumImpact();
-      case TapHaptic.heavy:
-        HapticFeedback.heavyImpact();
     }
   }
 }
@@ -32,12 +27,10 @@ class Pressable extends StatefulWidget {
     required this.onTap,
     this.semanticLabel,
     this.selected,
-    this.pressedScale = 0.96,
+    this.pressedScale = MotionScale.pressed,
     this.haptic = TapHaptic.light,
   });
-
   final Widget child;
-
   final VoidCallback? onTap;
   final String? semanticLabel;
   final bool? selected;
@@ -71,13 +64,9 @@ class _PressableState extends State<Pressable> {
         onTapUp: (_) => _setPressed(false),
         onTapCancel: () => _setPressed(false),
         child: AnimatedScale(
-          scale: _isPressed && !MediaQuery.disableAnimationsOf(context)
-              ? widget.pressedScale
-              : 1,
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : 120.ms,
-          curve: Curves.easeOut,
+          scale: _isPressed && !context.reducedMotion ? widget.pressedScale : 1,
+          duration: context.motion(MotionDuration.fast),
+          curve: MotionCurve.press,
           child: ConstrainedBox(
             constraints: const BoxConstraints(
               minWidth: Sp.minTouchTarget,

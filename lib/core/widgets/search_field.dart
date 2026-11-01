@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 
 class SearchField extends StatelessWidget {
@@ -15,7 +16,6 @@ class SearchField extends StatelessWidget {
     this.focusNode,
     this.autofocus = false,
   });
-
   final TextEditingController controller;
   final String hint;
   final String clearLabel;
@@ -30,9 +30,10 @@ class SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(Sp.inputRadius),
-      borderSide: BorderSide(color: context.colors.border),
+      borderRadius: Sp.inputRadius.radiusR,
+      borderSide: BorderSide(color: colors.border),
     );
     return TextField(
       controller: controller,
@@ -40,32 +41,25 @@ class SearchField extends StatelessWidget {
       autofocus: autofocus,
       onChanged: onChanged,
       textInputAction: TextInputAction.search,
-      cursorColor: context.colors.textPrimary,
+      cursorColor: colors.textPrimary,
       style: inputTextStyle(context),
       decoration: InputDecoration(
-        constraints: const BoxConstraints(minHeight: Sp.cont),
+        constraints: const BoxConstraints(minHeight: Sp.control),
         hintText: hint,
-        hintStyle: inputTextStyle(
-          context,
-        ).copyWith(color: context.colors.textDisabled),
+        hintStyle: inputTextStyle(context).copyWith(color: colors.textDisabled),
         filled: true,
-        fillColor: context.colors.surface,
+        fillColor: colors.surface,
         isDense: true,
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: Sp.medium.w,
-          vertical: Sp.medium.h,
-        ),
+        contentPadding: Sp.s16.padHVR(Sp.s16),
         prefixIcon: Icon(
           Icons.search_rounded,
-          color: context.colors.textSecondary,
-          size: Sp.large.r,
+          color: colors.textSecondary,
+          size: Sp.s20.r,
         ),
         suffixIcon: ValueListenableBuilder<TextEditingValue>(
           valueListenable: controller,
           builder: (context, value, _) => AnimatedSwitcher(
-            duration: MediaQuery.disableAnimationsOf(context)
-                ? Duration.zero
-                : 180.ms,
+            duration: context.motion(MotionDuration.fast),
             child: value.text.isEmpty
                 ? const SizedBox.shrink()
                 : Pressable(
@@ -74,8 +68,8 @@ class SearchField extends StatelessWidget {
                     haptic: TapHaptic.selection,
                     child: Icon(
                       Icons.close_rounded,
-                      color: context.colors.textSecondary,
-                      size: Sp.large.r,
+                      color: colors.textSecondary,
+                      size: Sp.s20.r,
                     ),
                   ),
           ),
@@ -83,7 +77,7 @@ class SearchField extends StatelessWidget {
         border: border,
         enabledBorder: border,
         focusedBorder: border.copyWith(
-          borderSide: BorderSide(color: context.colors.textSecondary),
+          borderSide: BorderSide(color: colors.textSecondary),
         ),
       ),
     );

@@ -10,7 +10,6 @@ class MusicReference extends Equatable {
     this.genres = const [],
     this.imageUrl,
   });
-
   final String id;
   final String name;
   final Mood mood;

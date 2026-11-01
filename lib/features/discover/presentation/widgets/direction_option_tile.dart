@@ -11,7 +11,6 @@ class DirectionOptionTile extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
   });
-
   final IconData icon;
   final String label;
   final String caption;
@@ -32,18 +31,16 @@ class DirectionOptionTile extends StatelessWidget {
       haptic: TapHaptic.selection,
       child: ExcludeSemantics(
         child: AnimatedContainer(
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : 240.ms,
-          curve: Curves.easeOutCubic,
-          padding: EdgeInsets.all(Sp.medium.r),
+          duration: context.motion(MotionDuration.base),
+          curve: MotionCurve.enter,
+          padding: EdgeInsets.all(Sp.s16.r),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
                 isSelected
-                    ? accent.withValues(alpha: 0.24)
+                    ? accent.withValues(alpha: Opacities.subtle)
                     : context.colors.surface,
                 isSelected
                     ? context.colors.surfaceSecondary
@@ -63,18 +60,18 @@ class DirectionOptionTile extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(icon, color: foreground, size: Sp.xlarge.r),
+                  Icon(icon, color: foreground, size: Sp.s24.r),
                   _Waveform(energy: energy, isActive: isSelected),
                 ],
               ),
-              Sp.small.heightBox,
+              Sp.s12.heightBox,
               Text(
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: listTitleStyle(context).copyWith(color: foreground),
               ),
-              Sp.tiny.heightBox,
+              Sp.s4.heightBox,
               Text(
                 caption,
                 maxLines: 3,

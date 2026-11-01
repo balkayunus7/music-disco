@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
-/// Decorative sound traces, independent of request progress or result count.
+import 'package:music_disco/core/design_system/opacities.dart';
+
 abstract final class SoundTraceMotion {
   static const rowCount = 5;
   static const barsPerRow = 49;
@@ -11,7 +12,6 @@ abstract final class SoundTraceMotion {
     double elapsedMilliseconds, {
     bool reducedMotion = false,
   }) {
-    // Fit the reference's eight-second choreography into the visible hold.
     final referenceMilliseconds =
         elapsedMilliseconds * 8000 / cycle.inMilliseconds;
     final seconds = referenceMilliseconds / 1000;
@@ -33,7 +33,7 @@ abstract final class SoundTraceMotion {
                   .abs();
       return SoundTraceBar(
         height: noise * (1 - blend) + shape * blend,
-        opacity: 0.18 + 0.72 * blend,
+        opacity: Opacities.subtle + (Opacities.full - Opacities.subtle) * blend,
       );
     }, growable: false);
   }
@@ -41,7 +41,6 @@ abstract final class SoundTraceMotion {
 
 class SoundTraceBar {
   const SoundTraceBar({required this.height, required this.opacity});
-
   final double height;
   final double opacity;
 }

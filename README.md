@@ -40,7 +40,7 @@ Most music apps recommend from your history. Music Disco starts from something s
 | 🗂 **Collections** | Save songs on the device and sort them into named shelves |
 | 🌍 **Turkish and English** | Full localization with generated keys |
 | ♿ **Calmer motion** | A reduce-motion setting, plus lifecycle-aware animations that pause in the background |
-| 🖤 **A visual identity** | Holographic discs, a jewel-case player, a sound-trace loader and a broken-CD error screen, all drawn in Flutter |
+| 🖤 **A visual identity** | Holographic discs, a disc-case player, a sound-trace loader and a broken-CD error screen, all drawn in Flutter |
 
 ## The experience
 
@@ -102,7 +102,7 @@ A monochrome sound-trace animation with rotating status lines while the round is
 ### 6. Session
 <img src="docs/screenshots/06-session.png" width="240" align="right" alt="Session">
 
-The core screen: a jewel-case player for the current song, a *Why this song?* explanation, save with a shelf picker, and quick reactions. A tune sheet lets you change what comes next without losing the song you are on.
+The core screen: a disc-case player for the current song, a *Why this song?* explanation, save with a shelf picker, and quick reactions. A tune sheet lets you change what comes next without losing the song you are on.
 
 <br clear="right"/>
 
@@ -244,8 +244,12 @@ flowchart TB
 lib/
   config/            app composition, environment, routing, dependency registration
   core/
-    util/            theme tokens, text styles, generated locale keys
-    widgets/         shared UI: HoloDisc, BrokenDisc, JewelCase, CtaBar, ...
+    design_system/   design tokens and styles: Sp, Stroke, Opacities, FontSize,
+                     LineHeight, LetterSpacing, Motion*, colors, text styles
+    localization/    generated locale keys, supported languages
+    backend/         Supabase failure mapping and table/function names
+    util/            small helpers (playback time label, widget tree rebuild)
+    widgets/         shared UI: DiscCover, BrokenDisc, DiscCase, AppCtaButton, ...
   features/
     auth/            anonymous guest session
     discover/        moods, direction, artist reference, rounds, session
@@ -264,9 +268,8 @@ lib/
 - **Bounded concurrency in the UI.** Actions are blocked while a replacement is in flight, so reactions cannot race each other.
 - **Guest session safety.** An existing guest session is restored before a new one is created, and network errors never trigger a new anonymous sign-up.
 - **Accessible motion.** The loader and transitions read the OS reduce-motion flag and an in-app switch, and animations stop when the app is backgrounded.
-- **Custom painting.** `HoloDisc` and `BrokenDisc` are drawn with `CustomPainter`: sweep gradients, groove rings, a chipped rim and jagged cracks, with no image assets.
-- **Debug-only traffic inspection.** `lib/config/debug_http_proxy.dart` routes HTTP(S) through a proxy such as HTTP Toolkit, only in debug builds and only when a Dart define is set.
-- **Tested where it matters.** Cubits, the repository (with a mock HTTP client), the proxy routing against a fake local proxy, and the painter.
+- **Custom painting.** `DiscCover` and `BrokenDisc` are drawn with `CustomPainter`: sweep gradients, groove rings, a chipped rim and jagged cracks, with no image assets.
+- **Tested where it matters.** Cubits, the repository (with a mock HTTP client), and the painter.
 
 ## Tech stack
 
@@ -289,7 +292,7 @@ If you only have a few minutes, start here:
 |---|---|
 | `lib/features/discover/bloc/discover_cubit.dart` | Round state machine, stale-response guard, replacement flow |
 | `lib/features/discover/data/supabase_discovery_repository.dart` | Request building and strict response validation |
-| `lib/core/widgets/holo_disc.dart` | The holographic disc painter |
+| `lib/core/widgets/disc_cover.dart` | The holographic disc cover painter |
 | `lib/core/widgets/broken_disc.dart` | The broken-CD error illustration |
 | `lib/features/discover/presentation/widgets/discovery_loading_view.dart` | Lifecycle-aware, reduce-motion-aware loader |
 | `lib/config/app_router.dart` | Stateful shell routing and the auth redirect |
@@ -323,7 +326,5 @@ flutter test
 Regenerate localization keys after editing both `assets/translations/en.json` and `tr.json`:
 
 ```sh
-dart run easy_localization:generate -S assets/translations -s en.json -f keys -o locale_keys.dart -O lib/core/util
+dart run easy_localization:generate -S assets/translations -s en.json -f keys -o locale_keys.dart -O lib/core/localization
 ```
-
-To inspect traffic in debug builds, pass `--dart-define=HTTP_TOOLKIT_PROXY=localhost:8000` (use the Mac's LAN IP on a physical device and `10.0.2.2:8000` on the Android emulator).

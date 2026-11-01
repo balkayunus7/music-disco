@@ -9,7 +9,6 @@ class ReferenceSearchState extends Equatable {
     this.status = SearchStatus.idle,
     this.catalogReferences = const {},
   });
-
   final String query;
   final List<MusicReference> results;
   final SearchStatus status;

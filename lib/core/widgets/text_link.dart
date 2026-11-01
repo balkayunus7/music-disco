@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 
 class TextLink extends StatelessWidget {
@@ -12,7 +12,6 @@ class TextLink extends StatelessWidget {
     required this.onTap,
     this.trailingIcon,
   });
-
   final String text;
   final VoidCallback onTap;
   final IconData? trailingIcon;
@@ -27,10 +26,10 @@ class TextLink extends StatelessWidget {
       haptic: TapHaptic.selection,
       child: ExcludeSemantics(
         child: Padding(
-          padding: Sp.xsmall.padVR,
+          padding: Sp.s8.padVR,
           child: Row(
             mainAxisSize: MainAxisSize.min,
-            spacing: Sp.xsmall.w,
+            spacing: Sp.s8.w,
             children: [
               Flexible(
                 child: Text(
@@ -41,7 +40,7 @@ class TextLink extends StatelessWidget {
                 ),
               ),
               if (trailingIcon != null)
-                Icon(trailingIcon, color: color, size: Sp.medium.r),
+                Icon(trailingIcon, color: color, size: Sp.s16.r),
             ],
           ),
         ),

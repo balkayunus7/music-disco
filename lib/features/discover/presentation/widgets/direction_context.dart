@@ -8,7 +8,6 @@ class DirectionContext extends StatelessWidget {
     required this.aspect,
     required this.onChange,
   });
-
   final MusicReference? reference;
   final Mood mood;
   final ReferenceAspect aspect;
@@ -17,7 +16,7 @@ class DirectionContext extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reference = this.reference;
-    final size = Sp.xxxlarge.r;
+    final size = Sp.s48.r;
     final eyebrow = reference == null
         ? LocaleKeys.direction_selected_frequency.tr()
         : LocaleKeys.direction_reference_sound.tr();
@@ -26,7 +25,7 @@ class DirectionContext extends StatelessWidget {
         ? mood.taglineKey.tr()
         : aspect.captionKey.tr();
     return Container(
-      padding: Sp.medium.padAllR,
+      padding: Sp.s16.padAllR,
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(18),
@@ -42,7 +41,7 @@ class DirectionContext extends StatelessWidget {
         ),
       ),
       child: Row(
-        spacing: Sp.medium.w,
+        spacing: Sp.s16.w,
         children: [
           reference == null
               ? MoodDisc(mood: mood, size: size)
@@ -51,7 +50,7 @@ class DirectionContext extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                EyebrowText(eyebrow),
+                CaptionLabel(eyebrow),
                 Text(
                   title,
                   maxLines: 1,

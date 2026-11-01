@@ -23,8 +23,8 @@ class CollectionCubit extends Cubit<CollectionState> {
   final ICollectionStore? _store;
   final IDiscoveryFeedbackRepository? _feedbackRepository;
   final bool Function()? _canRecordFeedback;
-  Future<void> _feedbackWrites = Future.value();
   final String Function() _idGenerator;
+  Future<void> _feedbackWrites = Future.value();
 
   static String _timeId() => 'shelf_${DateTime.now().microsecondsSinceEpoch}';
 
@@ -67,9 +67,9 @@ class CollectionCubit extends Cubit<CollectionState> {
     String? shelfId,
     String? newShelfName,
   }) async {
-    if (state.contains(track.id)) return Future.value(true);
+    if (state.contains(track.id)) return true;
     final target = _resolveShelf(shelfId: shelfId, newShelfName: newShelfName);
-    if (target == null) return Future.value(false);
+    if (target == null) return false;
     final saved = await _commit(
       state.copyWith(
         tracks: [...state.tracks, track],
@@ -82,7 +82,7 @@ class CollectionCubit extends Cubit<CollectionState> {
   }
 
   Future<bool> remove(String trackId) async {
-    if (!state.contains(trackId)) return Future.value(true);
+    if (!state.contains(trackId)) return true;
     final removed = await _commit(
       state.copyWith(
         tracks: state.tracks.where((track) => track.id != trackId).toList(),
@@ -94,13 +94,12 @@ class CollectionCubit extends Cubit<CollectionState> {
   }
 
   void _recordSaved(String trackId, bool isSaved) {
-    // Keep save/undo feedback in order. Cloud failures never undo a local save.
     _feedbackWrites = _feedbackWrites.then((_) async {
       if (_canRecordFeedback?.call() == false) return;
       try {
         await _feedbackRepository?.recordSaved(trackId, isSaved: isSaved);
       } on Object {
-        // Feedback is best effort; the collection remains available offline.
+        return;
       }
     });
     unawaited(_feedbackWrites);

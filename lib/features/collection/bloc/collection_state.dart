@@ -10,12 +10,12 @@ class CollectionState extends Equatable {
     this.isSaving = false,
   });
 
-  static const int maxShelfNameLength = 24;
-
-  final bool isSaving;
   final List<Track> tracks;
   final List<CollectionShelf> shelves;
   final Map<String, String> assignments;
+  final bool isSaving;
+
+  static const int maxShelfNameLength = 24;
 
   int get count => tracks.length;
   int countOf(List<Track> round) =>

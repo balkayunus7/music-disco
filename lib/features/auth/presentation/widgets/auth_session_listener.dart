@@ -17,14 +17,13 @@ class AuthSessionListener extends StatefulWidget {
 
 class _AuthSessionListenerState extends State<AuthSessionListener>
     with WidgetsBindingObserver {
-  late final ImplAuthService _authService;
+  final _authService = getIt<ImplAuthService>();
   late final StreamSubscription<void> _invalidatedSubscription;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _authService = getIt<ImplAuthService>();
     _invalidatedSubscription = _authService.sessionInvalidated.listen(
       (_) => _onSessionInvalidated(),
     );

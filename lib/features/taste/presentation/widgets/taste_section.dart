@@ -7,7 +7,6 @@ class TasteSection extends StatelessWidget {
     required this.child,
     this.onEdit,
   });
-
   final String title;
   final Widget child;
   final VoidCallback? onEdit;
@@ -34,7 +33,7 @@ class TasteSection extends StatelessWidget {
               ),
           ],
         ),
-        Sp.medium.heightBox,
+        Sp.s16.heightBox,
         child,
       ],
     );
@@ -47,8 +46,11 @@ class TasteDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: Sp.xlarge.padVR,
-      child: Divider(height: 1, color: context.colors.borderSecondary),
+      padding: Sp.s24.padVR,
+      child: Divider(
+        height: Stroke.thin,
+        color: context.colors.borderSecondary,
+      ),
     );
   }
 }

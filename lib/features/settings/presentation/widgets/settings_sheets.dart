@@ -14,13 +14,13 @@ class SettingsChoiceSheet<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SafeArea(
     child: SingleChildScrollView(
-      padding: Sp.large.padAllR,
+      padding: Sp.s20.padAllR,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(title, style: sheetTitleStyle(context)),
-          Sp.large.heightBox,
+          Sp.s20.heightBox,
           for (final option in options.entries)
             SheetOptionTile(
               label: option.value,
@@ -84,7 +84,7 @@ class _SettingsProfileEditorState extends State<SettingsProfileEditor> {
   @override
   Widget build(BuildContext context) => SafeArea(
     child: SingleChildScrollView(
-      padding: Sp.large.padAllR.add(
+      padding: Sp.s20.padAllR.add(
         EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
       ),
       child: Form(
@@ -97,11 +97,11 @@ class _SettingsProfileEditorState extends State<SettingsProfileEditor> {
               LocaleKeys.settings_edit_profile.tr(),
               style: sheetTitleStyle(context),
             ),
-            Sp.large.heightBox,
+            Sp.s20.heightBox,
             TextFormField(
               controller: _name,
               enabled: !_saving,
-              maxLength: 80,
+              maxLength: MusicUserProperties.maxNameLength,
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.done,
               style: inputTextStyle(context),
@@ -116,7 +116,7 @@ class _SettingsProfileEditorState extends State<SettingsProfileEditor> {
                 filled: true,
                 fillColor: context.colors.surfaceSecondary,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(Sp.inputRadius),
+                  borderRadius: Sp.inputRadius.radiusR,
                 ),
               ),
               validator: (value) =>
@@ -126,7 +126,7 @@ class _SettingsProfileEditorState extends State<SettingsProfileEditor> {
               onFieldSubmitted: (_) => _save(),
             ),
             if (_failed) ...[
-              Sp.small.heightBox,
+              Sp.s12.heightBox,
               Text(
                 LocaleKeys.settings_save_error.tr(),
                 style: bodyTextStyle(
@@ -134,11 +134,10 @@ class _SettingsProfileEditorState extends State<SettingsProfileEditor> {
                 ).copyWith(color: context.colors.error),
               ),
             ],
-            Sp.large.heightBox,
-            FancyButton(
+            Sp.s20.heightBox,
+            AppCtaButton(
               text: LocaleKeys.settings_save.tr(),
-              isLoading: _saving,
-              onTap: _save,
+              onTap: _saving ? null : _save,
             ),
           ],
         ),

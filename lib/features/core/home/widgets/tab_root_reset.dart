@@ -3,7 +3,6 @@ import 'package:music_disco/features/core/home/helpers/home_page_scope.dart';
 
 class TabRootReset extends StatelessWidget {
   const TabRootReset({super.key, required this.branch, required this.child});
-
   final int branch;
   final Widget child;
 

@@ -1,4 +1,4 @@
-import 'package:music_disco/core/util/music_routes.dart';
+import 'package:music_disco/core/backend/supabase_names.dart';
 import 'package:music_disco/features/discover/domain/models/genre.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/domain/models/music_reference.dart';
@@ -7,7 +7,6 @@ import 'package:supabase/supabase.dart';
 
 class SupabaseArtistCatalog implements IReferenceCatalog {
   SupabaseArtistCatalog(this._client);
-
   final SupabaseClient _client;
 
   static const int resultLimit = 12;

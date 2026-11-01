@@ -2,7 +2,6 @@ part of 'discovery_loading_view.dart';
 
 class _SoundTraceRows extends StatelessWidget {
   const _SoundTraceRows({required this.animation, required this.reducedMotion});
-
   final Animation<double> animation;
   final bool reducedMotion;
 
@@ -15,10 +14,10 @@ class _SoundTraceRows extends StatelessWidget {
           SizedBox(
             height: 33.h,
             child: Row(
-              spacing: Sp.medium.w,
+              spacing: Sp.s16.w,
               children: [
                 SizedBox(
-                  width: Sp.large.w,
+                  width: Sp.s20.w,
                   child: Text(
                     '0${row + 1}',
                     style: traceNumberStyle(
@@ -67,7 +66,6 @@ class _SoundTracePainter extends CustomPainter {
     required this.maxBarWidth,
     required this.gap,
   }) : super(repaint: animation);
-
   final int row;
   final Animation<double> animation;
   final bool reducedMotion;

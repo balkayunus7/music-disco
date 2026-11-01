@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:mobile_boilerplate/common_dependencies.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobile_boilerplate/core_app.dart';
 import 'package:music_disco/config/app_config.dart';
-import 'package:music_disco/config/debug_http_proxy.dart';
 import 'package:music_disco/config/restartable_app.dart';
 import 'package:music_disco/config/setup_bindings.dart';
 import 'package:music_disco/config/setup_dependencies.dart';
@@ -11,16 +9,9 @@ import 'package:music_disco/music_disco_app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setupDebugHttpProxy();
   await setupBindings();
   await setupCoreApp(MusicAppConfig());
-  try {
-    await setupDependencies();
-  } on Object catch (error, stack) {
-    FlutterError.reportError(
-      FlutterErrorDetails(exception: error, stack: stack),
-    );
-    await getIt.reset();
+  if (!await trySetupDependencies()) {
     runApp(const StartupFailureApp());
     return;
   }

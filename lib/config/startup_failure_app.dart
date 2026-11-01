@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
-import 'package:music_disco/core/util/locale_extensions.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
+import 'package:music_disco/core/localization/locale_language.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
 
 class StartupFailureApp extends StatelessWidget {
   const StartupFailureApp({super.key});
@@ -10,7 +10,7 @@ class StartupFailureApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return EasyLocalization(
       path: 'assets/translations',
-      supportedLocales: LocaleLanguage.values.map((e) => e.locale).toList(),
+      supportedLocales: LocaleLanguage.supportedLocales,
       fallbackLocale: LocaleLanguage.en.locale,
       child: Builder(
         builder: (context) {

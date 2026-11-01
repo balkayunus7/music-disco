@@ -7,44 +7,46 @@ class SplashView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = hasFailed ? LocaleKeys.error_title : LocaleKeys.app_name;
-    final message = hasFailed ? LocaleKeys.error_message : LocaleKeys.starting;
+    final title = (hasFailed ? LocaleKeys.error_title : LocaleKeys.app_name)
+        .tr();
+    final message = (hasFailed ? LocaleKeys.error_message : LocaleKeys.starting)
+        .tr();
 
     return Scaffold(
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: Sp.xlarge.padAllR,
+            padding: Sp.s24.padAllR,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   Icons.graphic_eq_rounded,
-                  size: Sp.huge.r,
+                  size: Sp.s64.r,
                   color: context.colors.primary,
                 ),
-                Sp.xlarge.heightBox,
+                Sp.s24.heightBox,
                 Text(
-                  title.tr(),
+                  title,
                   style: hasFailed
                       ? sheetTitleStyle(context)
                       : logoTextStyle(context),
                   textAlign: TextAlign.center,
                 ),
-                Sp.small.heightBox,
+                Sp.s12.heightBox,
                 Text(
-                  message.tr(),
+                  message,
                   textAlign: TextAlign.center,
                   style: bodyTextStyle(
                     context,
                   ).copyWith(color: context.colors.textSecondary),
                 ),
-                Sp.xlarge.heightBox,
+                Sp.s24.heightBox,
                 if (hasFailed) ...[
-                  FancyButton(text: LocaleKeys.retry.tr(), onTap: onRetry),
+                  AppCtaButton(text: LocaleKeys.retry.tr(), onTap: onRetry),
                 ] else ...[
                   Semantics(
-                    label: message.tr(),
+                    label: message,
                     liveRegion: true,
                     child: CircularProgressIndicator(
                       color: context.colors.primary,

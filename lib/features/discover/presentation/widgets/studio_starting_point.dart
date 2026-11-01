@@ -7,7 +7,6 @@ class StudioStartingPoint extends StatelessWidget {
     required this.references,
     required this.onEdit,
   });
-
   final List<String> genreLabels;
   final List<MusicReference> references;
   final VoidCallback onEdit;
@@ -18,7 +17,7 @@ class StudioStartingPoint extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
-          spacing: Sp.small.w,
+          spacing: Sp.s12.w,
           children: [
             Expanded(
               child: Semantics(
@@ -36,19 +35,15 @@ class StudioStartingPoint extends StatelessWidget {
             ),
           ],
         ),
-        MotionSize(
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : 280.ms,
-          curve: Curves.easeOutCubic,
+        AdaptiveAnimatedSize(
           alignment: Alignment.topLeft,
           child: Wrap(
-            spacing: Sp.xsmall.w,
-            runSpacing: Sp.xsmall.h,
+            spacing: Sp.s8.w,
+            runSpacing: Sp.s8.h,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               for (final label in genreLabels)
-                PillLabel(text: label, isStrong: false, dense: true),
+                PillLabel(text: label, isStrong: false),
               for (final reference in references)
                 _ReferenceTag(reference: reference),
             ],
@@ -61,27 +56,26 @@ class StudioStartingPoint extends StatelessWidget {
 
 class _ReferenceTag extends StatelessWidget {
   const _ReferenceTag({required this.reference});
-
   final MusicReference reference;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.fromLTRB(
-        Sp.tiny.w + 2,
-        Sp.tiny.h + 1,
-        Sp.small.w,
-        Sp.tiny.h + 1,
+        Sp.s4.w + 2,
+        Sp.s4.h + 1,
+        Sp.s12.w,
+        Sp.s4.h + 1,
       ),
       decoration: BoxDecoration(
-        borderRadius: Sp.huge.radiusR,
+        borderRadius: Sp.s64.radiusR,
         border: Border.all(color: context.colors.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        spacing: Sp.xsmall.w,
+        spacing: Sp.s8.w,
         children: [
-          ReferenceAvatar(reference: reference, size: Sp.xlarge.r),
+          ReferenceAvatar(reference: reference, size: Sp.s24.r),
           Flexible(
             child: Text(
               reference.name,

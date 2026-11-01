@@ -6,7 +6,6 @@ class ReferenceAspectGrid extends StatelessWidget {
     required this.selected,
     required this.onSelected,
   });
-
   final ReferenceAspect selected;
   final ValueChanged<ReferenceAspect> onSelected;
 
@@ -17,13 +16,13 @@ class ReferenceAspectGrid extends StatelessWidget {
     const aspects = ReferenceAspect.values;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: Sp.xsmall.h,
+      spacing: Sp.s8.h,
       children: [
         for (var i = 0; i < aspects.length; i += _columns)
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: Sp.xsmall.w,
+              spacing: Sp.s8.w,
               children: [
                 for (final aspect in aspects.skip(i).take(_columns))
                   Expanded(
@@ -47,7 +46,6 @@ class _AspectCard extends StatelessWidget {
     required this.isSelected,
     required this.onTap,
   });
-
   final ReferenceAspect aspect;
   final bool isSelected;
   final VoidCallback onTap;
@@ -73,11 +71,9 @@ class _AspectCard extends StatelessWidget {
       haptic: TapHaptic.selection,
       child: ExcludeSemantics(
         child: AnimatedContainer(
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : 220.ms,
-          curve: Curves.easeOutCubic,
-          padding: EdgeInsets.all(Sp.medium.r),
+          duration: context.motion(MotionDuration.base),
+          curve: MotionCurve.enter,
+          padding: EdgeInsets.all(Sp.s16.r),
           decoration: BoxDecoration(
             color: isSelected
                 ? context.colors.surfaceSecondary
@@ -91,10 +87,10 @@ class _AspectCard extends StatelessWidget {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: Sp.tiny.h,
+            spacing: Sp.s4.h,
             children: [
-              Icon(_icon, size: Sp.xlarge.r, color: foreground),
-              Sp.tiny.heightBox,
+              Icon(_icon, size: Sp.s24.r, color: foreground),
+              Sp.s4.heightBox,
               Text(
                 label,
                 maxLines: 1,
@@ -123,7 +119,6 @@ class ReferenceSummary extends StatelessWidget {
     required this.reference,
     required this.aspect,
   });
-
   final MusicReference reference;
   final ReferenceAspect aspect;
 
@@ -136,18 +131,16 @@ class ReferenceSummary extends StatelessWidget {
       child: ExcludeSemantics(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: Sp.small.w,
+          spacing: Sp.s12.w,
           children: [
             Icon(
               Icons.queue_music_rounded,
-              size: Sp.large.r,
+              size: Sp.s20.r,
               color: context.colors.textSecondary,
             ),
             Expanded(
               child: AnimatedSwitcher(
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : 240.ms,
+                duration: context.motion(MotionDuration.base),
                 child: Text(
                   text,
                   key: ValueKey(text),

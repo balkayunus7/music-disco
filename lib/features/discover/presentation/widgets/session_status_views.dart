@@ -7,7 +7,6 @@ class SessionFailureView extends StatelessWidget {
     required this.onRetry,
     required this.onChangePreferences,
   });
-
   final DiscoverFailure failure;
   final VoidCallback onRetry;
   final VoidCallback onChangePreferences;
@@ -20,7 +19,7 @@ class SessionFailureView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(child: BrokenDisc(size: 176.r)),
-        Sp.xlarge.heightBox,
+        Sp.s24.heightBox,
         Text(
           (isUnavailable
                   ? LocaleKeys.session_error_unavailable_title
@@ -31,7 +30,7 @@ class SessionFailureView extends StatelessWidget {
             context,
           ).copyWith(color: context.colors.textPrimary),
         ),
-        Sp.small.heightBox,
+        Sp.s12.heightBox,
         Text(
           (isUnavailable
                   ? LocaleKeys.session_error_unavailable
@@ -42,8 +41,8 @@ class SessionFailureView extends StatelessWidget {
             context,
           ).copyWith(color: context.colors.textSecondary),
         ),
-        Sp.xlarge.heightBox,
-        CtaBar(
+        Sp.s24.heightBox,
+        AppCtaButton(
           text: LocaleKeys.retry.tr(),
           icon: Icons.refresh_rounded,
           onTap: onRetry,

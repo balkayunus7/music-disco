@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/opacities.dart';
 
 CustomTransitionPage<void> sharedAxisPage({
   required GoRouterState state,
@@ -9,31 +11,31 @@ CustomTransitionPage<void> sharedAxisPage({
     key: state.pageKey,
     name: state.name,
     child: child,
-    transitionDuration: const Duration(milliseconds: 420),
-    reverseTransitionDuration: const Duration(milliseconds: 320),
+    transitionDuration: MotionDuration.slow,
+    reverseTransitionDuration: MotionDuration.base,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      if (MediaQuery.disableAnimationsOf(context)) return child;
+      if (context.reducedMotion) return child;
       final incoming = CurvedAnimation(
         parent: animation,
-        curve: Curves.easeOutCubic,
-        reverseCurve: Curves.easeInCubic,
+        curve: MotionCurve.enter,
+        reverseCurve: MotionCurve.exit,
       );
       final outgoing = CurvedAnimation(
         parent: secondaryAnimation,
-        curve: Curves.easeOutCubic,
+        curve: MotionCurve.enter,
       );
       return FadeTransition(
-        opacity: Tween<double>(begin: 1, end: 0.35).animate(outgoing),
+        opacity: Tween<double>(begin: 1, end: Opacities.soft).animate(outgoing),
         child: SlideTransition(
           position: Tween<Offset>(
             begin: Offset.zero,
-            end: const Offset(-0.06, 0),
+            end: MotionOffset.pageExit,
           ).animate(outgoing),
           child: FadeTransition(
             opacity: incoming,
             child: SlideTransition(
               position: Tween<Offset>(
-                begin: const Offset(0.12, 0),
+                begin: MotionOffset.pageEnter,
                 end: Offset.zero,
               ).animate(incoming),
               child: child,

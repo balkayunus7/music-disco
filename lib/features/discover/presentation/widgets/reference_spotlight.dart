@@ -6,7 +6,6 @@ class ReferenceSpotlight extends StatelessWidget {
     required this.reference,
     required this.onChange,
   });
-
   final MusicReference reference;
   final VoidCallback onChange;
 
@@ -15,10 +14,7 @@ class ReferenceSpotlight extends StatelessWidget {
     final glow = reference.mood.palette.base;
     final hasGenres = reference.genres.isNotEmpty;
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Sp.medium.w,
-        vertical: Sp.medium.h,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Sp.s16.w, vertical: Sp.s16.h),
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: BorderRadius.circular(18),
@@ -35,7 +31,7 @@ class ReferenceSpotlight extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) => Row(
-          spacing: Sp.medium.w,
+          spacing: Sp.s16.w,
           children: [
             Semantics(
               label: reference.name,
@@ -43,11 +39,9 @@ class ReferenceSpotlight extends StatelessWidget {
               child: ExcludeSemantics(
                 child: TweenAnimationBuilder<double>(
                   key: ValueKey(reference.id),
-                  tween: Tween(begin: 0.86, end: 1),
-                  duration: MediaQuery.disableAnimationsOf(context)
-                      ? Duration.zero
-                      : 420.ms,
-                  curve: Curves.easeOutCubic,
+                  tween: Tween(begin: MotionScale.enter, end: 1),
+                  duration: context.motion(MotionDuration.slow),
+                  curve: MotionCurve.enter,
                   builder: (context, scale, child) =>
                       Transform.scale(scale: scale, child: child),
                   child: DecoratedBox(
@@ -55,14 +49,14 @@ class ReferenceSpotlight extends StatelessWidget {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: glow.withValues(alpha: 0.35),
+                          color: glow.withValues(alpha: Opacities.soft),
                           blurRadius: 24.r,
                         ),
                       ],
                     ),
                     child: ReferenceAvatar(
                       reference: reference,
-                      size: Sp.xxxlarge.r + Sp.medium.r,
+                      size: Sp.s48.r + Sp.s16.r,
                     ),
                   ),
                 ),
@@ -108,7 +102,6 @@ class ReferenceSpotlight extends StatelessWidget {
 
 class _ChangeReferenceButton extends StatelessWidget {
   const _ChangeReferenceButton({required this.onTap, required this.showLabel});
-
   final VoidCallback onTap;
   final bool showLabel;
 
@@ -126,20 +119,20 @@ class _ChangeReferenceButton extends StatelessWidget {
             widthFactor: 1,
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: Sp.small.w,
-                vertical: Sp.xsmall.h,
+                horizontal: Sp.s12.w,
+                vertical: Sp.s8.h,
               ),
               decoration: BoxDecoration(
-                borderRadius: Sp.huge.radiusR,
+                borderRadius: Sp.s64.radiusR,
                 border: Border.all(color: context.colors.border),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
-                spacing: Sp.xsmall.w,
+                spacing: Sp.s8.w,
                 children: [
                   Icon(
                     Icons.swap_horiz_rounded,
-                    size: Sp.medium.r,
+                    size: Sp.s16.r,
                     color: context.colors.textPrimary,
                   ),
                   if (showLabel)

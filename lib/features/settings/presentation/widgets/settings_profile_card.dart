@@ -28,73 +28,69 @@ class SettingsProfileCard extends StatelessWidget {
         end: Alignment.bottomRight,
         colors: [context.colors.surfaceSecondary, context.colors.surface],
       ),
-      borderRadius: BorderRadius.circular(18),
+      borderRadius: Sp.s18.radiusR,
       border: Border.all(color: context.colors.border),
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: Sp.medium.padAllR,
-          child: Column(
+          padding: Sp.s16.padAllR,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  ExcludeSemantics(
-                    child: HoloDisc(
-                      palette: _silver,
-                      size: Sp.huge.r + Sp.medium.r,
-                      title: 'NO RULES',
-                      caption: 'ARA SOUND COLLECTION · 06',
-                      turns: -0.05,
+              ExcludeSemantics(
+                child: DiscCover(
+                  palette: _silver,
+                  size: Sp.s64.r + Sp.s16.r,
+                  title: 'NO RULES',
+                  caption: 'ARA SOUND COLLECTION · 06',
+                  turns: -0.05,
+                ),
+              ),
+              Sp.s16.widthBox,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: profileNameStyle(context),
                     ),
-                  ),
-                  Sp.medium.widthBox,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: profileNameStyle(context),
-                        ),
-                        Pressable(
-                          onTap: onEdit,
-                          child: Row(
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  LocaleKeys.settings_edit_profile.tr(),
-                                  style: labelTextStyle(context).copyWith(
-                                    color: context.colors.textSecondary,
-                                  ),
-                                ),
-                              ),
-                              Sp.xsmall.widthBox,
-                              Icon(
-                                Icons.edit_outlined,
-                                size: Sp.large.r,
-                                color: context.colors.textSecondary,
-                              ),
-                            ],
+                    Pressable(
+                      onTap: onEdit,
+                      child: Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              LocaleKeys.settings_edit_profile.tr(),
+                              style: labelTextStyle(
+                                context,
+                              ).copyWith(color: context.colors.textSecondary),
+                            ),
                           ),
-                        ),
-                      ],
+                          Sp.s8.widthBox,
+                          Icon(
+                            Icons.edit_outlined,
+                            size: Sp.s20.r,
+                            color: context.colors.textSecondary,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),
         ),
-        Divider(height: 1, color: context.colors.borderSecondary),
+        Divider(height: Stroke.thin, color: context.colors.borderSecondary),
         Pressable(
           onTap: onCollection,
           child: Padding(
-            padding: Sp.medium.padHVR(Sp.small),
+            padding: Sp.s16.padHVR(Sp.s12),
             child: Row(
               children: [
                 Expanded(
@@ -107,7 +103,7 @@ class SettingsProfileCard extends StatelessWidget {
                 ),
                 Icon(
                   Icons.north_east_rounded,
-                  size: Sp.large.r,
+                  size: Sp.s20.r,
                   color: context.colors.textSecondary,
                 ),
               ],

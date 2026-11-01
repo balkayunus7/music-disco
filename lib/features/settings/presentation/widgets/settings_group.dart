@@ -1,37 +1,47 @@
 part of '../pages/settings_page.dart';
 
-class SettingsSectionLabel extends StatelessWidget {
-  const SettingsSectionLabel({super.key, required this.text});
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    header: true,
-    child: Text(
-      text,
-      style: listTitleStyle(
-        context,
-      ).copyWith(color: context.colors.textTertiary),
-    ),
-  );
-}
-
-class SettingsGroup extends StatelessWidget {
-  const SettingsGroup({super.key, required this.children});
+class SettingsSection extends StatelessWidget {
+  const SettingsSection({
+    super.key,
+    required this.title,
+    required this.children,
+  });
+  final String title;
   final List<Widget> children;
 
   @override
-  Widget build(BuildContext context) => Container(
-    decoration: BoxDecoration(
-      color: context.colors.surface,
-      border: Border.all(color: context.colors.borderSecondary),
-      borderRadius: Sp.xlarge.radiusR,
-    ),
-    child: Column(
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: children,
-    ),
-  );
+      children: [
+        Semantics(
+          header: true,
+          child: Text(
+            title,
+            style: listTitleStyle(context).copyWith(color: colors.textTertiary),
+          ),
+        ),
+        Sp.s12.heightBox,
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: colors.surface,
+            border: Border.all(color: colors.borderSecondary),
+            borderRadius: Sp.s24.radiusR,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final (index, child) in children.indexed) ...[
+                if (index > 0) const _SettingsDivider(),
+                child,
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
 
 class SettingsRow extends StatelessWidget {
@@ -43,6 +53,14 @@ class SettingsRow extends StatelessWidget {
     this.onTap,
     this.trailing,
   });
+
+  const SettingsRow.external({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.onTap,
+  }) : subtitle = null,
+       trailing = const _ExternalLinkIcon();
   final IconData icon;
   final String title;
   final String? subtitle;
@@ -51,39 +69,39 @@ class SettingsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final subtitle = this.subtitle;
     final content = Padding(
-      padding: Sp.medium.padHVR(Sp.small),
+      padding: Sp.s16.padHVR(Sp.s12),
       child: Row(
         children: [
-          Icon(icon, color: context.colors.textSecondary, size: Sp.large.r),
-          Sp.small.widthBox,
+          Icon(icon, color: colors.textSecondary, size: Sp.s20.r),
+          Sp.s12.widthBox,
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: settingsRowTitleStyle(context)),
                 if (subtitle != null) ...[
-                  Sp.tiny.heightBox,
+                  Sp.s4.heightBox,
                   Text(
-                    subtitle!,
+                    subtitle,
                     style: secondaryTextStyle(context).copyWith(
-                      color: context.colors.textSecondary,
-                      height: 1.4,
+                      color: colors.textSecondary,
+                      height: LineHeight.comfortable,
                     ),
                   ),
                 ],
               ],
             ),
           ),
-          Sp.small.widthBox,
-          if (trailing != null)
-            trailing!
-          else
-            Icon(
-              Icons.chevron_right_rounded,
-              color: context.colors.textTertiary,
-              size: Sp.large.r,
-            ),
+          Sp.s12.widthBox,
+          trailing ??
+              Icon(
+                Icons.chevron_right_rounded,
+                color: colors.textTertiary,
+                size: Sp.s20.r,
+              ),
         ],
       ),
     );
@@ -92,12 +110,25 @@ class SettingsRow extends StatelessWidget {
   }
 }
 
-class SettingsDivider extends StatelessWidget {
-  const SettingsDivider({super.key});
+class _ExternalLinkIcon extends StatelessWidget {
+  const _ExternalLinkIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Icon(
+      Icons.north_east_rounded,
+      size: Sp.s16.r,
+      color: context.colors.textTertiary,
+    );
+  }
+}
+
+class _SettingsDivider extends StatelessWidget {
+  const _SettingsDivider();
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: Sp.small.padHR,
-    child: Divider(height: 1, color: context.colors.borderSecondary),
+    padding: Sp.s12.padHR,
+    child: Divider(height: Stroke.thin, color: context.colors.borderSecondary),
   );
 }

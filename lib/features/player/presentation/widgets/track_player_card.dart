@@ -2,25 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
-import 'package:music_disco/core/widgets/jewel_case.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
+import 'package:music_disco/core/design_system/typography.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
+import 'package:music_disco/core/widgets/disc_case.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 import 'package:music_disco/features/discover/domain/models/track.dart';
 import 'package:music_disco/features/player/bloc/youtube_player_cubit.dart';
 
 class TrackPlayerCard extends StatelessWidget {
   const TrackPlayerCard({super.key, required this.track});
-
   final Track track;
 
   @override
   Widget build(BuildContext context) {
-    final captionStyle = eyebrowTextStyle(
-      context,
-    ).copyWith(color: context.colors.textDisabled, letterSpacing: 1.4);
-    return JewelCase(
+    final captionStyle = captionLabelStyle(context).copyWith(
+      color: context.colors.textDisabled,
+      letterSpacing: LetterSpacing.wider,
+    );
+    return DiscCase(
       footer: Row(
         children: [
           Expanded(
@@ -33,7 +35,7 @@ class TrackPlayerCard extends StatelessWidget {
         ],
       ),
       child: ClipRRect(
-        borderRadius: Sp.tiny.radiusR,
+        borderRadius: Sp.s4.radiusR,
         child: ColoredBox(
           color: context.colors.background,
           child: Column(
@@ -52,39 +54,43 @@ class TrackPlayerCard extends StatelessWidget {
   }
 
   Widget _buildControls(BuildContext context, YoutubePlayerState player) {
-    if (player.hasError) {
-      return Padding(
-        padding: Sp.small.padAllR,
-        child: Column(
-          children: [
-            Text(
-              LocaleKeys.session_video_error.tr(),
-              style: secondaryTextStyle(
-                context,
-              ).copyWith(color: context.colors.textSecondary),
-            ),
-            TextButton(
-              onPressed: context.read<YoutubePlayerCubit>().retry,
-              child: Text(
-                LocaleKeys.retry.tr(),
-                style: listTitleStyle(context),
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     final cubit = context.read<YoutubePlayerCubit>();
+    if (player.hasError) return _PlayerError(onRetry: cubit.retry);
     return _PlayerControls(
       isPlaying: player.isPlaying,
+      isMuted: player.isMuted,
       progress: player.progress,
       elapsed: player.elapsedLabel,
       total: player.durationLabel,
       onPlayPause: cubit.togglePlay,
-      onSeek: cubit.seekToFraction,
-      isMuted: player.isMuted,
       onMute: cubit.toggleMute,
+      onSeek: cubit.seekToFraction,
+    );
+  }
+}
+
+class _PlayerError extends StatelessWidget {
+  const _PlayerError({required this.onRetry});
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: Sp.s12.padAllR,
+      child: Column(
+        children: [
+          Text(
+            LocaleKeys.session_video_error.tr(),
+            style: secondaryTextStyle(
+              context,
+            ).copyWith(color: context.colors.textSecondary),
+          ),
+          TextButton(
+            onPressed: onRetry,
+            child: Text(LocaleKeys.retry.tr(), style: listTitleStyle(context)),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -92,34 +98,30 @@ class TrackPlayerCard extends StatelessWidget {
 class _PlayerControls extends StatelessWidget {
   const _PlayerControls({
     required this.isPlaying,
+    required this.isMuted,
     required this.progress,
     required this.elapsed,
     required this.total,
     required this.onPlayPause,
-    required this.onSeek,
-    required this.isMuted,
     required this.onMute,
+    required this.onSeek,
   });
-
   final bool isPlaying;
+  final bool isMuted;
   final double progress;
   final String elapsed;
   final String total;
-  final bool isMuted;
-  final VoidCallback onMute;
   final VoidCallback onPlayPause;
+  final VoidCallback onMute;
   final ValueChanged<double> onSeek;
 
   @override
   Widget build(BuildContext context) {
     final timeStyle = secondaryTextStyle(context);
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: Sp.small.w,
-        vertical: Sp.xsmall.h,
-      ),
+      padding: Sp.s12.padHVR(Sp.s8),
       child: Row(
-        spacing: Sp.xsmall.w,
+        spacing: Sp.s8.w,
         children: [
           Pressable(
             onTap: onPlayPause,
@@ -127,24 +129,22 @@ class _PlayerControls extends StatelessWidget {
                 ? LocaleKeys.session_pause.tr()
                 : LocaleKeys.session_play.tr(),
             child: SizedBox.square(
-              dimension: Sp.xxxlarge.r,
+              dimension: Sp.s48.r,
               child: AnimatedSwitcher(
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : 160.ms,
+                duration: context.motion(MotionDuration.fast),
                 transitionBuilder: (child, animation) =>
                     ScaleTransition(scale: animation, child: child),
                 child: Icon(
                   isPlaying ? Icons.pause_rounded : Icons.play_arrow_outlined,
                   key: ValueKey(isPlaying),
                   color: context.colors.textPrimary,
-                  size: Sp.large.r,
+                  size: Sp.s20.r,
                 ),
               ),
             ),
           ),
           SizedBox(
-            width: Sp.xxlarge.w,
+            width: Sp.s32.w,
             child: Text(elapsed, style: timeStyle),
           ),
           Expanded(
@@ -159,7 +159,7 @@ class _PlayerControls extends StatelessWidget {
             icon: Icon(
               isMuted ? Icons.volume_off_outlined : Icons.volume_up_outlined,
               color: context.colors.textPrimary,
-              size: Sp.medium.r,
+              size: Sp.s16.r,
             ),
           ),
         ],
@@ -173,12 +173,18 @@ class _ProgressTrack extends StatelessWidget {
   final double progress;
   final ValueChanged<double> onSeek;
 
+  static const double _trackHeight = 2;
+  static const double _thumbRadius = 5;
+  static const double _overlayRadius = 12;
+
   @override
   Widget build(BuildContext context) => SliderTheme(
     data: SliderTheme.of(context).copyWith(
-      trackHeight: 2,
-      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5),
-      overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
+      trackHeight: _trackHeight,
+      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: _thumbRadius),
+      overlayShape: const RoundSliderOverlayShape(
+        overlayRadius: _overlayRadius,
+      ),
     ),
     child: Slider(
       value: progress,

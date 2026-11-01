@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:music_disco/core/widgets/holo_disc.dart';
+import 'package:music_disco/core/widgets/disc_cover.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
 
@@ -12,7 +12,6 @@ class MoodDisc extends StatelessWidget {
     this.isDimmed = false,
     this.hasShadow = true,
   });
-
   final Mood mood;
   final double size;
   final double turns;
@@ -21,7 +20,7 @@ class MoodDisc extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return HoloDisc(
+    return DiscCover(
       palette: mood.palette,
       size: size,
       title: mood.discTitle,

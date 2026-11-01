@@ -9,7 +9,6 @@ import 'package:music_disco/features/discover/domain/models/reference_aspect.dar
 import 'package:music_disco/features/discover/domain/models/track.dart';
 import 'package:music_disco/features/discover/domain/models/track_feedback.dart';
 import 'package:music_disco/features/discover/domain/use_cases/i_discovery_repository.dart';
-
 import 'package:music_disco/features/taste/domain/models/taste_profile.dart';
 
 part 'discover_state.dart';
@@ -22,9 +21,10 @@ class DiscoverCubit extends Cubit<DiscoverState> {
 
   final IDiscoveryRepository _repository;
   final Duration requestTimeout;
-
   final Set<String> _rejectedIds = {};
   int _request = 0;
+
+  bool _isStale(int request) => isClosed || request != _request;
 
   void selectMood(Mood mood) => _updatePreferences(mood: mood);
 
@@ -67,9 +67,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
   }
 
   Future<void> startRound({TasteProfile? taste}) async {
-    if (state.status == DiscoverRoundStatus.loading || state.isReplacing) {
-      return;
-    }
+    if (state.isLoading || state.isReplacing) return;
     final request = ++_request;
     final preferences = state.preferences.copyWith(taste: taste);
 
@@ -93,7 +91,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
             excludeIds: _rejectedIds,
           )
           .timeout(requestTimeout);
-      if (isClosed || request != _request) return;
+      if (_isStale(request)) return;
       emit(
         state.copyWith(
           status: tracks.isEmpty
@@ -104,7 +102,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
         ),
       );
     } on Object {
-      if (isClosed || request != _request) return;
+      if (_isStale(request)) return;
       emit(
         state.copyWith(
           status: DiscoverRoundStatus.failure,
@@ -115,13 +113,13 @@ class DiscoverCubit extends Cubit<DiscoverState> {
   }
 
   void cancelLoadingRound() {
-    if (state.status != DiscoverRoundStatus.loading) return;
+    if (!state.isLoading) return;
     _request++;
     emit(state.copyWith(status: DiscoverRoundStatus.idle));
   }
 
   void finishRound() {
-    if (state.status != DiscoverRoundStatus.ready || state.isReplacing) return;
+    if (!state.canChangeRound) return;
     emit(
       state.copyWith(
         status: DiscoverRoundStatus.finished,
@@ -131,7 +129,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
   }
 
   void goTo(int index) {
-    if (state.status != DiscoverRoundStatus.ready || state.isReplacing) return;
+    if (!state.canChangeRound) return;
     if (index < 0 || index >= state.tracks.length) return;
     if (index == state.currentIndex) return;
     emit(state.copyWith(currentIndex: index, notice: DiscoverNotice.none));
@@ -143,11 +141,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
 
   Future<void> rejectCurrent(TrackFeedback feedback) async {
     final current = state.currentTrack;
-    if (current == null ||
-        state.isReplacing ||
-        state.status != DiscoverRoundStatus.ready) {
-      return;
-    }
+    if (current == null || !state.canChangeRound) return;
     final request = ++_request;
     final index = state.currentIndex;
 
@@ -162,7 +156,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
             excludeIds: {..._rejectedIds, ...state.tracks.map((t) => t.id)},
           )
           .timeout(requestTimeout);
-      if (isClosed || request != _request) return;
+      if (_isStale(request)) return;
       if (replacement == null) {
         emit(
           state.copyWith(
@@ -184,7 +178,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
         ),
       );
     } on Object {
-      if (isClosed || request != _request) return;
+      if (_isStale(request)) return;
       emit(
         state.copyWith(
           isReplacing: false,
@@ -195,7 +189,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
   }
 
   Future<void> applyPreferences(DiscoveryPreferences preferences) async {
-    if (state.status != DiscoverRoundStatus.ready || state.isReplacing) return;
+    if (!state.canChangeRound) return;
     if (state.isLastTrack) {
       emit(state.copyWith(notice: DiscoverNotice.noAlternative));
       return;
@@ -211,7 +205,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
             excludeIds: {..._rejectedIds, ...kept.map((t) => t.id)},
           )
           .timeout(requestTimeout);
-      if (isClosed || request != _request) return;
+      if (_isStale(request)) return;
       if (upcoming.isEmpty) {
         emit(
           state.copyWith(
@@ -229,7 +223,7 @@ class DiscoverCubit extends Cubit<DiscoverState> {
         ),
       );
     } on Object {
-      if (isClosed || request != _request) return;
+      if (_isStale(request)) return;
       emit(
         state.copyWith(
           isReplacing: false,

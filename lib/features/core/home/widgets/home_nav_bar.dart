@@ -1,49 +1,5 @@
 part of '../home_page.dart';
 
-class HomeNavBarReveal extends StatelessWidget {
-  const HomeNavBarReveal({
-    super.key,
-    required this.isHidden,
-    required this.child,
-  });
-
-  final bool isHidden;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return IgnorePointer(
-      ignoring: isHidden,
-      child: ExcludeSemantics(
-        excluding: isHidden,
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(end: isHidden ? 0 : 1),
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : 320.ms,
-          curve: Curves.easeOutCubic,
-          builder: (context, factor, child) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ClipRect(
-                child: Align(
-                  alignment: Alignment.topCenter,
-                  heightFactor: factor,
-                  child: Opacity(opacity: factor, child: child),
-                ),
-              ),
-              SizedBox(
-                height: (1 - factor) * MediaQuery.paddingOf(context).bottom,
-              ),
-            ],
-          ),
-          child: child,
-        ),
-      ),
-    );
-  }
-}
-
 class HomeNavBar extends StatelessWidget {
   const HomeNavBar({
     super.key,
@@ -52,7 +8,6 @@ class HomeNavBar extends StatelessWidget {
     required this.landingPulse,
     required this.onTap,
   });
-
   final int currentIndex;
   final GlobalKey collectionTargetKey;
   final ValueListenable<int> landingPulse;
@@ -68,10 +23,7 @@ class HomeNavBar extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: Sp.screen.w,
-            vertical: Sp.xsmall.h,
-          ),
+          padding: Sp.screen.padHVR(Sp.s8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -80,29 +32,13 @@ class HomeNavBar extends StatelessWidget {
                   label: LocaleKeys.nav_discover.tr(),
                   isSelected: currentIndex == 0,
                   onTap: () => onTap(0),
-                  iconBuilder: (color) => Icon(
-                    Icons.album_outlined,
-                    color: color,
-                    size: Sp.large.r,
-                  ),
+                  iconBuilder: (color) =>
+                      Icon(Icons.album_outlined, color: color, size: Sp.s20.r),
                 ),
               ),
               Expanded(
-                child: ValueListenableBuilder<int>(
-                  valueListenable: landingPulse,
-                  builder: (context, pulse, child) {
-                    return TweenAnimationBuilder<double>(
-                      key: ValueKey(pulse),
-                      tween: Tween(begin: pulse == 0 ? 1 : 1.12, end: 1),
-                      duration: MediaQuery.disableAnimationsOf(context)
-                          ? Duration.zero
-                          : 360.ms,
-                      curve: Curves.easeOutBack,
-                      builder: (context, scale, child) =>
-                          Transform.scale(scale: scale, child: child),
-                      child: child,
-                    );
-                  },
+                child: _LandingPulse(
+                  pulse: landingPulse,
                   child: BlocSelector<CollectionCubit, CollectionState, int>(
                     selector: (state) => state.count,
                     builder: (context, count) => _NavItem(
@@ -115,7 +51,7 @@ class HomeNavBar extends StatelessWidget {
                       iconBuilder: (color) => ShelfIcon(
                         key: collectionTargetKey,
                         color: color,
-                        size: Sp.large.r,
+                        size: Sp.s20.r,
                       ),
                       badge: count == 0 ? null : _CountBadge(count: count),
                     ),
@@ -128,7 +64,7 @@ class HomeNavBar extends StatelessWidget {
                   isSelected: currentIndex == 2,
                   onTap: () => onTap(2),
                   iconBuilder: (color) =>
-                      Icon(Icons.tune_rounded, color: color, size: Sp.large.r),
+                      Icon(Icons.tune_rounded, color: color, size: Sp.s20.r),
                 ),
               ),
             ],
@@ -148,19 +84,18 @@ class _NavItem extends StatelessWidget {
     this.semanticLabel,
     this.badge,
   });
-
   final String label;
-  final String? semanticLabel;
   final bool isSelected;
   final VoidCallback onTap;
   final Widget Function(Color color) iconBuilder;
+  final String? semanticLabel;
   final Widget? badge;
 
   @override
   Widget build(BuildContext context) {
-    final color = isSelected
-        ? context.colors.navIconActive
-        : context.colors.navIconInactive;
+    final colors = context.colors;
+    final badge = this.badge;
+    final color = isSelected ? colors.navIconActive : colors.navIconInactive;
     return Pressable(
       onTap: onTap,
       selected: isSelected,
@@ -168,38 +103,34 @@ class _NavItem extends StatelessWidget {
       haptic: TapHaptic.selection,
       child: ExcludeSemantics(
         child: Padding(
-          padding: Sp.tiny.padAllR,
+          padding: Sp.s4.padAllR,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            spacing: Sp.tiny.h,
+            spacing: Sp.s4.h,
             children: [
               Stack(
                 alignment: Alignment.center,
                 clipBehavior: Clip.none,
                 children: [
                   AnimatedContainer(
-                    duration: MediaQuery.disableAnimationsOf(context)
-                        ? Duration.zero
-                        : 260.ms,
-                    curve: Curves.easeOutCubic,
-                    width: Sp.huge.r,
-                    padding: Sp.tiny.padVR,
+                    duration: context.motion(MotionDuration.base),
+                    curve: MotionCurve.enter,
+                    width: Sp.s64.r,
+                    padding: Sp.s4.padVR,
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? context.colors.navIndicator
-                          : context.colors.navIndicator.withValues(alpha: 0),
-                      borderRadius: Sp.huge.radiusR,
+                          ? colors.navIndicator
+                          : colors.navIndicator.withValues(alpha: 0),
+                      borderRadius: Sp.s64.radiusR,
                     ),
                     child: Center(child: iconBuilder(color)),
                   ),
                   if (badge != null)
-                    Positioned(top: -Sp.tiny.r, right: 0, child: badge!),
+                    Positioned(top: -Sp.s4.r, right: 0, child: badge),
                 ],
               ),
               AnimatedDefaultTextStyle(
-                duration: MediaQuery.disableAnimationsOf(context)
-                    ? Duration.zero
-                    : 260.ms,
+                duration: context.motion(MotionDuration.base),
                 style: navigationTextStyle(context).copyWith(color: color),
                 child: Text(
                   label,
@@ -215,25 +146,51 @@ class _NavItem extends StatelessWidget {
   }
 }
 
-class _CountBadge extends StatelessWidget {
-  const _CountBadge({required this.count});
+class _LandingPulse extends StatelessWidget {
+  const _LandingPulse({required this.pulse, required this.child});
+  final ValueListenable<int> pulse;
+  final Widget child;
 
-  final int count;
+  static const double _landingScale = 1.12;
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: pulse,
+      builder: (context, count, child) => TweenAnimationBuilder<double>(
+        key: ValueKey(count),
+        tween: Tween(begin: count == 0 ? 1 : _landingScale, end: 1),
+        duration: context.motion(MotionDuration.slow),
+        curve: MotionCurve.overshoot,
+        builder: (context, scale, child) =>
+            Transform.scale(scale: scale, child: child),
+        child: child,
+      ),
+      child: child,
+    );
+  }
+}
+
+class _CountBadge extends StatelessWidget {
+  const _CountBadge({required this.count});
+  final int count;
+
+  static const double _verticalPadding = 1;
+  static const double _borderWidth = 2;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
     return Container(
-      constraints: BoxConstraints(minWidth: Sp.medium.r),
-      padding: EdgeInsets.symmetric(horizontal: Sp.tiny.w, vertical: 1.h),
+      constraints: BoxConstraints(minWidth: Sp.s16.r),
+      padding: Sp.s4.padHVR(_verticalPadding),
       decoration: BoxDecoration(
-        color: context.colors.buttonSecondary,
-        borderRadius: Sp.huge.radiusR,
-        border: Border.all(color: context.colors.navBackground, width: 2),
+        color: colors.buttonSecondary,
+        borderRadius: Sp.s64.radiusR,
+        border: Border.all(color: colors.navBackground, width: _borderWidth),
       ),
       child: AnimatedSwitcher(
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : 300.ms,
+        duration: context.motion(MotionDuration.base),
         transitionBuilder: (child, animation) => ScaleTransition(
           scale: animation,
           child: FadeTransition(opacity: animation, child: child),

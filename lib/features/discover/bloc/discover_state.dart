@@ -33,14 +33,18 @@ class DiscoverState extends Equatable {
   final DiscoverNotice notice;
   final bool isReplacing;
   final DiscoverFailure failure;
-
   final DiscoverySource? roundSource;
 
   Track? get currentTrack =>
       currentIndex < tracks.length ? tracks[currentIndex] : null;
   bool get hasPrevious => currentIndex > 0;
-  bool get canResume =>
-      roundSource != null && status == DiscoverRoundStatus.ready;
+  bool get isLoading => status == DiscoverRoundStatus.loading;
+  bool get isReady => status == DiscoverRoundStatus.ready;
+  bool get isFailed => status == DiscoverRoundStatus.failure;
+  bool get isFinished => status == DiscoverRoundStatus.finished;
+  bool get isRoundActive => !isFinished && !isFailed;
+  bool get canChangeRound => isReady && !isReplacing;
+  bool get canResume => roundSource != null && isReady;
   bool get isShortRound => tracks.isNotEmpty && tracks.length < roundSize;
   bool get isLastTrack =>
       tracks.isNotEmpty && currentIndex == tracks.length - 1;

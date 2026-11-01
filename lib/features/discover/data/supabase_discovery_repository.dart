@@ -11,7 +11,6 @@ import 'package:supabase/supabase.dart';
 class SupabaseDiscoveryRepository
     implements IDiscoveryRepository, IDiscoveryFeedbackRepository {
   SupabaseDiscoveryRepository(this._client);
-
   final SupabaseClient _client;
 
   @override

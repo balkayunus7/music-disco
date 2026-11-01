@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
-import 'package:music_disco/core/widgets/cta_bar.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
+import 'package:music_disco/core/widgets/app_cta_button.dart';
 import 'package:music_disco/core/widgets/text_link.dart';
+import 'package:music_disco/core/design_system/motion.dart';
 
 Future<T?> showAppDialog<T>(
   BuildContext context, {
@@ -16,9 +17,7 @@ Future<T?> showAppDialog<T>(
     context: context,
     useRootNavigator: true,
     barrierColor: context.colors.overlay,
-    animationStyle: MediaQuery.disableAnimationsOf(context)
-        ? AnimationStyle.noAnimation
-        : null,
+    animationStyle: context.reducedMotion ? AnimationStyle.noAnimation : null,
     builder: builder,
   );
 }
@@ -30,7 +29,6 @@ class AppDialogFrame extends StatelessWidget {
     required this.child,
     this.message,
   });
-
   final String title;
   final String? message;
   final Widget child;
@@ -41,16 +39,13 @@ class AppDialogFrame extends StatelessWidget {
     return Dialog(
       backgroundColor: context.colors.surface,
       surfaceTintColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(
-        horizontal: Sp.large.w,
-        vertical: Sp.large.h,
-      ),
+      insetPadding: Sp.s20.padSymR(v: Sp.s20),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: Sp.s24.radiusR,
         side: BorderSide(color: context.colors.borderSecondary),
       ),
       child: SingleChildScrollView(
-        padding: EdgeInsets.all(Sp.large.r),
+        padding: Sp.s20.padAllR,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -60,7 +55,7 @@ class AppDialogFrame extends StatelessWidget {
               child: Text(title, style: sheetTitleStyle(context)),
             ),
             if (message != null) ...[
-              Sp.xsmall.heightBox,
+              Sp.s8.heightBox,
               Text(
                 message,
                 style: bodyTextStyle(
@@ -68,7 +63,7 @@ class AppDialogFrame extends StatelessWidget {
                 ).copyWith(color: context.colors.textSecondary),
               ),
             ],
-            Sp.large.heightBox,
+            Sp.s20.heightBox,
             child,
           ],
         ),
@@ -83,30 +78,25 @@ class AppDialogActions extends StatelessWidget {
     required this.confirmLabel,
     required this.onConfirm,
     this.confirmIcon = Icons.check_rounded,
-    this.cancelLabel,
-    this.onCancel,
   });
-
   final String confirmLabel;
   final VoidCallback? onConfirm;
   final IconData confirmIcon;
-  final String? cancelLabel;
-  final VoidCallback? onCancel;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      spacing: Sp.small.w,
+      spacing: Sp.s12.w,
       children: [
         TextLink(
-          text: cancelLabel ?? LocaleKeys.cancel.tr(),
-          onTap: onCancel ?? () => Navigator.of(context).pop(),
+          text: LocaleKeys.cancel.tr(),
+          onTap: () => Navigator.of(context).pop(),
         ),
-        CtaBar(
+        AppCtaButton(
           text: confirmLabel,
           icon: confirmIcon,
-          compact: true,
+          size: AppCtaButtonSize.compact,
           onTap: onConfirm,
         ),
       ],

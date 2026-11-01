@@ -41,7 +41,7 @@ class YoutubePlayerWrapper {
   Future<void> stop() => _controller.stopVideo();
 
   Future<void> seekTo(Duration position) => _controller.seekTo(
-    seconds: position.inMilliseconds / 1000,
+    seconds: position.inMilliseconds / Duration.millisecondsPerSecond,
     allowSeekAhead: true,
   );
 

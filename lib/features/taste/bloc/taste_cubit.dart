@@ -1,9 +1,8 @@
 import 'package:mobile_boilerplate/common_dependencies.dart';
-import 'package:music_disco/features/discover/domain/models/music_reference.dart';
 import 'package:music_disco/features/discover/domain/models/genre.dart';
+import 'package:music_disco/features/discover/domain/models/music_reference.dart';
 import 'package:music_disco/features/taste/domain/models/music_language.dart';
 import 'package:music_disco/features/taste/domain/models/taste_profile.dart';
-
 import 'package:music_disco/features/taste/domain/use_cases/i_taste_store.dart';
 
 part 'taste_state.dart';

@@ -5,13 +5,15 @@ import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
 import 'package:mobile_boilerplate/presentation/routing/route_aware_analytics_mixin.dart';
 import 'package:music_disco/config/app_routes.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
-import 'package:music_disco/core/widgets/brand_page_body.dart';
-import 'package:music_disco/core/widgets/cta_bar.dart';
-import 'package:music_disco/core/widgets/display_headline.dart';
-import 'package:music_disco/core/widgets/app_page_bar.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/opacities.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
+import 'package:music_disco/core/widgets/app_cta_button.dart';
+import 'package:music_disco/core/widgets/app_page_headline.dart';
+import 'package:music_disco/core/widgets/app_page_scaffold.dart';
+import 'package:music_disco/core/widgets/app_pagebar.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 import 'package:music_disco/core/widgets/search_field.dart';
 import 'package:music_disco/core/widgets/text_link.dart';
@@ -124,36 +126,34 @@ class _ReferenceViewState extends State<_ReferenceView>
       for (final saved in savedReferences)
         if (saved.id != reference?.id) catalog.resolve(saved),
     ];
-    return BrandPageBody(
-      appBar: AppPageBar(
+    return AppPageScaffold(
+      pageBar: AppPageBar(
         title: LocaleKeys.reference_step.tr(),
         showBackButton: true,
       ),
-      footer: CtaBar(
+      footer: AppCtaButton(
         text: canContinue
             ? LocaleKeys.discovery_continue.tr()
             : LocaleKeys.reference_pick_first.tr(),
         onTap: canContinue ? _onContinue : null,
       ),
       children: [
-        DisplayHeadline(
+        AppPageHeadline(
           first: LocaleKeys.reference_title_first.tr(),
           second: LocaleKeys.reference_title_second.tr(),
         ),
-        Sp.medium.heightBox,
+        Sp.s16.heightBox,
         Text(
           LocaleKeys.reference_subtitle.tr(),
           style: bodyTextStyle(
             context,
           ).copyWith(color: context.colors.textSecondary),
         ),
-        Sp.large.heightBox,
+        Sp.s20.heightBox,
         AnimatedSwitcher(
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : 320.ms,
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeInCubic,
+          duration: context.motion(MotionDuration.base),
+          switchInCurve: MotionCurve.enter,
+          switchOutCurve: MotionCurve.exit,
           transitionBuilder: (child, animation) => FadeTransition(
             opacity: animation,
             child: SizeTransition(
@@ -181,23 +181,23 @@ class _ReferenceViewState extends State<_ReferenceView>
                       onChange: _onChangeReference,
                     ),
                     if (quickPicks.isNotEmpty) ...[
-                      Sp.large.heightBox,
+                      Sp.s20.heightBox,
                       ReferenceQuickPicks(
                         references: quickPicks,
                         onPicked: _onPicked,
                       ),
                     ],
-                    Sp.large.heightBox,
+                    Sp.s20.heightBox,
                     Text(
                       LocaleKeys.reference_aspect_title.tr(),
                       style: sectionTitleStyle(context),
                     ),
-                    Sp.small.heightBox,
+                    Sp.s12.heightBox,
                     ReferenceAspectGrid(
                       selected: _aspect,
                       onSelected: (aspect) => setState(() => _aspect = aspect),
                     ),
-                    Sp.large.heightBox,
+                    Sp.s20.heightBox,
                     ReferenceSummary(reference: reference, aspect: _aspect),
                   ],
                 ),
