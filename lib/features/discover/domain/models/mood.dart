@@ -7,7 +7,6 @@ enum Mood {
   noRules(discTitle: 'NO RULES', collectionNumber: 6);
 
   const Mood({required this.discTitle, required this.collectionNumber});
-
   final String discTitle;
   final int collectionNumber;
 }

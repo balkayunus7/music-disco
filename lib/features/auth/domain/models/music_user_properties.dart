@@ -6,10 +6,14 @@ class MusicUserProperties extends UserProperties {
   const MusicUserProperties({required this.name});
   final String name;
 
-  bool get isValid => name.trim().isNotEmpty && name.trim().length <= 80;
-  Map<String, dynamic> toMap() => {'name': name.trim()};
+  static const int maxNameLength = 80;
+
+  String get _trimmed => name.trim();
+
+  bool get isValid => _trimmed.isNotEmpty && _trimmed.length <= maxNameLength;
+
+  Map<String, dynamic> toMap() => {'name': _trimmed};
 
   @override
-  MusicUser applyTo(User user) =>
-      (user as MusicUser).copyWith(name: name.trim());
+  MusicUser applyTo(User user) => (user as MusicUser).copyWith(name: _trimmed);
 }

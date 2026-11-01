@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
 
-class EyebrowText extends StatelessWidget {
-  const EyebrowText(this.text, {super.key, this.color, this.loading = false});
-
+class CaptionLabel extends StatelessWidget {
+  const CaptionLabel(this.text, {super.key});
   final String text;
-  final Color? color;
-  final bool loading;
 
   @override
   Widget build(BuildContext context) {
@@ -15,10 +12,9 @@ class EyebrowText extends StatelessWidget {
       text,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: eyebrowTextStyle(
+      style: captionLabelStyle(
         context,
-        loading: loading,
-      ).copyWith(color: color ?? context.colors.textSecondary),
+      ).copyWith(color: context.colors.textSecondary),
     );
   }
 }

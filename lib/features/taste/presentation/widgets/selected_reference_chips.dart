@@ -6,25 +6,20 @@ class SelectedReferenceChips extends StatelessWidget {
     required this.references,
     required this.onRemove,
   });
-
   final List<MusicReference> references;
   final ValueChanged<String> onRemove;
 
   @override
   Widget build(BuildContext context) {
-    return MotionSize(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : 240.ms,
-      curve: Curves.easeOutCubic,
+    return AdaptiveAnimatedSize(
       alignment: Alignment.topLeft,
       child: references.isEmpty
           ? const SizedBox(width: double.infinity)
           : Padding(
-              padding: Sp.small.padBottomR,
+              padding: Sp.s12.padBottomR,
               child: Wrap(
-                spacing: Sp.xsmall.w,
-                runSpacing: Sp.xsmall.h,
+                spacing: Sp.s8.w,
+                runSpacing: Sp.s8.h,
                 children: [
                   for (final reference in references)
                     _RemovableChip(
@@ -45,18 +40,15 @@ class _RemovableChip extends StatelessWidget {
     required this.reference,
     required this.onRemove,
   });
-
   final MusicReference reference;
   final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.85, end: 1),
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : 260.ms,
-      curve: Curves.easeOutBack,
+      tween: Tween(begin: MotionScale.enter, end: 1),
+      duration: context.motion(MotionDuration.base),
+      curve: MotionCurve.overshoot,
       builder: (context, scale, child) =>
           Transform.scale(scale: scale, child: child),
       child: Pressable(
@@ -66,23 +58,23 @@ class _RemovableChip extends StatelessWidget {
         child: ExcludeSemantics(
           child: Container(
             padding: EdgeInsets.fromLTRB(
-              Sp.medium.w,
-              Sp.xsmall.h + 2,
-              Sp.small.w,
-              Sp.xsmall.h + 2,
+              Sp.s16.w,
+              Sp.s10.h,
+              Sp.s12.w,
+              Sp.s10.h,
             ),
             decoration: BoxDecoration(
               color: context.colors.surfaceSecondary,
-              borderRadius: Sp.huge.radiusR,
+              borderRadius: Sp.s64.radiusR,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              spacing: Sp.xsmall.w,
+              spacing: Sp.s8.w,
               children: [
                 Text(reference.name, style: listTitleStyle(context)),
                 Icon(
                   Icons.close_rounded,
-                  size: Sp.medium.r,
+                  size: Sp.s16.r,
                   color: context.colors.textSecondary,
                 ),
               ],

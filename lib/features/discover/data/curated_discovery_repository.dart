@@ -1,18 +1,17 @@
-import 'package:music_disco/core/util/locale_keys.dart';
-import 'package:music_disco/features/discover/domain/models/genre.dart';
-import 'package:music_disco/features/discover/domain/models/reference_aspect.dart';
-import 'package:music_disco/features/taste/domain/models/music_language.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_direction.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_distance.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_preferences.dart';
+import 'package:music_disco/features/discover/domain/models/genre.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
+import 'package:music_disco/features/discover/domain/models/reference_aspect.dart';
 import 'package:music_disco/features/discover/domain/models/track.dart';
 import 'package:music_disco/features/discover/domain/models/track_feedback.dart';
 import 'package:music_disco/features/discover/domain/use_cases/i_discovery_repository.dart';
+import 'package:music_disco/features/taste/domain/models/music_language.dart';
 
 class CuratedDiscoveryRepository implements IDiscoveryRepository {
   CuratedDiscoveryRepository({this.latency = Duration.zero});
-
   final Duration latency;
 
   static const List<Track> catalog = [

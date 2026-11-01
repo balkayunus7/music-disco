@@ -8,11 +8,10 @@ class CollectionGrid extends StatelessWidget {
     required this.onManage,
     this.shelfLabelOf,
   });
-  final String? Function(Track track)? shelfLabelOf;
+  final List<Track> tracks;
   final ValueChanged<Track>? onPlay;
   final ValueChanged<Track>? onManage;
-
-  final List<Track> tracks;
+  final String? Function(Track track)? shelfLabelOf;
 
   static const int _columns = 2;
 
@@ -23,12 +22,12 @@ class CollectionGrid extends StatelessWidget {
         tracks.skip(i).take(_columns).toList(),
     ];
     return Column(
-      spacing: Sp.xlarge.h,
+      spacing: Sp.s24.h,
       children: [
         for (final (rowIndex, row) in rows.indexed)
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: Sp.large.w,
+            spacing: Sp.s20.w,
             children: [
               for (final (columnIndex, track) in row.indexed)
                 Expanded(
@@ -58,77 +57,22 @@ class CollectionTile extends StatelessWidget {
     required this.onManage,
     this.shelfLabel,
   });
-  final String? shelfLabel;
+  final Track track;
+  final int order;
   final VoidCallback? onPlay;
   final VoidCallback? onManage;
-
-  final Track track;
-
-  final int order;
+  final String? shelfLabel;
 
   @override
   Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : (360 + order.clamp(0, 6) * 80).ms,
-      curve: Curves.easeOutCubic,
-      builder: (context, value, child) => Opacity(
-        opacity: value,
-        child: Transform.translate(
-          offset: Offset(0, (1 - value) * Sp.xlarge.h),
-          child: child,
-        ),
-      ),
+    final shelfLabel = this.shelfLabel;
+    return FadeSlideIn(
+      order: order,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Pressable(
-            semanticLabel: LocaleKeys.collection_play_track.tr(
-              args: [track.title, track.artist],
-            ),
-            onTap: onPlay,
-            child: ExcludeSemantics(
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: JewelCase(
-                        hasSpine: false,
-                        child: LayoutBuilder(
-                          builder: (context, constraints) => MoodDisc(
-                            mood: track.mood,
-                            size: constraints.biggest.shortestSide,
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      right: Sp.xsmall.r,
-                      bottom: Sp.xsmall.r,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: context.colors.surfaceSecondary,
-                          shape: BoxShape.circle,
-                        ),
-                        child: Padding(
-                          padding: Sp.xsmall.padAllR,
-                          child: Icon(
-                            Icons.play_arrow_rounded,
-                            color: context.colors.textPrimary,
-                            size: Sp.large.r,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Sp.medium.heightBox,
+          _TileCover(track: track, onPlay: onPlay),
+          Sp.s16.heightBox,
           Row(
             children: [
               Expanded(
@@ -149,7 +93,7 @@ class CollectionTile extends StatelessWidget {
               ),
             ],
           ),
-          Sp.xsmall.heightBox,
+          Sp.s8.heightBox,
           Text(
             track.artist,
             maxLines: 1,
@@ -159,30 +103,90 @@ class CollectionTile extends StatelessWidget {
             ).copyWith(color: context.colors.textSecondary),
           ),
           if (shelfLabel != null) ...[
-            Sp.xsmall.heightBox,
-            Row(
-              spacing: Sp.tiny.w,
-              children: [
-                Icon(
-                  Icons.album_outlined,
-                  size: Sp.medium.r - 2,
-                  color: context.colors.textTertiary,
-                ),
-                Expanded(
-                  child: Text(
-                    shelfLabel!,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: secondaryTextStyle(
-                      context,
-                    ).copyWith(color: context.colors.textTertiary),
-                  ),
-                ),
-              ],
-            ),
+            Sp.s8.heightBox,
+            _ShelfLabel(label: shelfLabel),
           ],
         ],
       ),
+    );
+  }
+}
+
+class _TileCover extends StatelessWidget {
+  const _TileCover({required this.track, required this.onPlay});
+  final Track track;
+  final VoidCallback? onPlay;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Pressable(
+      semanticLabel: LocaleKeys.collection_play_track.tr(
+        args: [track.title, track.artist],
+      ),
+      onTap: onPlay,
+      child: ExcludeSemantics(
+        child: AspectRatio(
+          aspectRatio: 1,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: DiscCase(
+                  hasSpine: false,
+                  child: LayoutBuilder(
+                    builder: (context, constraints) => MoodDisc(
+                      mood: track.mood,
+                      size: constraints.biggest.shortestSide,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                right: Sp.s8.r,
+                bottom: Sp.s8.r,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: colors.surfaceSecondary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Padding(
+                    padding: Sp.s8.padAllR,
+                    child: Icon(
+                      Icons.play_arrow_rounded,
+                      color: colors.textPrimary,
+                      size: Sp.s20.r,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ShelfLabel extends StatelessWidget {
+  const _ShelfLabel({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = context.colors.textTertiary;
+    return Row(
+      spacing: Sp.s4.w,
+      children: [
+        Icon(Icons.album_outlined, size: Sp.s16.r - 2, color: color),
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: secondaryTextStyle(context).copyWith(color: color),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -192,18 +196,18 @@ class CollectionEmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final slotSize = Sp.xxhuge.r;
+    final slotSize = Sp.s128.r;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox.square(
-          dimension: slotSize + Sp.xxlarge.r,
-          child: JewelCase(
+          dimension: slotSize + Sp.s32.r,
+          child: DiscCase(
             hasSpine: false,
-            child: EmptyDiscSlot(size: slotSize),
+            child: DiscPlaceholder(size: slotSize),
           ),
         ),
-        Sp.large.heightBox,
+        Sp.s20.heightBox,
         Text(
           LocaleKeys.collection_empty.tr(),
           textAlign: TextAlign.center,

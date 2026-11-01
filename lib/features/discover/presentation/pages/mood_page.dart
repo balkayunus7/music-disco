@@ -6,17 +6,19 @@ import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
 import 'package:mobile_boilerplate/presentation/routing/route_aware_analytics_mixin.dart';
 import 'package:music_disco/config/app_routes.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
-import 'package:music_disco/core/widgets/brand_page_body.dart';
-import 'package:music_disco/core/widgets/cta_bar.dart';
-import 'package:music_disco/core/widgets/disc_flight.dart';
-import 'package:music_disco/core/widgets/display_headline.dart';
-import 'package:music_disco/core/widgets/holo_disc.dart';
-import 'package:music_disco/core/widgets/jewel_case.dart';
-import 'package:music_disco/core/widgets/app_page_bar.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/opacities.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
+import 'package:music_disco/core/widgets/app_cta_button.dart';
+import 'package:music_disco/core/widgets/app_page_headline.dart';
+import 'package:music_disco/core/widgets/app_page_scaffold.dart';
+import 'package:music_disco/core/widgets/app_pagebar.dart';
+import 'package:music_disco/core/widgets/disc_case.dart';
+import 'package:music_disco/core/widgets/disc_placeholder.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
+import 'package:music_disco/core/widgets/toss_disc.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
@@ -42,7 +44,7 @@ class _MoodPageState extends State<MoodPage>
   final Set<Mood> _airborne = {};
   late Mood? _caseMood = context.read<DiscoverCubit>().state.preferences.mood;
 
-  static const double _caseDiscSize = Sp.huge + Sp.medium;
+  static const double _caseDiscSize = Sp.s80;
 
   Future<void> _onMoodSelected(Mood next) async {
     final cubit = context.read<DiscoverCubit>();
@@ -65,7 +67,7 @@ class _MoodPageState extends State<MoodPage>
       _caseMood = null;
     });
     await Future.wait([
-      flyDisc(
+      tossDisc(
         context,
         from: nextSlot,
         to: caseRect,
@@ -73,7 +75,7 @@ class _MoodPageState extends State<MoodPage>
         turns: 0.75,
         child: MoodDisc(mood: next, size: _caseDiscSize.r),
       ),
-      flyDisc(
+      tossDisc(
         context,
         from: caseRect,
         to: previousSlot,
@@ -106,44 +108,44 @@ class _MoodPageState extends State<MoodPage>
     final mood = context.select<DiscoverCubit, Mood>(
       (cubit) => cubit.state.preferences.mood,
     );
-    return BrandPageBody(
-      appBar: AppPageBar(
+    return AppPageScaffold(
+      pageBar: AppPageBar(
         title: LocaleKeys.mood_step.tr(),
         showBackButton: true,
       ),
-      footer: CtaBar(
+      footer: AppCtaButton(
         text: LocaleKeys.discovery_customize.tr(),
         icon: Icons.arrow_forward_rounded,
         onTap: _airborne.isEmpty ? _onContinue : null,
       ),
       children: [
-        DisplayHeadline(
+        AppPageHeadline(
           first: LocaleKeys.mood_title_first.tr(),
           second: LocaleKeys.mood_title_second.tr(),
         ),
-        Sp.medium.heightBox,
+        Sp.s16.heightBox,
         Text(
           LocaleKeys.mood_subtitle.tr(),
           style: bodyTextStyle(
             context,
           ).copyWith(color: context.colors.textSecondary),
         ),
-        Sp.tiny.heightBox,
+        Sp.s4.heightBox,
         Text(
           LocaleKeys.mood_flow_hint.tr(),
           style: secondaryTextStyle(
             context,
           ).copyWith(color: context.colors.textSecondary),
         ),
-        Sp.large.heightBox,
+        Sp.s20.heightBox,
         MoodCaseStage(
           mood: _caseMood,
           discKey: _caseDiscKey,
           discSize: _caseDiscSize.r,
         ),
-        Sp.medium.heightBox,
+        Sp.s16.heightBox,
         MoodCaption(text: mood.taglineKey.tr()),
-        Sp.large.heightBox,
+        Sp.s20.heightBox,
         MoodDiscGrid(
           selected: mood,
           airborne: _airborne,

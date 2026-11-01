@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
-import 'package:music_disco/core/util/duration_format.dart';
+import 'package:music_disco/core/util/playback_duration.dart';
 import 'package:music_disco/features/player/data/youtube_player_wrapper.dart';
 import 'package:music_disco/features/player/domain/models/playback_status.dart';
 
@@ -72,7 +72,7 @@ class YoutubePlayerCubit extends Cubit<YoutubePlayerState> {
 
   Future<void> stop() async {
     await _player.stop();
-    emit(state.copyWith(position: Duration.zero));
+    if (!isClosed) emit(state.copyWith(position: Duration.zero));
   }
 
   Future<void> seekToFraction(double fraction) async {

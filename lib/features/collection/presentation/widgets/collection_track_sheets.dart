@@ -25,7 +25,7 @@ class _CollectionPlayerSheetState extends State<CollectionPlayerSheet> {
   @override
   Widget build(BuildContext context) => SafeArea(
     child: SingleChildScrollView(
-      padding: Sp.large.padAllR,
+      padding: Sp.s20.padAllR,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -47,7 +47,7 @@ class _CollectionPlayerSheetState extends State<CollectionPlayerSheet> {
               ),
             ],
           ),
-          Sp.medium.heightBox,
+          Sp.s16.heightBox,
           TrackPlayerCard(track: widget.track),
         ],
       ),
@@ -73,20 +73,20 @@ class CollectionTrackSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SafeArea(
     child: SingleChildScrollView(
-      padding: Sp.large.padAllR,
+      padding: Sp.s20.padAllR,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(track.title, style: sheetTitleStyle(context)),
-          Sp.small.heightBox,
+          Sp.s12.heightBox,
           Text(
             LocaleKeys.collection_move_to.tr(),
             style: bodyTextStyle(
               context,
             ).copyWith(color: context.colors.textSecondary),
           ),
-          Sp.small.heightBox,
+          Sp.s12.heightBox,
           ShelfOptions(
             collection: collection,
             selectedId: collection.assignments[track.id],
@@ -94,10 +94,9 @@ class CollectionTrackSheet extends StatelessWidget {
                 Navigator.of(context).pop(CollectionTrackAction(pick: pick)),
           ),
           Divider(color: context.colors.border),
-          SheetOptionTile(
+          SheetOptionTile.destructive(
             label: LocaleKeys.collection_remove.tr(),
             icon: Icons.delete_outline_rounded,
-            color: context.colors.error,
             onTap: () => Navigator.of(
               context,
             ).pop(const CollectionTrackAction(remove: true)),

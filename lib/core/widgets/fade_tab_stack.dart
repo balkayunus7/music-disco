@@ -1,55 +1,50 @@
 import 'package:flutter/material.dart';
+import 'package:music_disco/core/design_system/motion.dart';
 
-class BranchFadeContainer extends StatefulWidget {
-  const BranchFadeContainer({
-    super.key,
-    required this.currentIndex,
-    required this.children,
-  });
+class FadeTabStack extends StatefulWidget {
+  const FadeTabStack({super.key, required this.index, required this.children})
+    : assert(index >= 0 && index < children.length);
 
-  final int currentIndex;
+  final int index;
   final List<Widget> children;
 
   @override
-  State<BranchFadeContainer> createState() => _BranchFadeContainerState();
+  State<FadeTabStack> createState() => _FadeTabStackState();
 }
 
-class _BranchFadeContainerState extends State<BranchFadeContainer> {
-  late Set<int> _visible = {widget.currentIndex};
+class _FadeTabStackState extends State<FadeTabStack> {
+  late Set<int> _shown = {widget.index};
 
   @override
-  void didUpdateWidget(BranchFadeContainer oldWidget) {
+  void didUpdateWidget(FadeTabStack oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.currentIndex == widget.currentIndex) return;
-    _visible = MediaQuery.disableAnimationsOf(context)
-        ? {widget.currentIndex}
-        : {..._visible, widget.currentIndex};
+    if (oldWidget.index == widget.index) return;
+    _shown = context.reducedMotion ? {widget.index} : {..._shown, widget.index};
   }
 
-  void _onEntered(int index) {
-    if (!mounted || index != widget.currentIndex || _visible.length == 1) {
-      return;
-    }
-    setState(() => _visible = {index});
+  void _onFadedIn(int index) {
+    final isSettled = index == widget.index && _shown.length > 1;
+    if (!mounted || !isSettled) return;
+    setState(() => _shown = {index});
   }
 
   @override
   Widget build(BuildContext context) {
-    final current = widget.currentIndex;
-    final order = [
+    final active = widget.index;
+    final paintOrder = [
       for (var i = 0; i < widget.children.length; i++)
-        if (i != current) i,
-      current,
+        if (i != active) i,
+      active,
     ];
     return Stack(
       fit: StackFit.expand,
       children: [
-        for (final index in order)
-          _BranchLayer(
+        for (final index in paintOrder)
+          _FadeLayer(
             key: ValueKey(index),
-            isCurrent: index == current,
-            isVisible: _visible.contains(index),
-            onEntered: () => _onEntered(index),
+            isActive: index == active,
+            isShown: _shown.contains(index),
+            onFadedIn: () => _onFadedIn(index),
             child: widget.children[index],
           ),
       ],
@@ -57,47 +52,50 @@ class _BranchFadeContainerState extends State<BranchFadeContainer> {
   }
 }
 
-class _BranchLayer extends StatefulWidget {
-  const _BranchLayer({
+class _FadeLayer extends StatefulWidget {
+  const _FadeLayer({
     super.key,
-    required this.isCurrent,
-    required this.isVisible,
-    required this.onEntered,
+    required this.isActive,
+    required this.isShown,
+    required this.onFadedIn,
     required this.child,
   });
-
-  final bool isCurrent;
-  final bool isVisible;
-  final VoidCallback onEntered;
+  final bool isActive;
+  final bool isShown;
+  final VoidCallback onFadedIn;
   final Widget child;
 
   @override
-  State<_BranchLayer> createState() => _BranchLayerState();
+  State<_FadeLayer> createState() => _FadeLayerState();
 }
 
-class _BranchLayerState extends State<_BranchLayer>
+class _FadeLayerState extends State<_FadeLayer>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 280),
-    value: widget.isCurrent ? 1 : 0,
+    duration: MotionDuration.base,
+    value: widget.isActive ? 1 : 0,
   );
   late final Animation<double> _fade = CurvedAnimation(
     parent: _controller,
-    curve: Curves.easeOutCubic,
+    curve: MotionCurve.enter,
   );
+  late final Animation<Offset> _slide = Tween<Offset>(
+    begin: MotionOffset.settleUp,
+    end: Offset.zero,
+  ).animate(_fade);
 
   @override
-  void didUpdateWidget(_BranchLayer oldWidget) {
+  void didUpdateWidget(_FadeLayer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.isCurrent || !widget.isCurrent) return;
-    if (MediaQuery.disableAnimationsOf(context)) {
+    if (oldWidget.isActive || !widget.isActive) return;
+    if (context.reducedMotion) {
       _controller.value = 1;
       return;
     }
     _controller
-        .forward(from: oldWidget.isVisible ? _controller.value : 0)
-        .whenComplete(widget.onEntered);
+        .forward(from: oldWidget.isShown ? _controller.value : 0)
+        .whenComplete(widget.onFadedIn);
   }
 
   @override
@@ -109,22 +107,16 @@ class _BranchLayerState extends State<_BranchLayer>
   @override
   Widget build(BuildContext context) {
     return Offstage(
-      offstage: !widget.isVisible,
+      offstage: !widget.isShown,
       child: TickerMode(
-        enabled: widget.isCurrent,
+        enabled: widget.isActive,
         child: IgnorePointer(
-          ignoring: !widget.isCurrent,
+          ignoring: !widget.isActive,
           child: ExcludeSemantics(
-            excluding: !widget.isCurrent,
+            excluding: !widget.isActive,
             child: FadeTransition(
               opacity: _fade,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0, 0.02),
-                  end: Offset.zero,
-                ).animate(_fade),
-                child: widget.child,
-              ),
+              child: SlideTransition(position: _slide, child: widget.child),
             ),
           ),
         ),

@@ -6,7 +6,6 @@ class TasteGenreGrid extends StatelessWidget {
     required this.selected,
     required this.onToggle,
   });
-
   final List<Genre> selected;
   final ValueChanged<Genre> onToggle;
 
@@ -16,17 +15,16 @@ class TasteGenreGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     const genres = Genre.values;
     return Column(
-      spacing: Sp.xsmall.h,
+      spacing: Sp.s8.h,
       children: [
         for (var i = 0; i < genres.length; i += _columns)
           Row(
-            spacing: Sp.xsmall.w,
+            spacing: Sp.s8.w,
             children: [
               for (final genre in genres.skip(i).take(_columns))
                 Expanded(
-                  child: ChoiceTile(
+                  child: AppChoiceChip.indicator(
                     label: genre.labelKey.tr(),
-                    hasIndicator: true,
                     isSelected: selected.contains(genre),
                     onTap: () => onToggle(genre),
                   ),

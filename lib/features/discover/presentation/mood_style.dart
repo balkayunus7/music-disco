@@ -1,7 +1,7 @@
 import 'package:flutter/painting.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
-import 'package:music_disco/core/util/disc_palette.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
+import 'package:music_disco/core/design_system/colors.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_direction.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_distance.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_preferences.dart';

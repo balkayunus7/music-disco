@@ -3,30 +3,35 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 abstract final class Sp {
   static const double none = 0;
-  static const double tiny = 4;
-  static const double xsmall = 8;
-  static const double small = 12;
-  static const double medium = 16;
-  static const double large = 20;
-  static const double xlarge = 24;
-  static const double xxlarge = 32;
-  static const double xxxlarge = 48;
-  static const double huge = 64;
-  static const double xhuge = 96;
-  static const double xxhuge = 128;
+  static const double s4 = 4;
+  static const double s8 = 8;
+  static const double s10 = 10;
+  static const double s12 = 12;
+  static const double s16 = 16;
+  static const double s18 = 18;
+  static const double s20 = 20;
+  static const double s24 = 24;
+  static const double s32 = 32;
+  static const double s36 = 36;
+  static const double s48 = 48;
+  static const double s56 = 56;
+  static const double s64 = 64;
+  static const double s68 = 68;
+  static const double s80 = 80;
+  static const double s96 = 96;
+  static const double s128 = 128;
 
   // Semantic aliases
-  static const double screen = 23;
-  static const double narrowScreen = 17;
-  static const double loadingScreen = 25;
-  static const double narrowLoadingScreen = 18;
+  static const double screen = 20;
   static const double minTouchTarget = 44;
-  static const double primaryButtonHeight = 55;
-  static const double loadingButtonHeight = 53;
-  static const double inputRadius = 14;
-  static const double button = medium;
-  static const double input = small;
-  static const double cont = 54;
+  static const double primaryButtonHeight = 56;
+  static const double inputRadius = 12;
+  static const double control = 56;
+}
+
+abstract final class Stroke {
+  static const double thin = 1;
+  static const double regular = 1.5;
 }
 
 extension SizingX on num {

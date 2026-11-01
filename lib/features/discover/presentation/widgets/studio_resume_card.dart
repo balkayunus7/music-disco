@@ -2,7 +2,6 @@ part of '../pages/discover_home_page.dart';
 
 class StudioResumeCard extends StatelessWidget {
   const StudioResumeCard({super.key, required this.onTap});
-
   final VoidCallback onTap;
 
   @override
@@ -13,19 +12,19 @@ class StudioResumeCard extends StatelessWidget {
     haptic: TapHaptic.selection,
     child: ExcludeSemantics(
       child: Container(
-        padding: Sp.small.padAllR,
+        padding: Sp.s12.padAllR,
         decoration: BoxDecoration(
           color: context.colors.surface,
-          borderRadius: Sp.large.radiusR,
+          borderRadius: Sp.s20.radiusR,
           border: Border.all(color: context.colors.borderSecondary),
         ),
         child: Row(
-          spacing: Sp.small.w,
+          spacing: Sp.s12.w,
           children: [
             Icon(
               Icons.history_rounded,
               color: context.colors.textSecondary,
-              size: Sp.large.r,
+              size: Sp.s20.r,
             ),
             Expanded(
               child: Text(
@@ -42,7 +41,7 @@ class StudioResumeCard extends StatelessWidget {
             Icon(
               Icons.chevron_right_rounded,
               color: context.colors.textSecondary,
-              size: Sp.medium.r,
+              size: Sp.s16.r,
             ),
           ],
         ),

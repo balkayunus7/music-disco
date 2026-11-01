@@ -5,14 +5,16 @@ import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
 import 'package:mobile_boilerplate/presentation/routing/route_aware_analytics_mixin.dart';
 import 'package:music_disco/config/app_routes.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
-import 'package:music_disco/core/widgets/brand_page_body.dart';
-import 'package:music_disco/core/widgets/cta_bar.dart';
-import 'package:music_disco/core/widgets/display_headline.dart';
-import 'package:music_disco/core/widgets/eyebrow_text.dart';
-import 'package:music_disco/core/widgets/app_page_bar.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/opacities.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
+import 'package:music_disco/core/widgets/app_cta_button.dart';
+import 'package:music_disco/core/widgets/app_page_headline.dart';
+import 'package:music_disco/core/widgets/app_page_scaffold.dart';
+import 'package:music_disco/core/widgets/app_pagebar.dart';
+import 'package:music_disco/core/widgets/caption_label.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 import 'package:music_disco/core/widgets/text_link.dart';
 import 'package:music_disco/features/discover/bloc/discover_cubit.dart';
@@ -33,7 +35,6 @@ part '../widgets/direction_option_tile.dart';
 
 class DirectionPage extends StatefulWidget {
   const DirectionPage({super.key, required this.loadingRoute});
-
   final String loadingRoute;
 
   @override
@@ -60,55 +61,55 @@ class _DirectionPageState extends State<DirectionPage>
       (cubit) => cubit.state.preferences,
     );
     final reference = preferences.activeReference;
-    return BrandPageBody(
-      appBar: AppPageBar(
+    return AppPageScaffold(
+      pageBar: AppPageBar(
         title: LocaleKeys.direction_step.tr(),
         showBackButton: true,
       ),
-      footer: CtaBar(
+      footer: AppCtaButton(
         text: LocaleKeys.direction_continue.tr(),
         onTap: _onContinue,
       ),
       children: [
-        DisplayHeadline(
+        AppPageHeadline(
           first: LocaleKeys.direction_title_first.tr(),
           second: LocaleKeys.direction_title_second.tr(),
         ),
-        Sp.medium.heightBox,
+        Sp.s16.heightBox,
         Text(
           LocaleKeys.direction_subtitle.tr(),
           style: bodyTextStyle(
             context,
           ).copyWith(color: context.colors.textSecondary),
         ),
-        Sp.large.heightBox,
+        Sp.s20.heightBox,
         DirectionContext(
           reference: reference,
           mood: preferences.anchorMood,
           aspect: preferences.aspect,
           onChange: () => _onChangeSource(reference != null),
         ),
-        Sp.xlarge.heightBox,
+        Sp.s24.heightBox,
         Text(
           LocaleKeys.direction_choice_title.tr(),
           style: buttonTextStyle(context),
         ),
-        Sp.small.heightBox,
+        Sp.s12.heightBox,
         DirectionCard(
           mood: preferences.anchorMood,
           direction: preferences.direction,
           onSelected: _onDirectionSelected,
         ),
-        Sp.xlarge.heightBox,
+        Sp.s24.heightBox,
         Text(LocaleKeys.distance_title.tr(), style: buttonTextStyle(context)),
-        Sp.small.heightBox,
+        Sp.s12.heightBox,
         DistanceSlider(
           value: preferences.distance,
           mood: preferences.anchorMood,
           onChanged: context.read<DiscoverCubit>().selectDistance,
         ),
         DistanceSliderLabels(value: preferences.distance),
-        Sp.large.heightBox,
+        Sp.s20.heightBox,
         PreferencesSummary(preferences: preferences),
       ],
     );

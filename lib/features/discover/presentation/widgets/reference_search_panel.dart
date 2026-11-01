@@ -10,7 +10,6 @@ class ReferenceSearchPanel extends StatelessWidget {
     this.autofocus = false,
     this.onCancel,
   });
-
   final TextEditingController controller;
   final FocusNode focusNode;
   final MusicReference? selected;
@@ -28,7 +27,7 @@ class ReferenceSearchPanel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
-          spacing: Sp.small.w,
+          spacing: Sp.s12.w,
           children: [
             Expanded(
               child: SearchField(
@@ -44,7 +43,7 @@ class ReferenceSearchPanel extends StatelessWidget {
               TextLink(text: LocaleKeys.reference_cancel.tr(), onTap: onCancel),
           ],
         ),
-        Sp.small.heightBox,
+        Sp.s12.heightBox,
         BlocBuilder<ReferenceSearchCubit, ReferenceSearchState>(
           builder: (context, search) {
             final message = switch (search) {
@@ -102,7 +101,7 @@ class ReferenceSearchPanel extends StatelessWidget {
                 ),
                 if (message != null)
                   Padding(
-                    padding: Sp.medium.padVR,
+                    padding: Sp.s16.padVR,
                     child: Text(
                       message,
                       style: bodyTextStyle(
@@ -135,7 +134,6 @@ class _ReferenceSection extends StatelessWidget {
     required this.onPicked,
     this.title,
   });
-
   final String? title;
   final List<MusicReference> references;
   final String? selectedId;
@@ -150,7 +148,7 @@ class _ReferenceSection extends StatelessWidget {
       children: [
         if (title != null)
           Padding(
-            padding: EdgeInsets.only(top: Sp.medium.h, bottom: Sp.xsmall.h),
+            padding: EdgeInsets.only(top: Sp.s16.h, bottom: Sp.s8.h),
             child: Text(title, style: sectionTitleStyle(context)),
           ),
         for (final reference in references)

@@ -5,9 +5,11 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/opacities.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
 import 'package:music_disco/features/discover/domain/models/discovery_distance.dart';
 import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
@@ -19,7 +21,6 @@ class DistanceSlider extends StatefulWidget {
     required this.mood,
     required this.onChanged,
   });
-
   final DiscoveryDistance value;
   final Mood mood;
   final ValueChanged<DiscoveryDistance> onChanged;
@@ -38,7 +39,7 @@ class _DistanceSliderState extends State<DistanceSlider>
     _position = AnimationController(
       vsync: this,
       value: widget.value.fraction,
-      duration: 380.ms,
+      duration: MotionDuration.slow,
     );
   }
 
@@ -62,11 +63,11 @@ class _DistanceSliderState extends State<DistanceSlider>
   }
 
   void _settleOn(DiscoveryDistance distance) {
-    if (MediaQuery.disableAnimationsOf(context)) {
+    if (context.reducedMotion) {
       _position.value = distance.fraction;
       return;
     }
-    _position.animateTo(distance.fraction, curve: Curves.easeOutCubic);
+    _position.animateTo(distance.fraction, curve: MotionCurve.enter);
   }
 
   void _select(DiscoveryDistance distance) {
@@ -134,7 +135,7 @@ class _DistanceSliderState extends State<DistanceSlider>
               onHorizontalDragCancel: _onDragEnd,
               onTapUp: (details) => _onTapTrack(details, travel),
               child: SizedBox(
-                height: Sp.huge.h,
+                height: Sp.s64.h,
                 width: double.infinity,
                 child: AnimatedBuilder(
                   animation: _position,
@@ -146,7 +147,7 @@ class _DistanceSliderState extends State<DistanceSlider>
                       needleColor: widget.mood.palette.light,
                       tickColor: context.colors.border,
                       stopColor: context.colors.textSecondary,
-                      labelStyle: eyebrowTextStyle(
+                      labelStyle: captionLabelStyle(
                         context,
                       ).copyWith(color: context.colors.textDisabled),
                     ),
@@ -171,7 +172,6 @@ class _TunerPainter extends CustomPainter {
     required this.stopColor,
     required this.labelStyle,
   });
-
   final double progress;
   final double inset;
   final List<double> stops;
@@ -194,7 +194,7 @@ class _TunerPainter extends CustomPainter {
     final needleX = inset + width * progress;
 
     final tick = Paint()
-      ..strokeWidth = 1.4
+      ..strokeWidth = Stroke.regular
       ..strokeCap = StrokeCap.round;
     for (var x = inset; x <= inset + width + 0.5; x += _tickGap) {
       final closeness = (1 - (x - needleX).abs() / _liftRadius).clamp(0.0, 1.0);
@@ -222,7 +222,7 @@ class _TunerPainter extends CustomPainter {
       top,
       bottom,
       Paint()
-        ..color = needleColor.withValues(alpha: 0.55)
+        ..color = needleColor.withValues(alpha: Opacities.half)
         ..strokeWidth = 6
         ..strokeCap = StrokeCap.round
         ..maskFilter = const ui.MaskFilter.blur(ui.BlurStyle.normal, 5),
@@ -250,7 +250,6 @@ class _TunerPainter extends CustomPainter {
 
 class DistanceSliderLabels extends StatelessWidget {
   const DistanceSliderLabels({super.key, required this.value});
-
   final DiscoveryDistance value;
 
   @override
@@ -258,7 +257,7 @@ class DistanceSliderLabels extends StatelessWidget {
     const values = DiscoveryDistance.values;
     return ExcludeSemantics(
       child: Row(
-        spacing: Sp.xsmall.w,
+        spacing: Sp.s8.w,
         children: [
           for (final (index, distance) in values.indexed)
             Expanded(

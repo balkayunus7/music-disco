@@ -2,7 +2,7 @@
 
 - Use the Tarot-style directory map in `docs/ARCHITECTURE.md`.
 - App composition, environment, routing and dependency registration live in `lib/config/`.
-- Shared UI lives in `lib/core/widgets/`; shared theme and utilities in `lib/core/util/`.
+- Shared UI lives in `lib/core/widgets/`; design tokens, colors and text styles in `lib/core/design_system/`, localization in `lib/core/localization/`, backend helpers in `lib/core/backend/` and small utilities in `lib/core/util/`.
 - A feature owns `bloc/`, `data/`, `domain/models/`, `domain/use_cases/` and `presentation/` as needed. Domain must not import data or UI.
 - Reuse `mobile_boilerplate` from `../mobile-boilerplate`. Auth uses its `AuthCubit`, `IAuthService`, `IUserRepository`, `User` and `UserProperties` contracts. Do not modify the sibling package without authorization.
 - Follow the `step-tourist-flutter-ui` skill for presentation work. Use `context.colors`, `Sp`, Montserrat helpers, small immutable widgets and page-owned part files. Keep calculations and business rules out of leaf widgets.

@@ -8,7 +8,6 @@ class SessionDiscStrip extends StatefulWidget {
     required this.onSelected,
     required this.onPrevious,
   });
-
   final List<Track> tracks;
   final int currentIndex;
   final ValueChanged<int>? onSelected;
@@ -32,10 +31,8 @@ class _SessionDiscStripState extends State<SessionDiscStrip> {
       Scrollable.ensureVisible(
         discContext,
         alignment: 0.5,
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : 260.ms,
-        curve: Curves.easeOutCubic,
+        duration: context.motion(MotionDuration.base),
+        curve: MotionCurve.enter,
       );
     });
   }
@@ -53,16 +50,16 @@ class _SessionDiscStripState extends State<SessionDiscStrip> {
           onTap: widget.onPrevious,
           semanticLabel: LocaleKeys.session_previous_track.tr(),
           child: Padding(
-            padding: Sp.xsmall.padAllR,
+            padding: Sp.s8.padAllR,
             child: AnimatedOpacity(
-              opacity: widget.onPrevious == null ? 0.3 : 1,
-              duration: MediaQuery.disableAnimationsOf(context)
-                  ? Duration.zero
-                  : 200.ms,
+              opacity: widget.onPrevious == null
+                  ? Opacities.soft
+                  : Opacities.full,
+              duration: context.motion(MotionDuration.base),
               child: Icon(
                 Icons.chevron_left_rounded,
                 color: context.colors.textSecondary,
-                size: Sp.large.r,
+                size: Sp.s20.r,
               ),
             ),
           ),
@@ -71,12 +68,12 @@ class _SessionDiscStripState extends State<SessionDiscStrip> {
           child: LayoutBuilder(
             builder: (context, constraints) => SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(vertical: Sp.tiny.h),
+              padding: EdgeInsets.symmetric(vertical: Sp.s4.h),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minWidth: constraints.maxWidth),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: Sp.large.w,
+                  spacing: Sp.s20.w,
                   children: [
                     for (final (index, track) in tracks.indexed)
                       _StripDisc(
@@ -96,7 +93,7 @@ class _SessionDiscStripState extends State<SessionDiscStrip> {
             ),
           ),
         ),
-        SizedBox(width: Sp.large.r + Sp.xsmall.r * 2),
+        SizedBox(width: Sp.s20.r + Sp.s8.r * 2),
       ],
     );
   }
@@ -110,7 +107,6 @@ class _StripDisc extends StatelessWidget {
     required this.semanticLabel,
     required this.onTap,
   });
-
   final Mood mood;
   final bool isCurrent;
   final String semanticLabel;
@@ -124,27 +120,25 @@ class _StripDisc extends StatelessWidget {
       semanticLabel: semanticLabel,
       child: AnimatedScale(
         scale: isCurrent ? 1.08 : 0.92,
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : 260.ms,
-        curve: Curves.easeOutBack,
+        duration: context.motion(MotionDuration.base),
+        curve: MotionCurve.overshoot,
         child: AnimatedContainer(
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : 260.ms,
+          duration: context.motion(MotionDuration.base),
           padding: 3.padAllR,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
               color: isCurrent
-                  ? context.colors.textPrimary.withValues(alpha: 0.8)
+                  ? context.colors.textPrimary.withValues(
+                      alpha: Opacities.strong,
+                    )
                   : context.colors.textPrimary.withValues(alpha: 0),
-              width: 1.2,
+              width: Stroke.regular,
             ),
           ),
           child: MoodDisc(
             mood: mood,
-            size: Sp.xxlarge.r + Sp.xsmall.r,
+            size: Sp.s32.r + Sp.s8.r,
             isDimmed: !isCurrent,
             hasShadow: isCurrent,
           ),

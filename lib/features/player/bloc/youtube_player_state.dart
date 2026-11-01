@@ -8,9 +8,8 @@ class YoutubePlayerState extends Equatable {
     this.position = Duration.zero,
     this.duration = Duration.zero,
   });
-
-  final bool isMuted;
   final String? videoId;
+  final bool isMuted;
   final PlaybackStatus status;
   final Duration position;
   final Duration duration;
@@ -22,8 +21,8 @@ class YoutubePlayerState extends Equatable {
       ? 0
       : (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0);
 
-  String get elapsedLabel => formatPlaybackTime(position);
-  String get durationLabel => formatPlaybackTime(duration);
+  String get elapsedLabel => position.playbackLabel;
+  String get durationLabel => duration.playbackLabel;
 
   YoutubePlayerState copyWith({
     bool? isMuted,
@@ -42,5 +41,5 @@ class YoutubePlayerState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [videoId, status, position, duration, isMuted];
+  List<Object?> get props => [videoId, isMuted, status, position, duration];
 }

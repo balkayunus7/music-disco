@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
+
+class AppSnackBarAction {
+  const AppSnackBarAction({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+}
 
 void showAppSnackBar(
   BuildContext context, {
   required String message,
-  String? actionLabel,
-  VoidCallback? onAction,
+  AppSnackBarAction? action,
 }) {
   final messenger = ScaffoldMessenger.of(context);
   messenger
@@ -19,28 +25,25 @@ void showAppSnackBar(
         behavior: SnackBarBehavior.floating,
         backgroundColor: context.colors.surfaceSecondary,
         elevation: 0,
-        duration: const Duration(seconds: 3),
-        margin: EdgeInsets.fromLTRB(Sp.screen.w, 0, Sp.screen.w, Sp.small.h),
-        padding: EdgeInsets.symmetric(
-          horizontal: Sp.large.w,
-          vertical: Sp.medium.h,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: Sp.medium.radiusR),
+        duration: MotionDuration.snackBar,
+        margin: Sp.screen.padHR.copyWith(bottom: Sp.s12.h),
+        padding: Sp.s20.padHVR(Sp.s16),
+        shape: RoundedRectangleBorder(borderRadius: Sp.s16.radiusR),
         content: Row(
           children: [
             Expanded(child: Text(message, style: bodyTextStyle(context))),
-            if (actionLabel != null && onAction != null)
+            if (action != null) ...[
               Pressable(
-                semanticLabel: actionLabel,
+                semanticLabel: action.label,
                 onTap: () {
                   messenger.hideCurrentSnackBar();
-                  onAction();
+                  action.onTap();
                 },
                 child: Center(
                   child: Padding(
-                    padding: EdgeInsets.only(left: Sp.small.w),
+                    padding: Sp.s12.padLeftR,
                     child: Text(
-                      actionLabel,
+                      action.label,
                       style: bodyTextStyle(context).copyWith(
                         fontWeight: FontWeight.w700,
                         decoration: TextDecoration.underline,
@@ -50,6 +53,7 @@ void showAppSnackBar(
                   ),
                 ),
               ),
+            ],
           ],
         ),
       ),

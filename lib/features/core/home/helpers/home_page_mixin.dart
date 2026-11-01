@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
-import 'package:music_disco/config/app_routes.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
-import 'package:music_disco/core/widgets/disc_flight.dart';
+import 'package:music_disco/config/app_routes.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/widgets/toss_disc.dart';
 import 'package:music_disco/features/core/home/home_page.dart';
 import 'package:music_disco/features/settings/bloc/settings_cubit.dart';
 
 mixin HomePageMixin on State<HomePage> {
-  final ValueNotifier<int> activeBranch = ValueNotifier(0);
-
-  final GlobalKey collectionTargetKey = GlobalKey();
-
-  final ValueNotifier<int> landingPulse = ValueNotifier(0);
-
-  final List<ValueNotifier<int>> branchEntries = [
-    ValueNotifier(0),
-    ValueNotifier(0),
-    ValueNotifier(0),
+  static const List<String> _branchRoots = [
+    AppRoutes.discover,
+    AppRoutes.collection,
+    AppRoutes.settings,
   ];
+
+  final ValueNotifier<int> activeBranch = ValueNotifier(0);
+  final ValueNotifier<int> landingPulse = ValueNotifier(0);
+  final GlobalKey collectionTargetKey = GlobalKey();
+  final List<ValueNotifier<int>> branchEntries = List.generate(
+    _branchRoots.length,
+    (_) => ValueNotifier(0),
+  );
 
   @override
   void didUpdateWidget(HomePage oldWidget) {
@@ -36,12 +39,6 @@ mixin HomePageMixin on State<HomePage> {
     super.dispose();
   }
 
-  static const List<String> _branchRoots = [
-    AppRoutes.discover,
-    AppRoutes.collection,
-    AppRoutes.settings,
-  ];
-
   void onNavTap(int index) {
     final shell = widget.navigationShell;
     final isCurrent = index == shell.currentIndex;
@@ -54,8 +51,7 @@ mixin HomePageMixin on State<HomePage> {
     required Rect from,
     required Widget disc,
   }) async {
-    if (MediaQuery.disableAnimationsOf(context) ||
-        context.read<SettingsCubit>().state) {
+    if (context.reducedMotion || context.read<SettingsCubit>().state) {
       return;
     }
     final targetBox =
@@ -63,19 +59,14 @@ mixin HomePageMixin on State<HomePage> {
     if (targetBox == null || !targetBox.hasSize) return;
 
     final target = targetBox.localToGlobal(Offset.zero) & targetBox.size;
-    await flyDisc(
+    await tossDisc(
       context,
       from: from,
-      to: Rect.fromCenter(
-        center: target.center,
-        width: target.width,
-        height: target.height,
-      ),
+      to: target,
       child: disc,
       arcHeight: 120,
       turns: 1,
       fadeOnLanding: true,
-      duration: const Duration(milliseconds: 720),
     );
     if (!mounted) return;
     landingPulse.value++;

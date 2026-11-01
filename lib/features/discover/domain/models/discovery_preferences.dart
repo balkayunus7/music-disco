@@ -5,7 +5,6 @@ import 'package:music_disco/features/discover/domain/models/discovery_source.dar
 import 'package:music_disco/features/discover/domain/models/mood.dart';
 import 'package:music_disco/features/discover/domain/models/music_reference.dart';
 import 'package:music_disco/features/discover/domain/models/reference_aspect.dart';
-
 import 'package:music_disco/features/taste/domain/models/taste_profile.dart';
 
 class DiscoveryPreferences extends Equatable {
@@ -18,7 +17,6 @@ class DiscoveryPreferences extends Equatable {
     this.aspect = ReferenceAspect.atmosphere,
     this.taste = const TasteProfile(),
   });
-
   final TasteProfile taste;
   final Mood mood;
   final DiscoveryDirection direction;

@@ -4,20 +4,21 @@ import 'package:mobile_boilerplate/domain/auth/i_user_repository.dart';
 import 'package:mobile_boilerplate/domain/auth/user.dart';
 import 'package:mobile_boilerplate/domain/common/failure.dart';
 import 'package:mobile_boilerplate/domain/purchases/subscription.dart';
-import 'package:music_disco/core/util/music_routes.dart';
-import 'package:music_disco/core/util/supabase_failure.dart';
+import 'package:music_disco/core/backend/supabase_failure.dart';
+import 'package:music_disco/core/backend/supabase_names.dart';
 import 'package:music_disco/features/auth/domain/models/music_user.dart';
 import 'package:music_disco/features/auth/domain/models/music_user_properties.dart';
 import 'package:supabase/supabase.dart' hide Session, User;
 
 class ImplUserRepository extends IUserRepository {
   ImplUserRepository(this._supabaseClient);
+  final SupabaseClient _supabaseClient;
 
   @override
   Future<FailureOr<User>> getUser({required AuthSession session}) async {
     if (!_ownsSession(session)) return left(const UnauthorizedFailure());
     try {
-      final data = await supabaseClient
+      final data = await _supabaseClient
           .from(usersTable)
           .select()
           .eq('user_id', session.userId)
@@ -32,11 +33,11 @@ class ImplUserRepository extends IUserRepository {
   Future<FailureOr<Unit>> deleteUser({required AuthSession session}) async {
     if (!_ownsSession(session)) return left(const UnauthorizedFailure());
     try {
-      final response = await supabaseClient.functions.invoke(
+      final response = await _supabaseClient.functions.invoke(
         deleteAccountRoute,
         headers: {
           'Authorization':
-              'Bearer ${supabaseClient.auth.currentSession!.accessToken}',
+              'Bearer ${_supabaseClient.auth.currentSession!.accessToken}',
         },
       );
       final data = response.data;
@@ -75,7 +76,7 @@ class ImplUserRepository extends IUserRepository {
   }) async => left(const ForbiddenFailure());
 
   bool _ownsSession(AuthSession session) =>
-      session.userId == supabaseClient.auth.currentUser?.id &&
+      session.userId == _supabaseClient.auth.currentUser?.id &&
       session.idToken.isNotEmpty;
 
   Future<FailureOr<Unit>> _updateUserRow(
@@ -83,7 +84,7 @@ class ImplUserRepository extends IUserRepository {
     Map<String, dynamic> data,
   ) async {
     try {
-      await supabaseClient
+      await _supabaseClient
           .from(usersTable)
           .update(data)
           .eq('user_id', session.userId)
@@ -94,8 +95,4 @@ class ImplUserRepository extends IUserRepository {
       return left(supabaseFailure(error));
     }
   }
-
-  final SupabaseClient _supabaseClient;
-
-  SupabaseClient get supabaseClient => _supabaseClient;
 }

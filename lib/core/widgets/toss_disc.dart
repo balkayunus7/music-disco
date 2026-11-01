@@ -1,18 +1,23 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:music_disco/core/design_system/motion.dart';
 
-Future<void> flyDisc(
+const double _defaultArcHeight = 80;
+const double _defaultTurns = 0.5;
+const double _fadeStart = 0.75;
+const double _parabolaPeak = 4;
+
+Future<void> tossDisc(
   BuildContext context, {
   required Rect from,
   required Rect to,
   required Widget child,
-  Duration duration = const Duration(milliseconds: 620),
-  double arcHeight = 80,
-  double turns = 0.5,
+  double arcHeight = _defaultArcHeight,
+  double turns = _defaultTurns,
   bool fadeOnLanding = false,
 }) async {
-  if (MediaQuery.disableAnimationsOf(context)) return;
+  if (context.reducedMotion) return;
   final overlay = Overlay.maybeOf(context, rootOverlay: true);
   final overlayBox = overlay?.context.findRenderObject() as RenderBox?;
   if (overlay == null || overlayBox == null || !overlayBox.hasSize) return;
@@ -21,10 +26,9 @@ Future<void> flyDisc(
   final landed = Completer<void>();
   late final OverlayEntry entry;
   entry = OverlayEntry(
-    builder: (_) => _DiscFlight(
+    builder: (_) => _TossedDisc(
       from: from.shift(-origin),
       to: to.shift(-origin),
-      duration: duration,
       arcHeight: arcHeight,
       turns: turns,
       fadeOnLanding: fadeOnLanding,
@@ -40,21 +44,18 @@ Future<void> flyDisc(
   return landed.future;
 }
 
-class _DiscFlight extends StatefulWidget {
-  const _DiscFlight({
+class _TossedDisc extends StatefulWidget {
+  const _TossedDisc({
     required this.from,
     required this.to,
-    required this.duration,
     required this.arcHeight,
     required this.turns,
     required this.fadeOnLanding,
     required this.onLanded,
     required this.child,
   });
-
   final Rect from;
   final Rect to;
-  final Duration duration;
   final double arcHeight;
   final double turns;
   final bool fadeOnLanding;
@@ -62,18 +63,18 @@ class _DiscFlight extends StatefulWidget {
   final Widget child;
 
   @override
-  State<_DiscFlight> createState() => _DiscFlightState();
+  State<_TossedDisc> createState() => _TossedDiscState();
 }
 
-class _DiscFlightState extends State<_DiscFlight>
+class _TossedDiscState extends State<_TossedDisc>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: widget.duration,
+    duration: MotionDuration.emphasized,
   );
   late final Animation<double> _progress = CurvedAnimation(
     parent: _controller,
-    curve: Curves.easeInOutCubic,
+    curve: MotionCurve.glide,
   );
 
   @override
@@ -88,6 +89,11 @@ class _DiscFlightState extends State<_DiscFlight>
     super.dispose();
   }
 
+  double _landingOpacity(double t) {
+    if (t <= _fadeStart) return 1;
+    return (1 - (t - _fadeStart) / (1 - _fadeStart)).clamp(0, 1);
+  }
+
   @override
   Widget build(BuildContext context) {
     return IgnorePointer(
@@ -96,10 +102,9 @@ class _DiscFlightState extends State<_DiscFlight>
         builder: (context, child) {
           final t = _progress.value;
           final rect = Rect.lerp(widget.from, widget.to, t)!;
-          final lift = 4 * t * (1 - t) * widget.arcHeight;
-          final opacity = widget.fadeOnLanding && t > 0.75
-              ? (1 - (t - 0.75) / 0.25).clamp(0.0, 1.0)
-              : 1.0;
+          final lift = _parabolaPeak * t * (1 - t) * widget.arcHeight;
+          final opacity = widget.fadeOnLanding ? _landingOpacity(t) : 1.0;
+
           return Stack(
             children: [
               Positioned.fromRect(

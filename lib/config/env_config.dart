@@ -1,11 +1,9 @@
 class EnvConfig {
   const EnvConfig({required this.supabaseUrl, required this.supabaseAnonKey});
-
   factory EnvConfig.fromEnvironment() => const EnvConfig(
     supabaseUrl: String.fromEnvironment('SUPABASE_URL'),
     supabaseAnonKey: String.fromEnvironment('SUPABASE_ANON_KEY'),
   );
-
   final String supabaseUrl;
   final String supabaseAnonKey;
 

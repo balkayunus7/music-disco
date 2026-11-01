@@ -1,96 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
+import 'package:music_disco/core/design_system/motion.dart';
 
-class CtaBar extends StatelessWidget {
-  const CtaBar({
+enum AppCtaButtonSize {
+  regular,
+  compact,
+  player;
+
+  bool get isCompact => this != regular;
+}
+
+class AppCtaButton extends StatelessWidget {
+  const AppCtaButton({
     super.key,
     required this.text,
     required this.onTap,
     this.icon = Icons.north_east_rounded,
-    this.isLoading = false,
-    this.compact = false,
-    this.playerAction = false,
+    this.size = AppCtaButtonSize.regular,
   });
-
   final String text;
-
   final VoidCallback? onTap;
   final IconData icon;
-  final bool isLoading;
-  final bool compact;
-  final bool playerAction;
+  final AppCtaButtonSize size;
 
   @override
   Widget build(BuildContext context) {
-    final isEnabled = onTap != null && !isLoading;
-    final foreground = isEnabled
-        ? context.colors.textPrimary
-        : context.colors.textDisabled;
+    final colors = context.colors;
+    final isEnabled = onTap != null;
+    final isCompact = size.isCompact;
+    final foreground = isEnabled ? colors.textPrimary : colors.textDisabled;
+    final background = isEnabled
+        ? colors.buttonSecondary
+        : colors.buttonDisabled;
+    final textStyle = size == AppCtaButtonSize.player
+        ? smallButtonTextStyle(context)
+        : buttonTextStyle(context);
+
     return Pressable(
-      onTap: isEnabled ? onTap : null,
+      onTap: onTap,
       semanticLabel: text,
       haptic: TapHaptic.medium,
       child: AnimatedContainer(
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : 200.ms,
+        duration: context.motion(MotionDuration.base),
         constraints: BoxConstraints(
-          minHeight: compact ? Sp.minTouchTarget : Sp.primaryButtonHeight,
+          minHeight: isCompact ? Sp.minTouchTarget : Sp.primaryButtonHeight,
         ),
-        padding: EdgeInsets.symmetric(
-          horizontal: compact ? Sp.large : Sp.xlarge,
-          vertical: Sp.small,
-        ),
+        padding: (isCompact ? Sp.s20 : Sp.s24).padHVR(Sp.s12),
         decoration: BoxDecoration(
-          color: isEnabled
-              ? context.colors.buttonSecondary
-              : context.colors.buttonDisabled,
-          borderRadius: Sp.huge.radiusR,
+          color: background,
+          borderRadius: Sp.s64.radiusR,
         ),
         child: Row(
-          mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
-          mainAxisAlignment: compact
+          mainAxisSize: isCompact ? MainAxisSize.min : MainAxisSize.max,
+          mainAxisAlignment: isCompact
               ? MainAxisAlignment.center
               : MainAxisAlignment.start,
+          spacing: (isCompact ? Sp.s8 : Sp.s12).w,
           children: [
             Flexible(
-              fit: compact ? FlexFit.loose : FlexFit.tight,
+              fit: isCompact ? FlexFit.loose : FlexFit.tight,
               child: Text(
                 text,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style:
-                    (playerAction
-                            ? smallButtonTextStyle(context)
-                            : buttonTextStyle(context))
-                        .copyWith(color: foreground),
+                style: textStyle.copyWith(color: foreground),
               ),
             ),
-            (compact ? Sp.xsmall : Sp.small).widthBox,
-            AnimatedSwitcher(
-              duration: MediaQuery.disableAnimationsOf(context)
-                  ? Duration.zero
-                  : 200.ms,
-              child: isLoading
-                  ? SizedBox.square(
-                      key: const ValueKey('loading'),
-                      dimension: Sp.large.r,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: foreground,
-                      ),
-                    )
-                  : Icon(
-                      icon,
-                      key: const ValueKey('icon'),
-                      color: foreground,
-                      size: Sp.large.r,
-                    ),
-            ),
+            Icon(icon, color: foreground, size: Sp.s20.r),
           ],
         ),
       ),

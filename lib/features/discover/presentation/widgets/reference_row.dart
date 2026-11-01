@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 import 'package:music_disco/features/discover/domain/models/music_reference.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
@@ -18,7 +19,6 @@ class ReferenceRow extends StatelessWidget {
     this.isSelected,
     this.hasDivider = false,
   });
-
   final MusicReference reference;
   final Widget? trailing;
   final VoidCallback? onTap;
@@ -30,7 +30,7 @@ class ReferenceRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final trailing = this.trailing;
     final row = Container(
-      padding: Sp.xsmall.padVR,
+      padding: Sp.s8.padVR,
       decoration: hasDivider
           ? BoxDecoration(
               border: Border(
@@ -39,9 +39,9 @@ class ReferenceRow extends StatelessWidget {
             )
           : null,
       child: Row(
-        spacing: Sp.small.w,
+        spacing: Sp.s12.w,
         children: [
-          ReferenceAvatar(reference: reference, size: Sp.xxxlarge.r - 4),
+          ReferenceAvatar(reference: reference, size: Sp.s48.r - 4),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,7 +79,7 @@ class ReferenceRow extends StatelessWidget {
       onTap: onTap,
       selected: isSelected,
       semanticLabel: semanticLabel ?? reference.name,
-      pressedScale: 0.98,
+      pressedScale: MotionScale.pressedSubtle,
       haptic: TapHaptic.selection,
       child: ExcludeSemantics(child: row),
     );
@@ -88,17 +88,14 @@ class ReferenceRow extends StatelessWidget {
 
 class ReferenceToggleMark extends StatelessWidget {
   const ReferenceToggleMark({super.key, required this.isSelected});
-
   final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
-    final size = Sp.xlarge.r;
+    final size = Sp.s24.r;
     return AnimatedContainer(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : 220.ms,
-      curve: Curves.easeOutCubic,
+      duration: context.motion(MotionDuration.base),
+      curve: MotionCurve.enter,
       width: size,
       height: size,
       decoration: BoxDecoration(
@@ -113,15 +110,13 @@ class ReferenceToggleMark extends StatelessWidget {
         ),
       ),
       child: AnimatedSwitcher(
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : 180.ms,
+        duration: context.motion(MotionDuration.fast),
         transitionBuilder: (child, animation) =>
             ScaleTransition(scale: animation, child: child),
         child: Icon(
           isSelected ? Icons.check_rounded : Icons.add_rounded,
           key: ValueKey(isSelected),
-          size: Sp.medium.r - 2,
+          size: Sp.s16.r - 2,
           color: isSelected
               ? context.colors.textOnPrimary
               : context.colors.textSecondary,

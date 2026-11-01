@@ -1,10 +1,14 @@
 import 'package:mobile_boilerplate/domain/color_theme/color_theme_option.dart';
-import 'package:mobile_boilerplate/infrastructure/color_theme/shared_pref_color_theme_cache.dart';
+import 'package:mobile_boilerplate/domain/color_theme/i_color_theme_cache.dart';
 
-/// The app always uses dark mode, including installs with an old theme choice.
-class MusicColorThemeCache extends SharedPrefColorThemeCache {
-  const MusicColorThemeCache(super.preferences);
+class ColorThemeCache implements IColorThemeCache {
+  const ColorThemeCache();
 
   @override
   ColorThemeOption readColorThemeOption() => ColorThemeOption.dark;
+
+  @override
+  Future<void> writeColorThemeOption({
+    required ColorThemeOption colorThemeOption,
+  }) async {}
 }

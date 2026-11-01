@@ -19,7 +19,7 @@ class _StudioDiscDuoState extends State<StudioDiscDuo>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (MediaQuery.disableAnimationsOf(context)) {
+    if (context.reducedMotion) {
       _spin.stop();
     } else if (!_spin.isAnimating) {
       _spin.repeat();
@@ -36,18 +36,19 @@ class _StudioDiscDuoState extends State<StudioDiscDuo>
   Widget build(BuildContext context) {
     final frontSize = 116.r;
     final backSize = 102.r;
-    final volumeStyle = eyebrowTextStyle(
-      context,
-    ).copyWith(color: context.colors.textDisabled, letterSpacing: 1.5);
+    final volumeStyle = captionLabelStyle(context).copyWith(
+      color: context.colors.textDisabled,
+      letterSpacing: LetterSpacing.wider,
+    );
     return ExcludeSemantics(
       child: SizedBox(
-        height: frontSize + Sp.xsmall.h,
+        height: frontSize + Sp.s8.h,
         child: Stack(
           alignment: Alignment.center,
           children: [
             Positioned(
               left: 0,
-              top: Sp.xsmall.h,
+              top: Sp.s8.h,
               child: RotatedBox(
                 quarterTurns: 1,
                 child: Text(LocaleKeys.studio_volume.tr(), style: volumeStyle),

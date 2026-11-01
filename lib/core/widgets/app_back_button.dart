@@ -3,13 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 
-class PageBackButton extends StatelessWidget {
-  const PageBackButton({super.key, this.onBack});
-
+class AppBackButton extends StatelessWidget {
+  const AppBackButton({super.key, this.onBack});
   final VoidCallback? onBack;
 
   @override
@@ -20,13 +19,13 @@ class PageBackButton extends StatelessWidget {
       haptic: TapHaptic.selection,
       child: SizedBox(
         width: Sp.minTouchTarget,
-        height: Sp.xxxlarge.r,
+        height: Sp.s48.r,
         child: Align(
           alignment: Alignment.centerLeft,
           child: Icon(
             Icons.arrow_back_rounded,
             color: context.colors.textPrimary,
-            size: Sp.large.r,
+            size: Sp.s20.r,
           ),
         ),
       ),

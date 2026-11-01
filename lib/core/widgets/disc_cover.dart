@@ -2,10 +2,11 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/disc_palette.dart';
+import 'package:music_disco/core/design_system/colors.dart';
+import 'package:music_disco/core/design_system/motion.dart';
 
-class HoloDisc extends StatelessWidget {
-  const HoloDisc({
+class DiscCover extends StatelessWidget {
+  const DiscCover({
     super.key,
     required this.palette,
     required this.size,
@@ -15,14 +16,10 @@ class HoloDisc extends StatelessWidget {
     this.isDimmed = false,
     this.hasShadow = true,
   });
-
   final DiscPalette palette;
   final double size;
-
   final String? title;
-
   final String? caption;
-
   final double turns;
   final bool isDimmed;
   final bool hasShadow;
@@ -49,12 +46,12 @@ class HoloDisc extends StatelessWidget {
         ),
         child: AnimatedOpacity(
           opacity: isDimmed ? 0.45 : 1,
-          duration: const Duration(milliseconds: 220),
+          duration: context.motion(MotionDuration.base),
           child: Transform.rotate(
             angle: turns * 2 * math.pi,
             child: RepaintBoundary(
               child: CustomPaint(
-                painter: _HoloDiscPainter(
+                painter: _DiscCoverPainter(
                   palette: palette,
                   holeColor: context.colors.background,
                   title: showsLabel ? title : null,
@@ -69,42 +66,13 @@ class HoloDisc extends StatelessWidget {
   }
 }
 
-class EmptyDiscSlot extends StatelessWidget {
-  const EmptyDiscSlot({super.key, required this.size});
-
-  final double size;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: context.colors.surface,
-        border: Border.all(color: context.colors.borderSecondary),
-      ),
-      alignment: Alignment.center,
-      child: Container(
-        width: size * 0.18,
-        height: size * 0.18,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: context.colors.border, width: 1.2),
-        ),
-      ),
-    );
-  }
-}
-
-class _HoloDiscPainter extends CustomPainter {
-  _HoloDiscPainter({
+class _DiscCoverPainter extends CustomPainter {
+  _DiscCoverPainter({
     required this.palette,
     required this.holeColor,
     this.title,
     this.caption,
   });
-
   final DiscPalette palette;
   final Color holeColor;
   final String? title;
@@ -118,7 +86,18 @@ class _HoloDiscPainter extends CustomPainter {
     final center = size.center(Offset.zero);
     final discRect = Rect.fromCircle(center: center, radius: radius);
 
-    final base = Paint()
+    _paintBase(canvas, center, radius, discRect);
+    _paintHolo(canvas, center, radius, discRect);
+    _paintDepth(canvas, center, radius, discRect);
+    _paintGrooves(canvas, center, radius);
+    _paintGloss(canvas, center, radius, discRect);
+    _paintLabels(canvas, center, radius);
+    _paintHub(canvas, center, radius);
+    _paintRim(canvas, center, radius);
+  }
+
+  void _paintBase(Canvas canvas, Offset center, double radius, Rect discRect) {
+    final paint = Paint()
       ..shader = SweepGradient(
         colors: [
           palette.base,
@@ -132,9 +111,11 @@ class _HoloDiscPainter extends CustomPainter {
         ],
         transform: const GradientRotation(-math.pi / 3),
       ).createShader(discRect);
-    canvas.drawCircle(center, radius, base);
+    canvas.drawCircle(center, radius, paint);
+  }
 
-    final holo = Paint()
+  void _paintHolo(Canvas canvas, Offset center, double radius, Rect discRect) {
+    final paint = Paint()
       ..shader = SweepGradient(
         colors: [
           for (final color in DiscPalette.holoSpectrum)
@@ -148,9 +129,11 @@ class _HoloDiscPainter extends CustomPainter {
         transform: const GradientRotation(math.pi / 5),
       ).createShader(discRect)
       ..blendMode = BlendMode.screen;
-    canvas.drawCircle(center, radius, holo);
+    canvas.drawCircle(center, radius, paint);
+  }
 
-    final depth = Paint()
+  void _paintDepth(Canvas canvas, Offset center, double radius, Rect discRect) {
+    final paint = Paint()
       ..shader = RadialGradient(
         colors: [
           _sheen.withValues(alpha: 0.18),
@@ -159,17 +142,21 @@ class _HoloDiscPainter extends CustomPainter {
         ],
         stops: const [0.2, 0.6, 1],
       ).createShader(discRect);
-    canvas.drawCircle(center, radius, depth);
+    canvas.drawCircle(center, radius, paint);
+  }
 
-    final groove = Paint()
+  void _paintGrooves(Canvas canvas, Offset center, double radius) {
+    final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = math.max(0.4, radius * 0.004)
       ..color = _sheen.withValues(alpha: 0.07);
     for (var r = radius * 0.34; r < radius * 0.97; r += radius * 0.035) {
-      canvas.drawCircle(center, r, groove);
+      canvas.drawCircle(center, r, paint);
     }
+  }
 
-    final gloss = Paint()
+  void _paintGloss(Canvas canvas, Offset center, double radius, Rect discRect) {
+    final paint = Paint()
       ..shader = LinearGradient(
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -181,23 +168,20 @@ class _HoloDiscPainter extends CustomPainter {
         ],
         stops: const [0, 0.35, 0.7, 1],
       ).createShader(discRect);
-    canvas.drawCircle(center, radius, gloss);
+    canvas.drawCircle(center, radius, paint);
+  }
 
-    _paintLabels(canvas, center, radius);
-    _paintHub(canvas, center, radius);
-
-    final rim = Paint()
+  void _paintRim(Canvas canvas, Offset center, double radius) {
+    final outer = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = math.max(1, radius * 0.012)
       ..color = _sheen.withValues(alpha: 0.45);
-    canvas.drawCircle(center, radius - rim.strokeWidth / 2, rim);
-    canvas.drawCircle(
-      center,
-      radius * 0.93,
-      rim
-        ..strokeWidth = math.max(0.5, radius * 0.006)
-        ..color = _sheen.withValues(alpha: 0.18),
-    );
+    final inner = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = math.max(0.5, radius * 0.006)
+      ..color = _sheen.withValues(alpha: 0.18);
+    canvas.drawCircle(center, radius - outer.strokeWidth / 2, outer);
+    canvas.drawCircle(center, radius * 0.93, inner);
   }
 
   void _paintHub(Canvas canvas, Offset center, double radius) {
@@ -268,7 +252,7 @@ class _HoloDiscPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_HoloDiscPainter oldDelegate) {
+  bool shouldRepaint(_DiscCoverPainter oldDelegate) {
     return oldDelegate.palette != palette ||
         oldDelegate.holeColor != holeColor ||
         oldDelegate.title != title ||

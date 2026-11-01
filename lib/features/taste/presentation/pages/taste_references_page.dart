@@ -1,17 +1,18 @@
-import 'package:music_disco/core/widgets/motion_size.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_boilerplate/common_dependencies.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
 import 'package:mobile_boilerplate/presentation/routing/route_aware_analytics_mixin.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/locale_keys.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
-import 'package:music_disco/core/widgets/brand_page_body.dart';
-import 'package:music_disco/core/widgets/cta_bar.dart';
-import 'package:music_disco/core/widgets/display_headline.dart';
-import 'package:music_disco/core/widgets/app_page_bar.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
+import 'package:music_disco/core/localization/locale_keys.dart';
+import 'package:music_disco/core/widgets/adaptive_animated_size.dart';
+import 'package:music_disco/core/widgets/app_cta_button.dart';
+import 'package:music_disco/core/widgets/app_page_headline.dart';
+import 'package:music_disco/core/widgets/app_page_scaffold.dart';
+import 'package:music_disco/core/widgets/app_pagebar.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
 import 'package:music_disco/core/widgets/search_field.dart';
 import 'package:music_disco/features/discover/bloc/reference_search_cubit.dart';
@@ -20,6 +21,7 @@ import 'package:music_disco/features/discover/presentation/widgets/reference_row
 import 'package:music_disco/features/taste/bloc/taste_cubit.dart';
 import 'package:music_disco/features/taste/domain/models/taste_profile.dart';
 import 'package:music_disco/features/taste/presentation/taste_style.dart';
+import 'package:music_disco/features/taste/presentation/widgets/taste_limit_text.dart';
 
 part '../widgets/selected_reference_chips.dart';
 
@@ -68,35 +70,35 @@ class _TasteReferencesViewState extends State<_TasteReferencesView>
       builder: (context, state) {
         final draft = state.draft;
         final isLimited = state.notice == TasteNotice.referenceLimit;
-        return BrandPageBody(
-          appBar: AppPageBar(
+        return AppPageScaffold(
+          pageBar: AppPageBar(
             title: LocaleKeys.taste_references_step.tr(),
             showBackButton: true,
           ),
-          footer: CtaBar(
+          footer: AppCtaButton(
             text: LocaleKeys.taste_back_to_preferences.tr(),
             onTap: () => context.pop(),
           ),
           children: [
-            DisplayHeadline(
+            AppPageHeadline(
               first: LocaleKeys.taste_references_title_first.tr(),
               second: LocaleKeys.taste_references_title_second.tr(),
             ),
-            Sp.medium.heightBox,
+            Sp.s16.heightBox,
             Text(
               LocaleKeys.taste_references_subtitle.tr(),
               style: bodyTextStyle(
                 context,
               ).copyWith(color: context.colors.textSecondary),
             ),
-            Sp.xlarge.heightBox,
+            Sp.s24.heightBox,
             SearchField(
               controller: _query,
               hint: LocaleKeys.search_hint.tr(),
               clearLabel: LocaleKeys.search_clear.tr(),
               onChanged: search.updateQuery,
             ),
-            Sp.medium.heightBox,
+            Sp.s16.heightBox,
             SelectedReferenceChips(
               references: draft.references,
               onRemove: taste.removeReference,
@@ -108,26 +110,12 @@ class _TasteReferencesViewState extends State<_TasteReferencesView>
                 onToggle: taste.toggleReference,
               ),
             ),
-            Sp.medium.heightBox,
-            AnimatedSwitcher(
-              duration: MediaQuery.disableAnimationsOf(context)
-                  ? Duration.zero
-                  : 220.ms,
-              layoutBuilder: (current, previous) => Stack(
-                alignment: Alignment.centerLeft,
-                children: [...previous, ?current],
-              ),
-              child: Text(
-                isLimited
-                    ? LocaleKeys.taste_references_limit.tr()
-                    : draft.referenceStatus,
-                key: ValueKey(isLimited ? 'limit' : draft.referenceStatus),
-                style: bodyTextStyle(context).copyWith(
-                  color: isLimited
-                      ? context.colors.textPrimary
-                      : context.colors.textSecondary,
-                ),
-              ),
+            Sp.s16.heightBox,
+            TasteLimitText(
+              status: draft.referenceStatus,
+              limitMessage: LocaleKeys.taste_references_limit.tr(),
+              isLimited: isLimited,
+              style: bodyTextStyle(context),
             ),
           ],
         );
@@ -142,7 +130,6 @@ class _ResultList extends StatelessWidget {
     required this.draft,
     required this.onToggle,
   });
-
   final ReferenceSearchState search;
   final TasteProfile draft;
   final ValueChanged<MusicReference> onToggle;
@@ -156,11 +143,7 @@ class _ResultList extends StatelessWidget {
         LocaleKeys.search_no_results.tr(),
       _ => null,
     };
-    return MotionSize(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : 240.ms,
-      curve: Curves.easeOutCubic,
+    return AdaptiveAnimatedSize(
       alignment: Alignment.topCenter,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -175,7 +158,7 @@ class _ResultList extends StatelessWidget {
               LocaleKeys.reference_suggested_title.tr(),
               style: sectionTitleStyle(context),
             ),
-            Sp.small.heightBox,
+            Sp.s12.heightBox,
           ],
           for (final reference in search.results)
             ReferenceRow(
@@ -193,7 +176,7 @@ class _ResultList extends StatelessWidget {
             ),
           if (message != null)
             Padding(
-              padding: Sp.medium.padVR,
+              padding: Sp.s16.padVR,
               child: Text(
                 message,
                 style: bodyTextStyle(

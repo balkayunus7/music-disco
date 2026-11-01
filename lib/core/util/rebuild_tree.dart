@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-void rebuildApp() {
+void rebuildTree() {
   void rebuild(Element element) {
     element.markNeedsBuild();
     element.visitChildren(rebuild);

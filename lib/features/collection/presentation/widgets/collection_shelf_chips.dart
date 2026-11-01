@@ -8,7 +8,6 @@ class CollectionShelfChips extends StatelessWidget {
     required this.onSelected,
     required this.onCreate,
   });
-
   final CollectionState collection;
   final String? selectedId;
   final ValueChanged<String?> onSelected;
@@ -17,24 +16,24 @@ class CollectionShelfChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: Sp.xsmall.w,
-      runSpacing: Sp.xsmall.h,
+      spacing: Sp.s8.w,
+      runSpacing: Sp.s8.h,
       children: [
-        ChoiceTile(
+        AppChoiceChip(
           label: LocaleKeys.collection_all.tr(args: ['${collection.count}']),
           isExpanded: false,
           isSelected: selectedId == null,
           onTap: () => onSelected(null),
         ),
         for (final shelf in collection.shelves)
-          ChoiceTile(
+          AppChoiceChip(
             key: ValueKey(shelf.id),
             label: '${shelf.name} · ${collection.countIn(shelf.id)}',
             isExpanded: false,
             isSelected: shelf.id == selectedId,
             onTap: () => onSelected(shelf.id),
           ),
-        ChoiceTile(
+        AppChoiceChip(
           label: LocaleKeys.collection_new.tr(),
           icon: Icons.add_rounded,
           isExpanded: false,
@@ -52,14 +51,13 @@ class CollectionShelfActions extends StatelessWidget {
     required this.onRename,
     required this.onDelete,
   });
-
   final VoidCallback onRename;
   final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      spacing: Sp.medium.w,
+      spacing: Sp.s16.w,
       children: [
         TextLink(
           text: LocaleKeys.collection_rename.tr(),
@@ -84,13 +82,10 @@ class CollectionShelfEmptyView extends StatelessWidget {
     return CustomPaint(
       painter: _DashedBorderPainter(
         color: context.colors.border,
-        radius: Sp.large.r,
+        radius: Sp.s20.r,
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: Sp.xlarge.w,
-          vertical: Sp.huge.h,
-        ),
+        padding: Sp.s24.padHVR(Sp.s64),
         child: Text(
           LocaleKeys.collection_shelf_empty.tr(),
           textAlign: TextAlign.center,
@@ -105,7 +100,6 @@ class CollectionShelfEmptyView extends StatelessWidget {
 
 class _DashedBorderPainter extends CustomPainter {
   _DashedBorderPainter({required this.color, required this.radius});
-
   final Color color;
   final double radius;
 
@@ -117,11 +111,11 @@ class _DashedBorderPainter extends CustomPainter {
     final paint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
+      ..strokeWidth = Stroke.thin;
     final outline = Path()
       ..addRRect(
         RRect.fromRectAndRadius(
-          (Offset.zero & size).deflate(0.5),
+          (Offset.zero & size).deflate(Stroke.thin / 2),
           Radius.circular(radius),
         ),
       );

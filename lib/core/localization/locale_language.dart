@@ -17,12 +17,14 @@ enum LocaleLanguage {
   final String value;
   final String nativeName;
 
+  static List<Locale> get supportedLocales =>
+      values.map((language) => language.locale).toList();
+
   Locale get locale => Locale(value);
 }
 
 extension LocaleExtensions on BuildContext {
-  List<Locale> get supportedCoreLocales =>
-      LocaleLanguage.values.map((e) => e.locale).toList();
+  List<Locale> get supportedCoreLocales => LocaleLanguage.supportedLocales;
 
   Locale get currentLocale => locale;
 

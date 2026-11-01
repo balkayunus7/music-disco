@@ -1,51 +1,31 @@
-import 'package:music_disco/core/widgets/motion_size.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
+import 'package:music_disco/core/design_system/motion.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
+import 'package:music_disco/core/widgets/adaptive_animated_size.dart';
 
 class PillLabel extends StatelessWidget {
-  const PillLabel({
-    super.key,
-    required this.text,
-    this.isStrong = true,
-    this.dense = false,
-  });
-
+  const PillLabel({super.key, required this.text, this.isStrong = true});
   final String text;
-
   final bool isStrong;
-  final bool dense;
 
   @override
   Widget build(BuildContext context) {
-    final style = (dense ? listTitleStyle(context) : labelTextStyle(context))
-        .copyWith(
-          color: isStrong
-              ? context.colors.textPrimary
-              : context.colors.textSecondary,
-        );
-    return MotionSize(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : 220.ms,
-      curve: Curves.easeOutCubic,
+    final colors = context.colors;
+    final style = listTitleStyle(
+      context,
+    ).copyWith(color: isStrong ? colors.textPrimary : colors.textSecondary);
+
+    return AdaptiveAnimatedSize(
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: (dense ? Sp.small : Sp.medium + 2).w,
-          vertical: (dense ? Sp.xsmall : Sp.small).h,
-        ),
+        padding: Sp.s12.padHVR(Sp.s8),
         decoration: BoxDecoration(
-          color: isStrong
-              ? context.colors.surfaceSecondary
-              : context.colors.surface,
-          borderRadius: Sp.huge.radiusR,
+          color: isStrong ? colors.surfaceSecondary : colors.surface,
+          borderRadius: Sp.s64.radiusR,
         ),
         child: AnimatedSwitcher(
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : 220.ms,
+          duration: context.motion(MotionDuration.base),
           transitionBuilder: (child, animation) => FadeTransition(
             opacity: animation,
             child: SizeTransition(

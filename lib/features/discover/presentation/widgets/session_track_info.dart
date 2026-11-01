@@ -2,7 +2,6 @@ part of '../pages/session_page.dart';
 
 class SessionTrackInfo extends StatelessWidget {
   const SessionTrackInfo({super.key, required this.track});
-
   final Track track;
 
   @override
@@ -27,7 +26,7 @@ class SessionTrackInfo extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: trackTitleStyle(context),
                   ),
-                  Sp.xsmall.heightBox,
+                  Sp.s8.heightBox,
                   Text(
                     track.artist,
                     maxLines: 1,
@@ -39,30 +38,26 @@ class SessionTrackInfo extends StatelessWidget {
                 ],
               ),
             ),
-            Sp.small.widthBox,
-            PillLabel(
-              text: LocaleKeys.session_new_find.tr(),
-              isStrong: false,
-              dense: true,
-            ),
+            Sp.s12.widthBox,
+            PillLabel(text: LocaleKeys.session_new_find.tr(), isStrong: false),
           ],
         ),
         if (tags.isNotEmpty) ...[
-          Sp.small.heightBox,
+          Sp.s12.heightBox,
           Wrap(
-            spacing: Sp.xsmall.w,
-            runSpacing: Sp.xsmall.h,
+            spacing: Sp.s8.w,
+            runSpacing: Sp.s8.h,
             children: [for (final tag in tags) _TrackTag(label: tag)],
           ),
         ],
         if (track.recommendationReason(context.locale.languageCode)
             case final String reason) ...[
-          Sp.small.heightBox,
+          Sp.s12.heightBox,
           Text(
             LocaleKeys.session_why_this_track.tr(),
             style: labelTextStyle(context),
           ),
-          Sp.tiny.heightBox,
+          Sp.s4.heightBox,
           Text(
             reason,
             maxLines: 6,
@@ -79,18 +74,14 @@ class SessionTrackInfo extends StatelessWidget {
 
 class _TrackTag extends StatelessWidget {
   const _TrackTag({required this.label});
-
   final String label;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: Sp.small.w,
-        vertical: Sp.tiny.h,
-      ),
+      padding: EdgeInsets.symmetric(horizontal: Sp.s12.w, vertical: Sp.s4.h),
       decoration: BoxDecoration(
-        borderRadius: Sp.huge.radiusR,
+        borderRadius: Sp.s64.radiusR,
         border: Border.all(color: context.colors.border),
       ),
       child: Text(

@@ -115,10 +115,31 @@ class CustomAppColorsDark extends AppColorsDark {
   Color get textTertiary => const Color(0xFF777777);
 }
 
-/// Semantic colors for the Ses izi loading screen.
 extension SoundTraceColors on BuildContext {
   Color get loadingText => const Color(0xFFEEEDE8);
   Color get loadingMutedText => const Color(0xFF727272);
   Color get loadingStatusText => const Color(0xFFBFBFBF);
   Color get loadingWave => const Color(0xFFDDDDDD);
+}
+
+class DiscPalette {
+  const DiscPalette({
+    required this.deep,
+    required this.base,
+    required this.light,
+    this.holoStrength = 0.55,
+  });
+  final Color deep;
+  final Color base;
+  final Color light;
+
+  final double holoStrength;
+
+  static const List<Color> holoSpectrum = [
+    Color(0xFF7CF5FF),
+    Color(0xFFFFF27A),
+    Color(0xFFFF8BD8),
+    Color(0xFFA48BFF),
+    Color(0xFF7CF5FF),
+  ];
 }

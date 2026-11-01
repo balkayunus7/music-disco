@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
 import 'package:music_disco/features/discover/domain/models/music_reference.dart';
 import 'package:music_disco/features/discover/presentation/mood_style.dart';
 
@@ -10,7 +10,6 @@ class ReferenceAvatar extends StatelessWidget {
     required this.reference,
     required this.size,
   });
-
   final MusicReference reference;
   final double size;
 

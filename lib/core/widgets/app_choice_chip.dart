@@ -1,34 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:mobile_boilerplate/presentation/extensions/build_context_theme_ext.dart';
-import 'package:music_disco/core/util/custom_app_sizes.dart';
-import 'package:music_disco/core/util/text_style_helper.dart';
+import 'package:music_disco/core/design_system/sizing.dart';
+import 'package:music_disco/core/design_system/text_styles.dart';
 import 'package:music_disco/core/widgets/pressable.dart';
+import 'package:music_disco/core/design_system/motion.dart';
 
-class ChoiceTile extends StatelessWidget {
-  const ChoiceTile({
+class AppChoiceChip extends StatelessWidget {
+  const AppChoiceChip({
     super.key,
     required this.label,
     required this.isSelected,
     required this.onTap,
     this.icon,
-    this.hasIndicator = false,
     this.isExpanded = true,
-  });
+  }) : hasIndicator = false;
 
+  const AppChoiceChip.indicator({
+    super.key,
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+    this.isExpanded = true,
+  }) : icon = null,
+       hasIndicator = true;
   final String label;
   final bool isSelected;
-  final VoidCallback? onTap;
+  final VoidCallback onTap;
   final IconData? icon;
   final bool hasIndicator;
   final bool isExpanded;
 
   @override
   Widget build(BuildContext context) {
-    final foreground = isSelected
-        ? context.colors.textPrimary
-        : context.colors.textSecondary;
+    final colors = context.colors;
+    final foreground = isSelected ? colors.textPrimary : colors.textSecondary;
+    final background = isSelected ? colors.surfaceSecondary : colors.surface;
+    final borderColor = isSelected
+        ? colors.textSecondary
+        : colors.borderSecondary;
     final icon = this.icon;
+
     return Pressable(
       onTap: onTap,
       selected: isSelected,
@@ -36,41 +48,29 @@ class ChoiceTile extends StatelessWidget {
       haptic: TapHaptic.selection,
       child: ExcludeSemantics(
         child: AnimatedContainer(
-          duration: MediaQuery.disableAnimationsOf(context)
-              ? Duration.zero
-              : 220.ms,
-          curve: Curves.easeOutCubic,
+          duration: context.motion(MotionDuration.base),
+          curve: MotionCurve.enter,
           constraints: const BoxConstraints(minHeight: Sp.minTouchTarget),
-          padding: EdgeInsets.symmetric(
-            horizontal: Sp.medium.w,
-            vertical: Sp.xsmall,
-          ),
+          padding: Sp.s16.padHVR(Sp.s8),
           decoration: BoxDecoration(
-            color: isSelected
-                ? context.colors.surfaceSecondary
-                : context.colors.surface,
-            borderRadius: BorderRadius.circular(13),
-            border: Border.all(
-              color: isSelected
-                  ? context.colors.textSecondary
-                  : context.colors.borderSecondary,
-            ),
+            color: background,
+            borderRadius: Sp.s12.radiusR,
+            border: Border.all(color: borderColor),
           ),
           child: Row(
             mainAxisSize: isExpanded ? MainAxisSize.max : MainAxisSize.min,
             mainAxisAlignment: hasIndicator
                 ? MainAxisAlignment.start
                 : MainAxisAlignment.center,
-            spacing: Sp.xsmall.w + 2,
+            spacing: Sp.s10.w,
             children: [
-              if (hasIndicator) _SelectionDot(isSelected: isSelected),
-              if (icon != null)
-                Icon(icon, color: foreground, size: Sp.medium.r),
+              if (hasIndicator) ...[_SelectionDot(isSelected: isSelected)],
+              if (icon != null) ...[
+                Icon(icon, color: foreground, size: Sp.s16.r),
+              ],
               Flexible(
                 child: AnimatedDefaultTextStyle(
-                  duration: MediaQuery.disableAnimationsOf(context)
-                      ? Duration.zero
-                      : 220.ms,
+                  duration: context.motion(MotionDuration.base),
                   style: listTitleStyle(context).copyWith(color: foreground),
                   child: Text(
                     label,
@@ -89,43 +89,30 @@ class ChoiceTile extends StatelessWidget {
 
 class _SelectionDot extends StatelessWidget {
   const _SelectionDot({required this.isSelected});
-
   final bool isSelected;
 
   @override
   Widget build(BuildContext context) {
-    final size = Sp.medium.r + 2;
+    final colors = context.colors;
+    final markColor = isSelected ? colors.textPrimary : colors.border;
+    final size = Sp.s18.r;
     return AnimatedContainer(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : 220.ms,
+      duration: context.motion(MotionDuration.base),
       width: size,
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(
-          color: isSelected
-              ? context.colors.textPrimary
-              : context.colors.border,
-          width: 1.2,
-        ),
+        border: Border.all(color: markColor, width: Stroke.regular),
       ),
       alignment: Alignment.center,
       child: AnimatedScale(
-        scale: isSelected ? 1 : 0.4,
-        duration: MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : 220.ms,
-        curve: Curves.easeOutBack,
+        scale: isSelected ? 1 : 0.5,
+        duration: context.motion(MotionDuration.base),
+        curve: MotionCurve.overshoot,
         child: Container(
-          width: size * 0.45,
-          height: size * 0.45,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isSelected
-                ? context.colors.textPrimary
-                : context.colors.border,
-          ),
+          width: size * 0.5,
+          height: size * 0.5,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: markColor),
         ),
       ),
     );

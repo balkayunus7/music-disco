@@ -7,7 +7,6 @@ class MoodCaseStage extends StatelessWidget {
     required this.discKey,
     required this.discSize,
   });
-
   final Mood? mood;
   final GlobalKey discKey;
   final double discSize;
@@ -17,8 +16,8 @@ class MoodCaseStage extends StatelessWidget {
     child: Transform.rotate(
       angle: -0.07,
       child: SizedBox.square(
-        dimension: discSize + Sp.large.r,
-        child: JewelCase(
+        dimension: discSize + Sp.s20.r,
+        child: DiscCase(
           hasSpine: false,
           child: SizedBox.square(
             key: discKey,
@@ -33,21 +32,18 @@ class MoodCaseStage extends StatelessWidget {
 
 class _CaseDisc extends StatelessWidget {
   const _CaseDisc({required this.mood, required this.size});
-
   final Mood? mood;
   final double size;
 
   @override
   Widget build(BuildContext context) {
     final mood = this.mood;
-    if (mood == null) return EmptyDiscSlot(size: size);
+    if (mood == null) return DiscPlaceholder(size: size);
     return TweenAnimationBuilder<double>(
       key: ValueKey(mood),
-      tween: Tween(begin: 0.12, end: 0),
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : 700.ms,
-      curve: Curves.easeOutCubic,
+      tween: Tween(begin: Opacities.faint, end: 0),
+      duration: context.motion(MotionDuration.emphasized),
+      curve: MotionCurve.enter,
       builder: (context, turns, _) =>
           MoodDisc(mood: mood, size: size, turns: turns),
     );
@@ -56,20 +52,17 @@ class _CaseDisc extends StatelessWidget {
 
 class MoodCaption extends StatelessWidget {
   const MoodCaption({super.key, required this.text});
-
   final String text;
 
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: MediaQuery.disableAnimationsOf(context)
-          ? Duration.zero
-          : 280.ms,
+      duration: context.motion(MotionDuration.base),
       transitionBuilder: (child, animation) => FadeTransition(
         opacity: animation,
         child: SlideTransition(
           position: Tween<Offset>(
-            begin: const Offset(0, 0.2),
+            begin: MotionOffset.riseMedium,
             end: Offset.zero,
           ).animate(animation),
           child: child,
